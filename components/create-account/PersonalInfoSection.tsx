@@ -4,6 +4,7 @@ import { useState } from "react";
 import { User } from "lucide-react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import "@/styles/datepicker.css";
 import { fontSwitzer } from "@/lib/styles";
 
 type Gender = "male" | "female" | "non-binary" | "prefer-not-to-say" | "";
@@ -195,44 +196,6 @@ export default function PersonalInfoSection({
         </div>
       </div>
 
-      {/* Calendar custom styles */}
-      <style>{`
-        .onesync-calendar {
-          font-family: 'Switzer', sans-serif !important;
-          border: 1px solid #d9d9d9 !important;
-          border-radius: 12px !important;
-          box-shadow: 0 4px 20px rgba(0,0,0,0.1) !important;
-        }
-
-        .onesync-calendar .react-datepicker__header {
-          background-color: #025fc9 !important;
-          border-radius: 12px 12px 0 0 !important;
-          border: none !important;
-        }
-        .onesync-calendar .react-datepicker__current-month,
-        .onesync-calendar .react-datepicker__day-name {
-          color: white !important;
-        }
-        .onesync-calendar .react-datepicker__navigation-icon::before {
-          border-color: white !important;
-        }
-        .onesync-calendar .react-datepicker__day--selected {
-          background-color: #025fc9 !important;
-          border-radius: 50% !important;
-        }
-        .onesync-calendar .react-datepicker__day:hover {
-          background-color: rgba(2,95,201,0.1) !important;
-          border-radius: 50% !important;
-        }
-        .onesync-calendar .react-datepicker__month-select,
-        .onesync-calendar .react-datepicker__year-select {
-          border: 1px solid #d9d9d9 !important;
-          border-radius: 6px !important;
-          padding: 2px 4px !important;
-          color: white !important;
-          background-color: rgba(255,255,255,0.2) !important;
-        }
-      `}</style>
     </div>
   );
 }

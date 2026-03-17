@@ -1,0 +1,100 @@
+/* React Datepicker Custom Styles — OneSyncID */
+
+.onesync-calendar {
+  font-family: 'Switzer', sans-serif !important;
+  border: 1px solid #d9d9d9 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
+  overflow: hidden !important;
+}
+
+/* Header */
+.onesync-calendar .react-datepicker__header {
+  background-color: #025fc9 !important;
+  border-radius: 0 !important;
+  border: none !important;
+  padding: 12px 0 8px !important;
+}
+
+.onesync-calendar .react-datepicker__current-month {
+  color: white !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+}
+
+.onesync-calendar .react-datepicker__day-name {
+  color: rgba(255, 255, 255, 0.8) !important;
+  font-size: 13px !important;
+}
+
+/* Navigation arrows */
+.onesync-calendar .react-datepicker__navigation-icon::before {
+  border-color: white !important;
+}
+
+.onesync-calendar .react-datepicker__navigation:hover *::before {
+  border-color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* Month & Year dropdowns */
+.onesync-calendar .react-datepicker__month-select,
+.onesync-calendar .react-datepicker__year-select {
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  border-radius: 6px !important;
+  padding: 2px 4px !important;
+  color: white !important;
+  background-color: rgba(255, 255, 255, 0.15) !important;
+  font-family: 'Switzer', sans-serif !important;
+  font-size: 13px !important;
+  cursor: pointer !important;
+}
+
+/* Days */
+.onesync-calendar .react-datepicker__day {
+  font-size: 14px !important;
+  border-radius: 50% !important;
+  color: #333 !important;
+}
+
+.onesync-calendar .react-datepicker__day:hover {
+  background-color: rgba(2, 95, 201, 0.1) !important;
+  border-radius: 50% !important;
+}
+
+.onesync-calendar .react-datepicker__day--selected {
+  background-color: #025fc9 !important;
+  color: white !important;
+  border-radius: 50% !important;
+}
+
+.onesync-calendar .react-datepicker__day--today {
+  font-weight: 600 !important;
+  color: #025fc9 !important;
+}
+
+.onesync-calendar .react-datepicker__day--today.react-datepicker__day--selected {
+  color: white !important;
+}
+
+.onesync-calendar .react-datepicker__day--disabled {
+  color: #ccc !important;
+  cursor: not-allowed !important;
+}
+
+.onesync-calendar .react-datepicker__day--outside-month {
+  color: #aaa !important;
+}
+
+/* Popper z-index */
+.react-datepicker-popper {
+  z-index: 9999 !important;
+}
+
+/* Input wrapper */
+.react-datepicker-wrapper {
+  width: 100% !important;
+}
+
+.react-datepicker__input-container {
+  width: 100% !important;
+}
