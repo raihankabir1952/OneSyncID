@@ -94,7 +94,7 @@ export default function OtpPage() {
           >
             <ArrowLeft size={24} className="text-black" />
           </button>
-          <h1 style={fontSwitzer} className="text-[20px] font-semibold text-black">
+          <h1 style={fontSwitzer} className="text-[20px] font-semibold text-black text-center w-full">
             Almost there. Enter your code.
           </h1>
         </div>
