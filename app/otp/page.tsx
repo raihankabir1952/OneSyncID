@@ -39,7 +39,7 @@ export default function OtpPage() {
         setStatus("success");
         // 2 seconds later, navigate to the next page
         setTimeout(() => {
-          router.push("/dashboard");
+          router.push("/create-account");
         }, 2000);
       } else {
         setStatus("error");

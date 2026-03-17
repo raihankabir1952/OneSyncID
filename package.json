@@ -9,10 +9,12 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@types/react-datepicker": "^6.2.0",
     "country-flag-icons": "^1.6.15",
     "lucide-react": "^0.577.0",
     "next": "16.1.7",
     "react": "19.2.3",
+    "react-datepicker": "^9.1.0",
     "react-dom": "19.2.3",
     "react-select": "^5.10.2"
   },
