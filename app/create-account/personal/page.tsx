@@ -31,14 +31,15 @@ export default function PersonalFormPage() {
   const [verifyMethod, setVerifyMethod] = useState<VerifyMethod>("email");
   const router = useRouter();
 
-  const isFormValid =
-    fullName.trim().length > 0 &&
-    dateOfBirth.trim().length > 0 &&
-    gender !== "" &&
-    isValidEmail(email) &&
-    phoneNumber.trim().length > 0 &&
-    password.length >= 8 &&
-    password === confirmPassword;
+const isFormValid =
+  fullName.trim().length >= 3 &&               //min 3 character
+  /^[a-zA-Z\s]+$/.test(fullName) &&            // only letters
+  dateOfBirth.trim().length > 0 &&
+  gender !== "" &&
+  isValidEmail(email) &&
+  phoneNumber.trim().length >= 10 &&           //min 10 digits
+  password.length >= 8 &&
+  password === confirmPassword;
 
   return (
     <div className="min-h-screen bg-gray-100 flex justify-center">

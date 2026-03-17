@@ -10,13 +10,30 @@ import PhoneInput from "@/components/get-started/PhoneInput";
 
 type TabType = "phone" | "email";
 
+function isValidEmail(email: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
 export default function GetStartedPage() {
   const [activeTab, setActiveTab] = useState<TabType>("phone");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [email, setEmail] = useState("");
   const [phoneCode, setPhoneCode] = useState("+880");
   const [countryCode, setCountryCode] = useState("BD");
+  const [phoneTouched, setPhoneTouched] = useState(false);
+  const [emailTouched, setEmailTouched] = useState(false);
   const router = useRouter();
+
+  const isPhoneValid = phoneNumber.trim().length >= 10;
+  const isEmailValid = isValidEmail(email);
+  const isFormValid = activeTab === "phone" ? isPhoneValid : isEmailValid;
+
+  const handleSignIn = () => {
+    if (activeTab === "phone") setPhoneTouched(true);
+    else setEmailTouched(true);
+    if (!isFormValid) return;
+    router.push("/otp");
+  };
 
   return (
     <div className="min-h-screen bg-gray-100 flex justify-center">
@@ -48,7 +65,10 @@ export default function GetStartedPage() {
 
         {/* Header */}
         <div className="px-5 pt-6 pb-2 flex flex-col gap-3">
-          <button onClick={() => router.back()} className="w-6 h-6 flex items-center justify-center">
+          <button
+            onClick={() => router.back()}
+            className="w-6 h-6 flex items-center justify-center"
+          >
             <ArrowLeft size={24} className="text-black" />
           </button>
           <h1 style={fontSwitzer} className="text-[20px] font-semibold text-black text-center w-full">
@@ -65,7 +85,14 @@ export default function GetStartedPage() {
             }}
           />
           <div className="flex flex-col gap-3">
-            <PhoneEmailToggle activeTab={activeTab} onTabChange={setActiveTab} />
+            <PhoneEmailToggle
+              activeTab={activeTab}
+              onTabChange={(tab) => {
+                setActiveTab(tab);
+                setPhoneTouched(false);
+                setEmailTouched(false);
+              }}
+            />
             <PhoneInput
               activeTab={activeTab}
               phoneNumber={phoneNumber}
@@ -75,18 +102,40 @@ export default function GetStartedPage() {
               onPhoneChange={setPhoneNumber}
               onEmailChange={setEmail}
             />
+
+            {/* Error messages */}
+            {activeTab === "phone" && phoneTouched && !isPhoneValid && (
+              <p style={fontSwitzer} className="text-[12px] text-[#ff3838] px-1">
+                Please enter a valid phone number (min 10 digits)
+              </p>
+            )}
+            {activeTab === "email" && emailTouched && !isEmailValid && (
+              <p style={fontSwitzer} className="text-[12px] text-[#ff3838] px-1">
+                Please enter a valid email address
+              </p>
+            )}
           </div>
         </div>
 
         {/* Buttons */}
         <div className="flex flex-col gap-3 px-5 mt-8 pb-8">
-          <button 
-          onClick={() => router.push("/otp")}
-          className="w-full h-11 bg-[#025fc9] rounded-lg flex items-center justify-center">
-            <span style={fontSwitzer} className="text-[16px] font-medium text-white">Sign In</span>
+          <button
+            onClick={handleSignIn}
+            style={fontSwitzer}
+            className={`w-full h-11 bg-[#025fc9] rounded-lg flex items-center justify-center transition-opacity ${
+              !isFormValid ? "opacity-60" : "opacity-100"
+            }`}
+          >
+            <span className="text-[16px] font-medium text-white">Sign In</span>
           </button>
-          <button className="w-full h-11 border-[1.5px] border-[#025fc9] rounded-lg flex items-center justify-center">
-            <span style={fontSwitzer} className="text-[16px] font-medium text-[#025fc9]">Create OneSyncID</span>
+
+          <button
+            onClick={() => router.push("/create-account")}
+            className="w-full h-11 border-[1.5px] border-[#025fc9] rounded-lg flex items-center justify-center"
+          >
+            <span style={fontSwitzer} className="text-[16px] font-medium text-[#025fc9]">
+              Create OneSyncID
+            </span>
           </button>
         </div>
 
