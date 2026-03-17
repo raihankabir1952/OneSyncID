@@ -80,7 +80,9 @@ export default function GetStartedPage() {
 
         {/* Buttons */}
         <div className="flex flex-col gap-3 px-5 mt-8 pb-8">
-          <button className="w-full h-11 bg-[#025fc9] rounded-lg flex items-center justify-center">
+          <button 
+          onClick={() => router.push("/otp")}
+          className="w-full h-11 bg-[#025fc9] rounded-lg flex items-center justify-center">
             <span style={fontSwitzer} className="text-[16px] font-medium text-white">Sign In</span>
           </button>
           <button className="w-full h-11 border-[1.5px] border-[#025fc9] rounded-lg flex items-center justify-center">
