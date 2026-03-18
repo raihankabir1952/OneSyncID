@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { User, Lock, Eye, EyeOff } from "lucide-react";
 import { fontSwitzer } from "@/lib/styles";
@@ -25,6 +26,7 @@ export default function ExistingAccountForm({
   pin,
   onPinChange,
 }: ExistingAccountFormProps) {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
 
   return (
@@ -116,8 +118,12 @@ export default function ExistingAccountForm({
 
       {/* Forgot Password */}
       <div className="flex justify-end">
-        <button style={fontSwitzer} className="text-[14px] text-[#0052b4]">
-          Forgot password?
+        <button
+          onClick={() => router.push("/reset-password")}
+          style={fontSwitzer}
+          className="text-[14px] text-[#0052b4]"
+        >
+          {authTab === "password" ? "Forgot password?" : "Forgot PIN?"}
         </button>
       </div>
     </div>
