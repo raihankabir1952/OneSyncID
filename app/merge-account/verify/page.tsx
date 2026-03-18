@@ -35,7 +35,7 @@ export default function MergeVerifyPage() {
       <div className="w-full max-w-[393px] bg-white min-h-screen flex flex-col">
 
         {/* Status Bar */}
-        <div className="flex items-center justify-between px-6 pt-4 pb-2 shrink-0">
+        {/* <div className="flex items-center justify-between px-6 pt-4 pb-2 shrink-0">
           <span className="text-[17px] font-semibold text-black">9:41</span>
           <div className="flex items-center gap-2">
             <div className="flex items-end gap-[2px] h-[12px]">
@@ -56,7 +56,7 @@ export default function MergeVerifyPage() {
               <div className="w-[1px] h-[4px] bg-black ml-[1px]" />
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Content */}
         <div className="flex-1 flex flex-col gap-[50px] pt-[30px] pb-10">
