@@ -32,7 +32,7 @@ export default function GetStartedPage() {
     if (activeTab === "phone") setPhoneTouched(true);
     else setEmailTouched(true);
     if (!isFormValid) return;
-    router.push("/otp");
+    router.push("/sign-in"); // ← Sign In page এ নিয়ে যাবে
   };
 
   return (

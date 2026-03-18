@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Info } from "lucide-react";
@@ -83,7 +84,9 @@ const isFormValid =
               </h1>
               <p style={fontSwitzer} className="text-[14px] text-[#a09898]">
                 Already have an account?{" "}
-                <span className="text-[#025fc9]">Merge now</span>
+                <Link href="/merge-account" className="text-[#025fc9]">
+                  Merge now
+                </Link>
               </p>
             </div>
           </div>
@@ -147,7 +150,7 @@ const isFormValid =
             {/* Continue Button */}
             <button
               disabled={!isFormValid}
-              onClick={() => router.push("/dashboard")}
+              onClick={() => router.push("/welcome")}
               style={fontSwitzer}
               className={`w-full h-11 bg-[#025fc9] rounded-lg flex items-center justify-center transition-opacity ${
                 !isFormValid ? "opacity-60 cursor-not-allowed" : "opacity-100"
@@ -161,7 +164,10 @@ const isFormValid =
               <Info size={16} className="text-[#025fc9] shrink-0 mt-0.5" />
               <div style={fontSwitzer} className="text-[12px] text-[#025fc9] leading-4 tracking-[0.12px]">
                 <p>Already have an account with another email?</p>
-                <p className="font-semibold">Merge accounts</p>
+                {/* <p className="font-semibold">Merge accounts</p> */}
+                <Link href="/merge-account" className="font-semibold">
+                  Merge accounts
+                </Link>
               </div>
             </div>
 

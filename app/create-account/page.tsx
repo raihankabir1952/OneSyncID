@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Info } from "lucide-react";
 import { fontSwitzer } from "@/lib/styles";
@@ -58,7 +59,8 @@ export default function CreateAccountPage() {
             </h1>
             <p style={fontSwitzer} className="text-[14px] text-[#a09898]">
               Already have an account?{" "}
-              <span className="text-[#025fc9]">Merge now</span>
+              {/* <span className="text-[#025fc9]">Merge now</span> */}
+              <Link href="/merge-account" className="text-[#025fc9]">Merge now</Link>
             </p>
           </div>
         </div>
@@ -86,7 +88,10 @@ export default function CreateAccountPage() {
             <Info size={16} className="text-[#025fc9] shrink-0 mt-0.5" />
             <div style={fontSwitzer} className="text-[12px] text-[#025fc9] leading-4 tracking-[0.12px]">
               <p>Already have an account with another email?</p>
-              <p className="font-semibold">Merge accounts</p>
+              {/* <p className="font-semibold">Merge accounts</p> */}
+              <Link href="/merge-account">
+                <p className="font-semibold">Merge accounts</p>
+              </Link>
             </div>
           </div>
         </div>
