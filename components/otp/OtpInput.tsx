@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import { fontSwitzer } from "@/lib/styles";
+  
 
 type OtpStatus = "entering" | "success" | "error";
 
@@ -11,7 +12,7 @@ type Props = {
   onChange: (digits: string[]) => void;
 };
 
-export default function OtpInput({ digits, status, onChange }: Props) {
+export default function OtpInput({ digits = ["", "", "", "", "", ""], status, onChange }: Props) {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const getBorderColor = () => {
@@ -27,20 +28,16 @@ export default function OtpInput({ digits, status, onChange }: Props) {
   };
 
   const handleChange = (index: number, value: string) => {
-    if (!/^\d*$/.test(value)) return; // only digit allow
-
+    if (!/^\d*$/.test(value)) return;
     const newDigits = [...digits];
-    newDigits[index] = value.slice(-1); // only last digit
+    newDigits[index] = value.slice(-1);
     onChange(newDigits);
-
-    // move to the next box
     if (value && index < 5) {
       inputRefs.current[index + 1]?.focus();
     }
   };
 
   const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-    // if backspace and current box is empty, move to the previous box
     if (e.key === "Backspace" && !digits[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
@@ -50,11 +47,8 @@ export default function OtpInput({ digits, status, onChange }: Props) {
     e.preventDefault();
     const pastedData = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
     const newDigits = [...digits];
-    pastedData.split("").forEach((char, i) => {
-      newDigits[i] = char;
-    });
+    pastedData.split("").forEach((char, i) => { newDigits[i] = char; });
     onChange(newDigits);
-    // move focus to the last filled box
     const lastIndex = Math.min(pastedData.length, 5);
     inputRefs.current[lastIndex]?.focus();
   };

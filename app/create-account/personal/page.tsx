@@ -150,7 +150,11 @@ const isFormValid =
             {/* Continue Button */}
             <button
               disabled={!isFormValid}
-              onClick={() => router.push("/welcome")}
+              // onClick={() => router.push("/welcome")}
+              onClick={() => {
+  const contact = verifyMethod === "phone" ? phoneNumber : email;
+  router.push(`/otp?contact=${encodeURIComponent(contact)}&type=${verifyMethod}&from=create-account`);
+}}
               style={fontSwitzer}
               className={`w-full h-11 bg-[#025fc9] rounded-lg flex items-center justify-center transition-opacity ${
                 !isFormValid ? "opacity-60 cursor-not-allowed" : "opacity-100"

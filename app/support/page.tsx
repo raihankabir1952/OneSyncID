@@ -1,28 +1,64 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { ArrowLeft, HelpCircle, Lock, Smartphone, Key, MessageSquare, ArrowRight, ShieldCheck } from "lucide-react";
 import { fontSwitzer } from "@/lib/styles";
 import SupportIssueItem from "@/components/support/SupportIssueItem";
 import PhoneEmailToggle from "@/components/support/PhoneEmailToggle";
 import PhoneInputField from "@/components/support/PhoneInputField";
 import EmailInputField from "@/components/support/EmailInputField";
+import { useState } from "react";
 
+//  Zod Schemas
+
+const phoneSchema = z.object({
+  contact: z
+    .string()
+    .min(1, "Phone number is required")
+    .regex(/^[0-9]{10,11}$/, "Enter a valid phone number"),
+});
+
+const emailSchema = z.object({
+  contact: z
+    .string()
+    .min(1, "Email is required")
+    .email("Enter a valid email address"),
+});
+
+type FormValues = z.infer<typeof phoneSchema>;
 type VerifyMethod = "phone" | "email";
+
+//  Component
 
 export default function SupportPage() {
   const router = useRouter();
   const [verifyMethod, setVerifyMethod] = useState<VerifyMethod>("phone");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [email, setEmail] = useState("");
 
-  const isDisabled = verifyMethod === "phone" ? !phoneNumber.trim() : !email.trim();
+  const {
+    setValue,
+    watch,
+    handleSubmit,
+    formState: { errors },
+    clearErrors,
+    reset,
+  } = useForm<FormValues>({
+    resolver: zodResolver(verifyMethod === "phone" ? phoneSchema : emailSchema),
+    defaultValues: { contact: "" },
+  });
 
-  const handleSendOtp = () => {
-    if (isDisabled) return;
-    const contact = verifyMethod === "phone" ? phoneNumber : email;
-    router.push(`/support/otp?phone=${encodeURIComponent(contact)}`);
+  const contact = watch("contact");
+
+  // Switch method → reset form
+  const handleMethodChange = (method: VerifyMethod) => {
+    setVerifyMethod(method);
+    reset({ contact: "" });
+  };
+
+  const onSubmit = (data: FormValues) => {
+    router.push(`/support/otp?phone=${encodeURIComponent(data.contact)}`);
   };
 
   return (
@@ -31,7 +67,11 @@ export default function SupportPage() {
 
         {/* Header */}
         <div className="px-5 pt-6 pb-2 flex flex-col gap-[10px]">
-          <button onClick={() => router.back()} className="w-6 h-6 flex items-center justify-center">
+          <button
+            onClick={() => router.back()}
+            className="w-6 h-6 flex items-center justify-center"
+            aria-label="Go back"
+          >
             <ArrowLeft size={24} className="text-black" />
           </button>
           <div className="flex items-center justify-center w-full">
@@ -95,8 +135,13 @@ export default function SupportPage() {
                         Get instant answers or connect with a human agent
                       </p>
                     </div>
-                    <button className="flex gap-[6px] items-center" onClick={() => router.push("/support/chat")}>
-                      <span style={fontSwitzer} className="text-[16px] font-medium text-[#025fc9]">Start Chatting</span>
+                    <button
+                      className="flex gap-[6px] items-center"
+                      onClick={() => router.push("/support/chat")}
+                    >
+                      <span style={fontSwitzer} className="text-[16px] font-medium text-[#025fc9]">
+                        Start Chatting
+                      </span>
                       <ArrowRight size={18} className="text-[#025fc9]" />
                     </button>
                   </div>
@@ -106,32 +151,54 @@ export default function SupportPage() {
           </div>
 
           {/* Verify Section */}
-          <div className="flex flex-col gap-[20px]">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            noValidate
+            className="flex flex-col gap-[20px]"
+          >
             <div className="flex flex-col gap-[10px]">
               <p style={fontSwitzer} className="text-[14px] font-medium text-[#767676] tracking-[0.14px]">
                 VERIFY TO START TRACKING YOUR CASE
               </p>
               <div className="flex flex-col gap-[10px]">
-                <PhoneEmailToggle activeMethod={verifyMethod} onMethodChange={setVerifyMethod} />
+                <PhoneEmailToggle
+                  activeMethod={verifyMethod}
+                  onMethodChange={handleMethodChange}
+                />
                 {verifyMethod === "phone" ? (
-                  <PhoneInputField value={phoneNumber} onChange={setPhoneNumber} />
+                  <PhoneInputField
+                    value={contact}
+                    onChange={(val) => {
+                      setValue("contact", val);
+                      clearErrors("contact");
+                    }}
+                    error={errors.contact?.message}
+                  />
                 ) : (
-                  <EmailInputField value={email} onChange={setEmail} />
+                  <EmailInputField
+                    value={contact}
+                    onChange={(val) => {
+                      setValue("contact", val);
+                      clearErrors("contact");
+                    }}
+                    error={errors.contact?.message}
+                  />
                 )}
               </div>
             </div>
 
             {/* Send OTP Button */}
             <button
-              onClick={handleSendOtp}
-              disabled={isDisabled}
-              className={`h-[44px] rounded-[8px] w-full flex items-center justify-center transition-opacity ${
-                isDisabled ? "opacity-50 cursor-not-allowed" : "opacity-100"
-              } bg-[#025fc9]`}
+              type="submit"
+              disabled={!contact.trim()}
+              style={fontSwitzer}
+              className={`h-[44px] rounded-[8px] w-full flex items-center justify-center transition-opacity bg-[#025fc9] ${
+                !contact.trim() ? "opacity-50 cursor-not-allowed" : "opacity-100"
+              }`}
             >
-              <span style={fontSwitzer} className="text-[16px] font-medium text-white">Send OTP</span>
+              <span className="text-[16px] font-medium text-white">Send OTP</span>
             </button>
-          </div>
+          </form>
 
           {/* Security Notice */}
           <div className="border border-[#d9d9d9] flex gap-[6px] items-start px-4 py-[10px] rounded-[12px] w-full">
