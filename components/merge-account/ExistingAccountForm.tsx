@@ -49,7 +49,7 @@ export default function ExistingAccountForm({
                 type="text"
                 value={usernameOrEmail}
                 onChange={(e) => onUsernameOrEmailChange(e.target.value)}
-                placeholder="Enter your username or email"
+                placeholder="abc@example.com"
                 className="text-[16px] text-black placeholder:text-[#a09898] leading-[21px] tracking-[0.16px] bg-transparent outline-none w-full"
                 style={fontSwitzer}
               />

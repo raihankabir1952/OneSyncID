@@ -156,7 +156,9 @@ export default function ResetPasswordPage() {
                 {/* Need help */}
                 <div className="flex items-center gap-1">
                   <span style={fontSwitzer} className="text-[14px] text-[#333]">Need help?</span>
-                  <button style={fontSwitzer} className="text-[14px] font-medium text-[#0052b4]">
+                  <button
+                   onClick={() => router.push("/support")} 
+                  style={fontSwitzer} className="text-[14px] font-medium text-[#0052b4]">
                     Contact Support
                   </button>
                 </div>
