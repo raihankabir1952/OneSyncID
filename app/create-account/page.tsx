@@ -10,15 +10,8 @@ import AccountTypeToggle from "@/components/create-account/AccountTypeToggle";
 type AccountType = "personal" | "organization";
 
 export default function CreateAccountPage() {
-  const [accountType, setAccountType] = useState<AccountType>("organization"); // ✅ default organization
+  const [accountType, setAccountType] = useState<AccountType>("organization");
   const router = useRouter();
-
-  const handleTypeChange = (type: AccountType) => {
-    setAccountType(type);
-    if (type === "personal") {
-      setTimeout(() => router.push("/create-account/personal"), 0); // ✅ defer navigation
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gray-100 flex justify-center">
@@ -55,11 +48,36 @@ export default function CreateAccountPage() {
               ACCOUNT TYPE
             </p>
 
-            {/* Toggle */}
-            <AccountTypeToggle
-              activeType={accountType}
-              onTypeChange={handleTypeChange}
-            />
+            {/* Toggle — Personal বাটনটা আসলে একটা Link */}
+            <div className="bg-[#f5f5f5] border border-[#d9d9d9] rounded-[12px] px-[10px] py-[8px] flex gap-1">
+
+              {/* ✅ Personal = Link, instant navigation */}
+              <Link
+                href="/create-account/personal"
+                style={fontSwitzer}
+                className={`flex-1 py-[8px] rounded-[8px] text-[16px] font-medium tracking-[0.16px] text-center transition-all ${
+                  accountType === "personal"
+                    ? "bg-white border border-[#025fc9] text-[#025fc9]"
+                    : "text-[#a09898] border border-transparent"
+                }`}
+              >
+                Personal
+              </Link>
+
+              {/* Organization = button, state change করে */}
+              <button
+                type="button"
+                onClick={() => setAccountType("organization")}
+                style={fontSwitzer}
+                className={`flex-1 py-[8px] rounded-[8px] text-[16px] font-medium tracking-[0.16px] transition-all ${
+                  accountType === "organization"
+                    ? "bg-white border border-[#025fc9] text-[#025fc9]"
+                    : "text-[#a09898] border border-transparent"
+                }`}
+              >
+                Organization
+              </button>
+            </div>
 
             {/* Organization Message */}
             {accountType === "organization" && (
