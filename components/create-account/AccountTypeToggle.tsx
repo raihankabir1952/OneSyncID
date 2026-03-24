@@ -1,4 +1,6 @@
-import { fontSwitzer, colors } from "@/lib/styles";
+"use client";
+
+import { fontSwitzer } from "@/lib/styles";
 
 type AccountType = "personal" | "organization";
 
@@ -9,34 +11,32 @@ type Props = {
 
 export default function AccountTypeToggle({ activeType, onTypeChange }: Props) {
   return (
-    <div className="flex flex-col gap-2">
-      <p style={fontSwitzer} className="text-[14px] text-[#767676]">
-        ACCOUNT TYPE
-      </p>
-      <div className="bg-[#f5f5f5] border border-[#d9d9d9] rounded-xl p-2 flex gap-1">
-        <button
-          onClick={() => onTypeChange("personal")}
-          className={`flex-1 py-2 rounded-lg text-[16px] font-medium transition-all ${
-            activeType === "personal"
-              ? "bg-white border border-[#025fc9] text-[#025fc9]"
-              : "text-[#a09898] border border-transparent"
-          }`}
-          style={fontSwitzer}
-        >
-          Personal
-        </button>
-        <button
-          onClick={() => onTypeChange("organization")}
-          className={`flex-1 py-2 rounded-lg text-[16px] font-medium transition-all ${
-            activeType === "organization"
-              ? "bg-white border border-[#025fc9] text-[#025fc9]"
-              : "text-[#a09898] border border-transparent"
-          }`}
-          style={fontSwitzer}
-        >
-          Organization
-        </button>
-      </div>
+    // ✅ label নেই, শুধু toggle UI
+    <div className="bg-[#f5f5f5] border border-[#d9d9d9] rounded-[12px] px-[10px] py-[8px] flex gap-1">
+      <button
+        type="button"
+        onClick={() => onTypeChange("personal")}
+        style={fontSwitzer}
+        className={`flex-1 py-[8px] rounded-[8px] text-[16px] font-medium tracking-[0.16px] transition-all ${
+          activeType === "personal"
+            ? "bg-white border border-[#025fc9] text-[#025fc9]"
+            : "text-[#a09898] border border-transparent"
+        }`}
+      >
+        Personal
+      </button>
+      <button
+        type="button"
+        onClick={() => onTypeChange("organization")}
+        style={fontSwitzer}
+        className={`flex-1 py-[8px] rounded-[8px] text-[16px] font-medium tracking-[0.16px] transition-all ${
+          activeType === "organization"
+            ? "bg-white border border-[#025fc9] text-[#025fc9]"
+            : "text-[#a09898] border border-transparent"
+        }`}
+      >
+        Organization
+      </button>
     </div>
   );
 }

@@ -17,7 +17,7 @@ const phoneSchema = z.object({
   contact: z
     .string()
     .min(1, "Phone number is required")
-    .regex(/^1[3-9]\d{8}$/, "Enter a valid  phone number")
+    .regex(/^1[3-9]\d{8}$/, "Enter a valid phone number"),
 });
 
 const emailSchema = z.object({
@@ -71,7 +71,10 @@ export default function GetStartedPage() {
           >
             <ArrowLeft size={24} className="text-black" />
           </button>
-          <h1 style={fontSwitzer} className="text-[20px] font-semibold text-black text-center w-full">
+          <h1
+            style={fontSwitzer}
+            className="text-[20px] font-semibold text-black text-center w-full"
+          >
             Welcome. Let&apos;s verify it&apos;s you.
           </h1>
         </div>
@@ -80,7 +83,7 @@ export default function GetStartedPage() {
         <form
           onSubmit={handleSubmit(onSubmit)}
           noValidate
-          className="flex flex-col gap-[30px] px-5 pt-[30px] flex-1"
+          className="flex flex-col gap-[30px] px-5 pt-[30px]"
         >
           <div className="flex flex-col gap-[40px]">
             <LanguageCountryCard
@@ -113,7 +116,10 @@ export default function GetStartedPage() {
 
               {/* Error message */}
               {errors.contact && (
-                <p style={fontSwitzer} className="text-[12px] text-red-500 px-1">
+                <p
+                  style={fontSwitzer}
+                  className="text-[12px] text-red-500 px-1"
+                >
                   {errors.contact.message}
                 </p>
               )}
@@ -121,7 +127,7 @@ export default function GetStartedPage() {
           </div>
 
           {/* Buttons */}
-          <div className="flex flex-col gap-[12px] pb-8 mt-auto">
+          <div className="flex flex-col gap-[12px] pb-8">
             <button
               type="submit"
               disabled={!contact.trim()}

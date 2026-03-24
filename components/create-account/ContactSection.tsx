@@ -20,7 +20,6 @@ function FlagIcon({ countryCode, className }: { countryCode: string; className?:
   return <Flag className={className} />;
 }
 
-// Validation functions
 function validateEmail(email: string): string {
   if (!email.trim()) return "Email address is required";
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return "Please enter a valid email address";
@@ -50,91 +49,89 @@ export default function ContactSection({
 
   const emailError = emailTouched ? validateEmail(email) : "";
   const phoneError = phoneTouched ? validatePhone(phoneNumber) : "";
-
   const emailValid = email && !validateEmail(email);
   const phoneValid = phoneNumber && !validatePhone(phoneNumber);
 
   return (
-    <div className="flex flex-col gap-2">
-      <p style={fontSwitzer} className="text-[14px] text-[#767676]">
-        CONTACT
-      </p>
-      <div className="border border-[#d9d9d9] rounded-xl overflow-hidden">
+    // ✅ label নেই — PersonalFormPage এ আছে
+    <div className="border border-[#d9d9d9] rounded-[12px] overflow-hidden">
 
-        {/* Email */}
-        <div className="flex items-start gap-2 px-4 py-5 border-b border-[#d9d9d9]">
-          <Mail size={20} className={`mt-1 shrink-0 ${emailValid ? "text-[#11a75c]" : "text-[#5e5757]"}`} />
-          <div className="flex flex-col gap-1 flex-1">
-            <label
-              style={fontSwitzer}
-              className={`text-[16px] font-medium tracking-[0.16px] ${
-                emailValid ? "text-[#11a75c]" : "text-[#5e5757]"
-              }`}
-            >
-              EMAIL ADDRESS
-            </label>
-            <input
-              type="email"
-              placeholder="example@mail.com"
-              value={email}
-              onChange={(e) => onEmailChange(e.target.value)}
-              onBlur={() => setEmailTouched(true)}
-              style={fontSwitzer}
-              className="text-[16px] text-black placeholder-[#a09898] bg-transparent outline-none border-none"
-            />
-            {emailError && (
-              <p style={fontSwitzer} className="text-[12px] text-[#ff3838] mt-1">
-                {emailError}
-              </p>
-            )}
-            {emailValid && (
-              <p style={fontSwitzer} className="text-[12px] text-[#11a75c] mt-1">
-                ✓ Valid email address
-              </p>
-            )}
-          </div>
+      {/* Email */}
+      <div className="flex items-start gap-2 px-4 py-5 border-b border-[#d9d9d9]">
+        <Mail
+          size={20}
+          className={`mt-1 shrink-0 ${emailValid ? "text-[#11a75c]" : "text-[#5e5757]"}`}
+        />
+        <div className="flex flex-col gap-1 flex-1">
+          <label
+            style={fontSwitzer}
+            className={`text-[16px] font-medium tracking-[0.16px] ${
+              emailValid ? "text-[#11a75c]" : "text-[#5e5757]"
+            }`}
+          >
+            EMAIL ADDRESS
+          </label>
+          <input
+            type="email"
+            placeholder="example@mail.com"
+            value={email}
+            onChange={(e) => onEmailChange(e.target.value)}
+            onBlur={() => setEmailTouched(true)}
+            style={fontSwitzer}
+            className="text-[16px] text-black placeholder-[#a09898] bg-transparent outline-none border-none w-full"
+          />
+          {emailError && (
+            <p style={fontSwitzer} className="text-[12px] text-[#ff3838] mt-1">
+              {emailError}
+            </p>
+          )}
+          {emailValid && (
+            <p style={fontSwitzer} className="text-[12px] text-[#11a75c] mt-1">
+              ✓ Valid email address
+            </p>
+          )}
         </div>
+      </div>
 
-        {/* Phone */}
-        <div className="flex items-center gap-3 px-4 py-5">
-          <div className="flex items-center gap-2 shrink-0">
-            <FlagIcon countryCode={countryCode} className="w-[30px] h-[20px] border border-[#eee]" />
-            <span style={fontSwitzer} className="text-[16px] text-[#5e5757]">{phoneCode}</span>
-            <ChevronDown size={16} className="text-[#5e5757]" />
-          </div>
-          <div className="w-px h-10 bg-[#d9d9d9]" />
-          <div className="flex flex-col gap-1 flex-1">
-            <label
-              style={fontSwitzer}
-              className={`text-[16px] font-medium tracking-[0.16px] ${
-                phoneValid ? "text-[#11a75c]" : "text-[#5e5757]"
-              }`}
-            >
-              PHONE NUMBER
-            </label>
-            <input
-              type="tel"
-              placeholder="Enter your phone number"
-              value={phoneNumber}
-              onChange={(e) => {
-                const val = e.target.value.replace(/\D/g, ""); // শুধু digits
-                onPhoneChange(val);
-              }}
-              onBlur={() => setPhoneTouched(true)}
-              style={fontSwitzer}
-              className="text-[16px] text-black placeholder-[#a09898] bg-transparent outline-none border-none"
-            />
-            {phoneError && (
-              <p style={fontSwitzer} className="text-[12px] text-[#ff3838] mt-1">
-                {phoneError}
-              </p>
-            )}
-            {phoneValid && (
-              <p style={fontSwitzer} className="text-[12px] text-[#11a75c] mt-1">
-                ✓ Valid phone number
-              </p>
-            )}
-          </div>
+      {/* Phone */}
+      <div className="flex items-center gap-3 px-4 py-5">
+        <div className="flex items-center gap-2 shrink-0">
+          <FlagIcon countryCode={countryCode} className="w-[30px] h-[20px] border border-[#eee]" />
+          <span style={fontSwitzer} className="text-[16px] text-[#5e5757]">{phoneCode}</span>
+          <ChevronDown size={16} className="text-[#5e5757]" />
+        </div>
+        <div className="w-px h-10 bg-[#d9d9d9]" />
+        <div className="flex flex-col gap-1 flex-1">
+          <label
+            style={fontSwitzer}
+            className={`text-[16px] font-medium tracking-[0.16px] ${
+              phoneValid ? "text-[#11a75c]" : "text-[#5e5757]"
+            }`}
+          >
+            PHONE NUMBER
+          </label>
+          <input
+            type="tel"
+            placeholder="Enter your phone number"
+            value={phoneNumber}
+            onChange={(e) => {
+              const val = e.target.value.replace(/\D/g, "");
+              onPhoneChange(val);
+            }}
+            onBlur={() => setPhoneTouched(true)}
+            style={fontSwitzer}
+            className="text-[16px] text-black placeholder-[#a09898] bg-transparent outline-none border-none w-full"
+          />
+          {phoneError && (
+            <p style={fontSwitzer} className="text-[12px] text-[#ff3838] mt-1">
+              {phoneError}
+            </p>
+          )}
+          {phoneValid && (
+            <p style={fontSwitzer} className="text-[12px] text-[#11a75c] mt-1">
+              ✓ Valid phone number
+            </p>
+          )}
         </div>
       </div>
     </div>
