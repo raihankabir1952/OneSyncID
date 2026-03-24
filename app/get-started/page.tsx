@@ -5,11 +5,17 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { ArrowLeft } from "lucide-react";
 import { fontSwitzer } from "@/lib/styles";
 import LanguageCountryCard from "@/components/get-started/LanguageCountryCard";
 import PhoneEmailToggle from "@/components/get-started/PhoneEmailToggle";
 import PhoneInput from "@/components/get-started/PhoneInput";
+
+// Inline SVG — no expiry
+const BackIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M19 12H5M12 19l-7-7 7-7"/>
+  </svg>
+);
 
 type TabType = "phone" | "email";
 
@@ -60,40 +66,51 @@ export default function GetStartedPage() {
 
   return (
     <div className="min-h-screen bg-gray-100 flex justify-center">
-      <div className="w-full max-w-[393px] bg-white min-h-screen flex flex-col">
+      <div className="w-full max-w-[393px] bg-white min-h-screen relative">
 
-        {/* Header */}
-        <div className="px-5 pt-6 pb-2 flex flex-col gap-[10px]">
-          <button
-            onClick={() => router.back()}
-            className="w-6 h-6 flex items-center justify-center"
-            aria-label="Go back"
-          >
-            <ArrowLeft size={24} className="text-black" />
-          </button>
-          <h1
+        {/* Header — top: 80px */}
+        <div
+          className="absolute left-0 w-full px-5 flex flex-col gap-[10px]"
+          style={{ top: "80px" }}
+        >
+          <div className="flex items-center">
+            <button
+              onClick={() => router.back()}
+              className="w-6 h-6 flex items-center justify-center"
+              aria-label="Go back"
+            >
+              <BackIcon />
+            </button>
+          </div>
+          <p
             style={fontSwitzer}
             className="text-[20px] font-semibold text-black text-center w-full"
           >
             Welcome. Let&apos;s verify it&apos;s you.
-          </h1>
+          </p>
         </div>
 
-        {/* Main Content */}
+        {/* Main Content — top: 190px */}
         <form
           onSubmit={handleSubmit(onSubmit)}
           noValidate
-          className="flex flex-col gap-[30px] px-5 pt-[30px]"
+          className="absolute left-0 w-full flex flex-col gap-[30px] items-center"
+          style={{ top: "190px" }}
         >
-          <div className="flex flex-col gap-[40px]">
-            <LanguageCountryCard
-              onCountryChange={(code, cc) => {
-                setPhoneCode(code);
-                setCountryCode(cc);
-              }}
-            />
+          <div className="flex flex-col gap-[40px] items-center w-full">
 
-            <div className="flex flex-col gap-[10px]">
+            {/* Language & Country Card */}
+            <div className="px-5 w-full">
+              <LanguageCountryCard
+                onCountryChange={(code, cc) => {
+                  setPhoneCode(code);
+                  setCountryCode(cc);
+                }}
+              />
+            </div>
+
+            {/* Phone/Email Toggle + Input */}
+            <div className="flex flex-col gap-[10px] w-[353px]">
               <PhoneEmailToggle
                 activeTab={activeTab}
                 onTabChange={handleTabChange}
@@ -114,12 +131,9 @@ export default function GetStartedPage() {
                 }}
               />
 
-              {/* Error message */}
+              {/* Error */}
               {errors.contact && (
-                <p
-                  style={fontSwitzer}
-                  className="text-[12px] text-red-500 px-1"
-                >
+                <p style={fontSwitzer} className="text-[12px] text-red-500 px-1">
                   {errors.contact.message}
                 </p>
               )}
@@ -127,12 +141,12 @@ export default function GetStartedPage() {
           </div>
 
           {/* Buttons */}
-          <div className="flex flex-col gap-[12px] pb-8">
+          <div className="flex flex-col gap-[12px] items-center w-full pb-8">
             <button
               type="submit"
               disabled={!contact.trim()}
               style={fontSwitzer}
-              className={`w-full h-[44px] bg-[#025fc9] rounded-[8px] flex items-center justify-center transition-opacity ${
+              className={`w-[353px] h-[44px] bg-[#025fc9] rounded-[8px] flex items-center justify-center transition-opacity ${
                 !contact.trim() ? "opacity-60 cursor-not-allowed" : "opacity-100"
               }`}
             >
@@ -143,7 +157,7 @@ export default function GetStartedPage() {
               type="button"
               onClick={() => router.push("/create-account")}
               style={fontSwitzer}
-              className="w-full h-[44px] border-[1.5px] border-[#025fc9] rounded-[8px] flex items-center justify-center"
+              className="w-[353px] h-[44px] border-[1.5px] border-[#025fc9] rounded-[8px] flex items-center justify-center"
             >
               <span className="text-[16px] font-medium text-[#025fc9]">
                 Create OneSyncID

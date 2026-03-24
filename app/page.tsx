@@ -2,7 +2,6 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { fontSwitzer } from "@/lib/styles";
 
 export default function SplashScreen() {
@@ -19,41 +18,69 @@ export default function SplashScreen() {
     <div className="min-h-screen bg-gray-100 flex justify-center">
       <div className="w-full max-w-[393px] bg-white min-h-screen relative">
 
-        {/* Center Content */}
-        <div className="absolute left-1/2 -translate-x-1/2 top-[290px] flex flex-col items-center gap-[10px]">
-          
-          {/* Logo */}
-          <Image
+        {/* Logo + Tagline */}
+        <div
+          className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center gap-[10px]"
+          style={{ top: "290px" }}
+        >
+          {/* Logo — local file */}
+          <img
             src="/images/onesync-logo.png"
-            alt="OneSyncID Logo"
-            width={261}
-            height={45}
-            priority
+            alt="OneSyncID"
+            style={{ width: "261px", height: "45px", objectFit: "contain" }}
           />
 
           {/* Tagline */}
           <p
             style={fontSwitzer}
-            className="text-[16px] font-medium text-[#0052b4] tracking-[0.16px] text-center"
+            className="text-[16px] font-medium text-[#0052b4] tracking-[0.16px] text-center whitespace-nowrap"
           >
+            {/* Verify Once. Access Everything. */}
           </p>
         </div>
 
-        {/* Dotted Spinner  */}
-        <div className="absolute left-1/2 -translate-x-1/2 top-[407px]">
-          <div className="w-[45px] h-[45px] relative animate-spin">
-            {[...Array(8)].map((_, i) => (
-              <div
-                key={i}
-                className="absolute w-[5px] h-[5px] rounded-full bg-[#0052b4]"
-                style={{
-                  opacity: 0.2 + (i / 8) * 0.8,
-                  top: "50%",
-                  left: "50%",
-                  transform: `rotate(${i * 45}deg) translate(16px, -50%)`,
-                }}
-              />
-            ))}
+        {/* Spinner */}
+        <div
+          className="absolute left-1/2 -translate-x-1/2"
+          style={{ top: "407px", width: "45.255px", height: "45.255px" }}
+        >
+          <style>{`
+            @keyframes onesync-spin {
+              from { transform: rotate(0deg); }
+              to { transform: rotate(360deg); }
+            }
+            .onesync-spinner {
+              animation: onesync-spin 1s linear infinite;
+              width: 45.255px;
+              height: 45.255px;
+              position: relative;
+            }
+          `}</style>
+
+          <div className="onesync-spinner">
+            {[...Array(8)].map((_, i) => {
+              const angle = i * 45;
+              const rad = (angle * Math.PI) / 180;
+              const radius = 16;
+              const cx = 22.5 + radius * Math.sin(rad);
+              const cy = 22.5 - radius * Math.cos(rad);
+              return (
+                <div
+                  key={i}
+                  style={{
+                    position: "absolute",
+                    width: "5px",
+                    height: "5px",
+                    borderRadius: "50%",
+                    backgroundColor: "#0052b4",
+                    opacity: (i + 1) / 8,
+                    top: `${cy - 2.5}px`,
+                    left: `${cx - 2.5}px`,
+                    transform: "none",
+                  }}
+                />
+              );
+            })}
           </div>
         </div>
 

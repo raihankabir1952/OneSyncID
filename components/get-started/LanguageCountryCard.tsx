@@ -1,9 +1,30 @@
 "use client";
 
 import { useState } from "react";
-import { Globe, ChevronRight } from "lucide-react";
-import { fontSwitzer, colors } from "@/lib/styles";
+import { fontSwitzer } from "@/lib/styles";
 import * as Flags from "country-flag-icons/react/3x2";
+
+// Inline SVG Icons — no expiry, no dependency
+const GlobeIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5e5757" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10"/>
+    <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/>
+    <path d="M2 12h20"/>
+  </svg>
+);
+
+const FlagOutlineIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5e5757" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
+    <line x1="4" y1="22" x2="4" y2="15"/>
+  </svg>
+);
+
+const ChevronRightIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#5e5757" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9 18l6-6-6-6"/>
+  </svg>
+);
 
 const languages = [
   { code: "EN", label: "English" },
@@ -28,7 +49,6 @@ const countries = [
   { code: "FR", name: "France", phoneCode: "+33" },
 ];
 
-// Dynamic flag component
 function FlagIcon({ countryCode, className }: { countryCode: string; className?: string }) {
   const Flag = Flags[countryCode as keyof typeof Flags];
   if (!Flag) return null;
@@ -59,7 +79,7 @@ export default function LanguageCountryCard({ onCountryChange }: Props) {
 
   return (
     <div className="relative">
-      <div className="border border-[#d9d9d9] rounded-xl overflow-visible">
+      <div className="border border-[#d9d9d9] rounded-[12px] overflow-visible">
 
         {/* Language Row */}
         <div
@@ -70,8 +90,8 @@ export default function LanguageCountryCard({ onCountryChange }: Props) {
           }}
         >
           <div className="flex items-center gap-2">
-            <Globe size={20} color={colors.textMuted} />
-            <div className="flex items-end gap-1">
+            <GlobeIcon />
+            <div className="flex items-end gap-[6px]">
               <span style={fontSwitzer} className="text-[12px] text-black tracking-[0.12px]">
                 {selectedLanguage.code}
               </span>
@@ -80,19 +100,18 @@ export default function LanguageCountryCard({ onCountryChange }: Props) {
               </span>
             </div>
           </div>
-          <ChevronRight
-            size={24}
-            color={colors.textMuted}
-            className={`transition-transform ${showLanguageDropdown ? "rotate-90" : ""}`}
-          />
+          <div className={`transition-transform ${showLanguageDropdown ? "rotate-90" : ""}`}>
+            <ChevronRightIcon />
+          </div>
         </div>
 
         {/* Language Dropdown */}
         {showLanguageDropdown && (
-          <div className="absolute left-0 right-0 z-20 bg-white border border-[#d9d9d9] rounded-xl shadow-lg mt-1 overflow-hidden top-[66px]">
+          <div className="absolute left-0 right-0 z-20 bg-white border border-[#d9d9d9] rounded-[12px] shadow-lg mt-1 overflow-hidden top-[66px]">
             {languages.map((lang) => (
               <button
                 key={lang.code}
+                type="button"
                 onClick={() => {
                   setSelectedLanguage(lang);
                   setShowLanguageDropdown(false);
@@ -101,14 +120,16 @@ export default function LanguageCountryCard({ onCountryChange }: Props) {
                   selectedLanguage.code === lang.code ? "bg-[#f0f7ff]" : ""
                 }`}
               >
-                <span style={fontSwitzer} className="text-[12px] text-[#5e5757]">
+                <span style={fontSwitzer} className="text-[12px] text-[#5e5757] w-6">
                   {lang.code}
                 </span>
-                <span style={fontSwitzer} className="text-[16px] text-black">
+                <span style={fontSwitzer} className={`text-[16px] ${
+                  selectedLanguage.code === lang.code ? "text-[#025fc9] font-medium" : "text-black"
+                }`}>
                   {lang.label}
                 </span>
                 {selectedLanguage.code === lang.code && (
-                  <span className="ml-auto text-[#025fc9] text-[16px]">✓</span>
+                  <span className="ml-auto text-[#025fc9]">✓</span>
                 )}
               </button>
             ))}
@@ -117,6 +138,7 @@ export default function LanguageCountryCard({ onCountryChange }: Props) {
 
         {/* Country Row */}
         <button
+          type="button"
           className="w-full flex items-center justify-between px-4 py-5"
           onClick={() => {
             setShowCountryDropdown(!showCountryDropdown);
@@ -124,28 +146,26 @@ export default function LanguageCountryCard({ onCountryChange }: Props) {
           }}
         >
           <div className="flex items-center gap-2">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={colors.textMuted} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
-              <line x1="4" y1="22" x2="4" y2="15" />
-            </svg>
+            <FlagOutlineIcon />
             <div className="flex items-center gap-2">
-              <FlagIcon countryCode={selectedCountry.code} className="w-[24px] h-[16px] border border-[#eee]" />
+              <FlagIcon
+                countryCode={selectedCountry.code}
+                className="w-[24px] h-[16px] border border-[#eee]"
+              />
               <span style={fontSwitzer} className="text-[16px] text-black tracking-[0.16px]">
                 {selectedCountry.name}
               </span>
             </div>
           </div>
-          <ChevronRight
-            size={24}
-            color={colors.textMuted}
-            className={`transition-transform ${showCountryDropdown ? "rotate-90" : ""}`}
-          />
+          <div className={`transition-transform ${showCountryDropdown ? "rotate-90" : ""}`}>
+            <ChevronRightIcon />
+          </div>
         </button>
       </div>
 
       {/* Country Dropdown */}
       {showCountryDropdown && (
-        <div className="absolute left-0 right-0 z-20 bg-white border border-[#d9d9d9] rounded-xl shadow-lg mt-1 overflow-hidden">
+        <div className="absolute left-0 right-0 z-20 bg-white border border-[#d9d9d9] rounded-[12px] shadow-lg mt-1 overflow-hidden">
           {/* Search */}
           <div className="px-4 py-3 border-b border-[#d9d9d9]">
             <input
@@ -164,20 +184,24 @@ export default function LanguageCountryCard({ onCountryChange }: Props) {
               filteredCountries.map((country) => (
                 <button
                   key={country.code}
+                  type="button"
                   onClick={() => handleCountrySelect(country)}
                   className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-[#f5f5f5] transition-colors ${
                     selectedCountry.code === country.code ? "bg-[#f0f7ff]" : ""
                   }`}
                 >
-                  <FlagIcon countryCode={country.code} className="w-[24px] h-[16px] border border-[#eee]" />
-                  <span style={fontSwitzer} className="text-[16px] text-black">
+                  <FlagIcon
+                    countryCode={country.code}
+                    className="w-[24px] h-[16px] border border-[#eee]"
+                  />
+                  <span style={fontSwitzer} className="text-[16px] text-black flex-1 text-left">
                     {country.name}
                   </span>
-                  <span style={fontSwitzer} className="ml-auto text-[14px] text-[#5e5757]">
+                  <span style={fontSwitzer} className="text-[14px] text-[#5e5757]">
                     {country.phoneCode}
                   </span>
                   {selectedCountry.code === country.code && (
-                    <span className="text-[#025fc9] text-[16px]">✓</span>
+                    <span className="text-[#025fc9]">✓</span>
                   )}
                 </button>
               ))
@@ -188,6 +212,17 @@ export default function LanguageCountryCard({ onCountryChange }: Props) {
             )}
           </div>
         </div>
+      )}
+
+      {/* Backdrop */}
+      {(showLanguageDropdown || showCountryDropdown) && (
+        <div
+          className="fixed inset-0 z-[5]"
+          onClick={() => {
+            setShowLanguageDropdown(false);
+            setShowCountryDropdown(false);
+          }}
+        />
       )}
     </div>
   );

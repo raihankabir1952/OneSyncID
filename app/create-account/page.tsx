@@ -48,7 +48,7 @@ export default function CreateAccountPage() {
               ACCOUNT TYPE
             </p>
 
-            {/* Toggle — Personal বাটনটা আসলে একটা Link */}
+            {/* Toggle — Personal */}
             <div className="bg-[#f5f5f5] border border-[#d9d9d9] rounded-[12px] px-[10px] py-[8px] flex gap-1">
 
               {/* ✅ Personal = Link, instant navigation */}
@@ -64,7 +64,7 @@ export default function CreateAccountPage() {
                 Personal
               </Link>
 
-              {/* Organization = button, state change করে */}
+              {/* Organization = button, state change  */}
               <button
                 type="button"
                 onClick={() => setAccountType("organization")}
@@ -88,12 +88,13 @@ export default function CreateAccountPage() {
                 >
                   Want to register your Brand, Business, Education, or NGO/Government?
                 </p>
-                <p
+                <Link
+                  href="/create-account/personal"
                   style={fontSwitzer}
                   className="text-[16px] text-[#0052b4] text-justify"
                 >
                   Please create a personal account first to proceed.
-                </p>
+                </Link>
               </div>
             )}
           </div>

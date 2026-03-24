@@ -30,6 +30,7 @@ function OtpPageContent() {
     return () => clearTimeout(timeout);
   }, [timer, canResend]);
 
+  // Auto verify when 6 digits entered
   useEffect(() => {
     const code = digits.join("");
     if (code.length === 6) {
@@ -53,6 +54,21 @@ function OtpPageContent() {
     setStatus("entering");
     setTimer(24);
     setCanResend(false);
+  };
+
+  const handleVerify = () => {
+    const code = digits.join("");
+    if (code === CORRECT_OTP) {
+      setStatus("success");
+      setTimeout(() => {
+        // if (from === "create-account") router.push("/quick-setup");
+        if (from === "create-account") router.push("/welcome");
+        else if (from === "sign-in") router.push("/dashboard");
+        else router.push("/welcome");
+      }, 2000);
+    } else {
+      setStatus("error");
+    }
   };
 
   const isComplete = digits.join("").length === 6;
@@ -95,7 +111,11 @@ function OtpPageContent() {
                   <p style={fontSwitzer} className="text-[14px] font-medium text-[#ff3838]">
                     That code doesn&apos;t match. Try again.
                   </p>
-                  <button onClick={handleResend} style={fontSwitzer} className="text-[14px] font-medium text-[#0052b4]">
+                  <button
+                    onClick={handleResend}
+                    style={fontSwitzer}
+                    className="text-[14px] font-medium text-[#0052b4]"
+                  >
                     Resend code
                   </button>
                 </div>
@@ -107,7 +127,11 @@ function OtpPageContent() {
                 </p>
               )}
               {status === "entering" && canResend && (
-                <button onClick={handleResend} style={fontSwitzer} className="text-[14px] font-medium text-[#0052b4]">
+                <button
+                  onClick={handleResend}
+                  style={fontSwitzer}
+                  className="text-[14px] font-medium text-[#0052b4]"
+                >
                   Resend code
                 </button>
               )}
@@ -116,24 +140,34 @@ function OtpPageContent() {
 
           <div className="flex items-center justify-center gap-1">
             <p style={fontSwitzer} className="text-[14px] text-[#333]">Need help?</p>
-            <button onClick={() => router.push("/support")} style={fontSwitzer} className="text-[14px] font-medium text-[#0052b4]">
+            <button
+              onClick={() => router.push("/support")}
+              style={fontSwitzer}
+              className="text-[14px] font-medium text-[#0052b4]"
+            >
               Contact Support
             </button>
           </div>
         </div>
 
-        {/* Verify Button */}
-        <div className="px-5 pb-8 mt-8">
-          <button
-            disabled={!isComplete || status === "error"}
-            style={fontSwitzer}
-            className={`w-full h-11 bg-[#025fc9] rounded-lg flex items-center justify-center transition-opacity ${
-              !isComplete || status === "error" ? "opacity-60 cursor-not-allowed" : "opacity-100"
-            }`}
-          >
-            <span className="text-[16px] font-medium text-white">Verify</span>
-          </button>
-        </div>
+        {/* Verify Button — success - hide, error হলে fallback হিসেবে show */}
+        {status !== "success" && (
+          <div className="px-5 pb-8 mt-8">
+            <button
+              disabled={!isComplete || status === "error"}
+              onClick={handleVerify}
+              style={fontSwitzer}
+              className={`w-full h-11 bg-[#025fc9] rounded-lg flex items-center justify-center transition-opacity ${
+                !isComplete || status === "error"
+                  ? "opacity-60 cursor-not-allowed"
+                  : "opacity-100"
+              }`}
+            >
+              <span className="text-[16px] font-medium text-white">Verify</span>
+            </button>
+          </div>
+        )}
+
       </div>
     </div>
   );

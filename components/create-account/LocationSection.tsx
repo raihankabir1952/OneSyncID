@@ -1,7 +1,10 @@
 "use client";
 
-import { MapPin } from "lucide-react";
 import { fontSwitzer } from "@/lib/styles";
+
+const imgBoxiconsLocation = "https://www.figma.com/api/mcp/asset/b1fe03cc-4c9f-4a87-8790-3fe9beca4b3e";
+const imgCity = "https://www.figma.com/api/mcp/asset/f1285097-22e6-46fc-bc9f-8f716cebc09a";
+const imgMageLocationFill = "https://www.figma.com/api/mcp/asset/754775ab-c889-4d84-b21a-ed85d4f6ac96";
 
 type Props = {
   state: string;
@@ -12,15 +15,21 @@ type Props = {
 
 export default function LocationSection({ state, city, onStateChange, onCityChange }: Props) {
   return (
-    // ✅ label নেই — PersonalFormPage এ আছে
     <div className="flex flex-col gap-[15px]">
 
       {/* State & City */}
       <div className="border border-[#d9d9d9] rounded-[12px] overflow-hidden">
         <div className="flex items-center h-[61px] px-4 gap-5">
+
           {/* State */}
           <div className="flex-1 flex items-center gap-2 border-r border-[#d9d9d9] h-full">
-            <MapPin size={20} className="text-[#5e5757] shrink-0" />
+            <div className="relative shrink-0 size-[20px]">
+              <img
+                alt=""
+                className="absolute block max-w-none size-full"
+                src={imgBoxiconsLocation}
+              />
+            </div>
             <input
               type="text"
               placeholder="STATE"
@@ -30,17 +39,20 @@ export default function LocationSection({ state, city, onStateChange, onCityChan
               className="text-[16px] font-medium text-[#5e5757] placeholder-[#5e5757] bg-transparent outline-none border-none w-full tracking-[0.16px]"
             />
           </div>
+
           {/* City */}
           <div className="flex-1 flex items-center gap-2 h-full">
-            <svg
-              width="20" height="20" viewBox="0 0 24 24" fill="none"
-              stroke="#5e5757" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-              className="shrink-0"
-            >
-              <rect x="2" y="7" width="20" height="15" rx="2" />
-              <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
-              <line x1="12" y1="12" x2="12" y2="12" />
-            </svg>
+            <div className="overflow-clip relative shrink-0 size-[20px]">
+              <div className="absolute inset-[8.33%]">
+                <div className="absolute inset-[-4.5%_-4.49%_-4.5%_-4.5%]">
+                  <img
+                    alt=""
+                    className="block max-w-none size-full"
+                    src={imgCity}
+                  />
+                </div>
+              </div>
+            </div>
             <input
               type="text"
               placeholder="CITY"
@@ -58,7 +70,13 @@ export default function LocationSection({ state, city, onStateChange, onCityChan
         type="button"
         className="flex items-center gap-2 px-5"
       >
-        <MapPin size={20} className="text-[#0052b4]" fill="#0052b4" />
+        <div className="relative shrink-0 size-[20px]">
+          <img
+            alt=""
+            className="absolute block max-w-none size-full"
+            src={imgMageLocationFill}
+          />
+        </div>
         <span style={fontSwitzer} className="text-[16px] font-medium text-[#0052b4]">
           Use My Current Location
         </span>
