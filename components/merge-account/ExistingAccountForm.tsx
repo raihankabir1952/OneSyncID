@@ -1,20 +1,21 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { User, Lock, Eye, EyeOff } from "lucide-react";
+import { User, Lock, Eye, EyeOff, KeyRound } from "lucide-react";
 import { fontSwitzer } from "@/lib/styles";
 
-interface ExistingAccountFormProps {
-  authTab: "password" | "pin";
-  onAuthTabChange: (tab: "password" | "pin") => void;
+type AuthTab = "password" | "pin";
+
+type Props = {
+  authTab: AuthTab;
+  onAuthTabChange: (tab: AuthTab) => void;
   usernameOrEmail: string;
-  onUsernameOrEmailChange: (val: string) => void;
+  onUsernameOrEmailChange: (v: string) => void;
   password: string;
-  onPasswordChange: (val: string) => void;
+  onPasswordChange: (v: string) => void;
   pin: string;
-  onPinChange: (val: string) => void;
-}
+  onPinChange: (v: string) => void;
+};
 
 export default function ExistingAccountForm({
   authTab,
@@ -25,107 +26,108 @@ export default function ExistingAccountForm({
   onPasswordChange,
   pin,
   onPinChange,
-}: ExistingAccountFormProps) {
-  const router = useRouter();
+}: Props) {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
-    <div className="flex flex-col gap-[10px]">
-      <p style={fontSwitzer} className="text-[14px] font-medium text-[#767676] tracking-[0.12px]">
-        SIGN INTO YOUR EXISTING ACCOUNT
-      </p>
-
-      <div className="border border-[#d9d9d9] rounded-xl overflow-hidden bg-white">
-
-        {/* Username / Email */}
-        <div className="border-b border-[#d9d9d9] px-4 py-5">
-          <div className="flex items-start gap-2">
-            <User size={20} className="text-[#5e5757] shrink-0 mt-[2px]" />
-            <div style={fontSwitzer} className="flex flex-col gap-[6px]">
-              <p className="text-[16px] font-medium text-[#5e5757] leading-[21px] tracking-[0.16px]">
-                USERNAME OR EMAIL
-              </p>
-              <input
-                type="text"
-                value={usernameOrEmail}
-                onChange={(e) => onUsernameOrEmailChange(e.target.value)}
-                placeholder="abc@example.com"
-                className="text-[16px] text-black placeholder:text-[#a09898] leading-[21px] tracking-[0.16px] bg-transparent outline-none w-full"
-                style={fontSwitzer}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Password / PIN Tab */}
-        <div className="bg-[#f5f5f5] border-b border-[#d9d9d9] px-[10px] py-2 flex items-center gap-2">
-          <button
-            onClick={() => onAuthTabChange("password")}
-            style={fontSwitzer}
-            className={`flex-1 h-[37px] rounded-lg text-[16px] font-medium transition-all ${
-              authTab === "password"
-                ? "bg-white border border-[#025fc9] text-[#025fc9]"
-                : "text-[#5e5757]"
-            }`}
-          >
-            Password
-          </button>
-          <button
-            onClick={() => onAuthTabChange("pin")}
-            style={fontSwitzer}
-            className={`flex-1 h-[37px] rounded-lg text-[16px] font-medium transition-all ${
-              authTab === "pin"
-                ? "bg-white border border-[#025fc9] text-[#025fc9]"
-                : "text-[#5e5757]"
-            }`}
-          >
-            PIN
-          </button>
-        </div>
-
-        {/* Password / PIN Input */}
-        <div className="px-4 py-5">
-          <div className="flex items-start gap-2">
-            <Lock size={20} className="text-[#5e5757] shrink-0 mt-[2px]" />
-            <div style={fontSwitzer} className="flex flex-col gap-[6px] flex-1">
-              <p className="text-[16px] font-medium text-[#5e5757] leading-[21px] tracking-[0.16px]">
-                {authTab === "password" ? "PASSWORD" : "PIN"}
-              </p>
-              <div className="flex items-center justify-between">
-                <input
-                  type={authTab === "pin" ? "tel" : showPassword ? "text" : "password"}
-                  value={authTab === "password" ? password : pin}
-                  onChange={(e) =>
-                    authTab === "password"
-                      ? onPasswordChange(e.target.value)
-                      : onPinChange(e.target.value)
-                  }
-                  placeholder={authTab === "password" ? "Enter your password" : "Enter your PIN"}
-                  maxLength={authTab === "pin" ? 6 : undefined}
-                  className="text-[16px] text-black placeholder:text-[#a09898] bg-transparent outline-none flex-1"
-                  style={fontSwitzer}
-                />
-                {authTab === "password" && (
-                  <button onClick={() => setShowPassword((p) => !p)} className="shrink-0 ml-2 text-[#a09898]">
-                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
+    <div
+      style={fontSwitzer}
+      className="border border-[#d9d9d9] rounded-[12px] overflow-hidden flex flex-col"
+    >
+      {/* Username / Email */}
+      <div className="border-b border-[#d9d9d9] flex items-start gap-2 px-4 py-5">
+        <User size={20} className="text-[#5e5757] shrink-0 mt-0.5" />
+        <div className="flex flex-col gap-[6px] flex-1">
+          <p className="text-[16px] font-medium leading-[21px] tracking-[0.16px] text-[#5e5757]">
+            USERNAME OR EMAIL
+          </p>
+          <input
+            type="text"
+            value={usernameOrEmail}
+            onChange={(e) => onUsernameOrEmailChange(e.target.value)}
+            placeholder="Enter your username or email"
+            className="text-[16px] font-normal leading-[21px] tracking-[0.16px] text-black placeholder:text-[#a09898] bg-transparent outline-none w-full"
+          />
         </div>
       </div>
 
-      {/* Forgot Password */}
-      <div className="flex justify-end">
+      {/* Password / PIN toggle */}
+      <div className="bg-[#f5f5f5] border-b border-[#d9d9d9] flex items-center justify-between px-[10px] py-[8px] gap-1">
         <button
-          onClick={() => router.push("/reset-password")}
-          style={fontSwitzer}
-          className="text-[14px] text-[#0052b4]"
+          type="button"
+          onClick={() => onAuthTabChange("password")}
+          className={`flex-1 py-[8px] rounded-[8px] text-[16px] font-medium tracking-[0.16px] transition-all ${
+            authTab === "password"
+              ? "bg-white border border-[#025fc9] text-[#025fc9]"
+              : "text-[#5e5757] border border-transparent"
+          }`}
         >
-          {authTab === "password" ? "Forgot password?" : "Forgot PIN?"}
+          Password
+        </button>
+        <button
+          type="button"
+          onClick={() => onAuthTabChange("pin")}
+          className={`flex-1 py-[8px] rounded-[8px] text-[16px] font-medium tracking-[0.16px] transition-all ${
+            authTab === "pin"
+              ? "bg-white border border-[#025fc9] text-[#025fc9]"
+              : "text-[#5e5757] border border-transparent"
+          }`}
+        >
+          PIN
         </button>
       </div>
+
+      {/* Password field */}
+      {authTab === "password" && (
+        <div className="flex items-start gap-2 px-4 py-5">
+          <Lock size={20} className="text-[#5e5757] shrink-0 mt-0.5" />
+          <div className="flex flex-col gap-[6px] flex-1">
+            <p className="text-[16px] font-medium leading-[21px] tracking-[0.16px] text-[#5e5757]">
+              PASSWORD
+            </p>
+            <div className="flex items-center justify-between">
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => onPasswordChange(e.target.value)}
+                placeholder="Enter your password"
+                className="text-[16px] font-normal leading-[21px] tracking-[0.16px] text-black placeholder:text-[#a09898] bg-transparent outline-none flex-1"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="ml-2 shrink-0"
+              >
+                {showPassword
+                  ? <EyeOff size={20} className="text-[#5e5757]" />
+                  : <Eye    size={20} className="text-[#5e5757]" />
+                }
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* PIN field */}
+      {authTab === "pin" && (
+        <div className="flex items-start gap-2 px-4 py-5">
+          <KeyRound size={20} className="text-[#5e5757] shrink-0 mt-0.5" />
+          <div className="flex flex-col gap-[6px] flex-1">
+            <p className="text-[16px] font-medium leading-[21px] tracking-[0.16px] text-[#5e5757]">
+              PIN
+            </p>
+            <input
+              type="password"
+              inputMode="numeric"
+              value={pin}
+              onChange={(e) => onPinChange(e.target.value.replace(/\D/g, "").slice(0, 6))}
+              placeholder="Enter your PIN"
+              maxLength={6}
+              className="text-[16px] font-normal leading-[21px] tracking-[0.16px] text-black placeholder:text-[#a09898] bg-transparent outline-none w-full tracking-[0.5em]"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

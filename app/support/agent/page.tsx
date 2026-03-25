@@ -1,14 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Phone, Mail, User, Copy, FileText, Shield, ChevronDown, AlertCircle } from "lucide-react";
+import {
+  ArrowLeft, Phone, Mail, User, Copy,
+  FileText, Shield, ChevronDown, AlertCircle,
+  Calendar, Globe,
+} from "lucide-react";
+import * as Flags from "country-flag-icons/react/3x2";
 import { fontSwitzer } from "@/lib/styles";
 
-const TIME_SLOTS = ["8-10 AM", "10 AM - 12 PM", "1 - 2 PM", "4 - 6 PM"];
+const TIME_SLOTS        = ["8-10 AM", "10 AM - 12 PM", "1 - 2 PM", "4 - 6 PM"];
 const ACCESSIBILITY_OPTIONS = ["Hearing Aid", "Tourette Syndrome", "Autism", "Visual Support"];
-const LANGUAGES = ["Bengali", "English"];
-const DAYS = ["Any day this week", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+const LANGUAGES         = ["Bengali", "English"];
+const DAYS              = ["Any day this week", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 
 interface FormErrors {
   title?: string;
@@ -18,23 +23,48 @@ interface FormErrors {
   email?: string;
 }
 
+function BDFlag() {
+  const Flag = Flags["BD" as keyof typeof Flags];
+  if (!Flag) return null;
+  return <Flag className="w-[30px] h-[20px] border border-[#eee]" />;
+}
+
 export default function AgentSupportPage() {
   const router = useRouter();
 
-  const [preferredMode, setPreferredMode] = useState<"phone" | "email">("phone");
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [fullName, setFullName] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [email, setEmail] = useState("");
-  const [selectedTime, setSelectedTime] = useState<string | null>(null);
-  const [selectedDay, setSelectedDay] = useState("Any day this week");
-  const [selectedLanguage, setSelectedLanguage] = useState("Bengali");
+  const [preferredMode,       setPreferredMode]       = useState<"phone" | "email">("phone");
+  const [title,               setTitle]               = useState("");
+  const [description,         setDescription]         = useState("");
+  const [fullName,            setFullName]            = useState("");
+  const [phoneNumber,         setPhoneNumber]         = useState("");
+  const [email,               setEmail]               = useState("");
+  const [selectedTime,        setSelectedTime]        = useState<string | null>(null);
+  const [selectedDay,         setSelectedDay]         = useState("Any day this week");
+  const [selectedLanguage,    setSelectedLanguage]    = useState("Bengali");
   const [selectedAccessibility, setSelectedAccessibility] = useState<string[]>([]);
-  const [copied, setCopied] = useState(false);
-  const [errors, setErrors] = useState<FormErrors>({});
+  const [copied,              setCopied]              = useState(false);
+  const [errors,              setErrors]              = useState<FormErrors>({});
+  const [uploadedFiles,       setUploadedFiles]       = useState<File[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const CASE_ID = "OSY-658902";
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    const MAX_SIZE = 5 * 1024 * 1024;
+    const ALLOWED = ["application/pdf", "image/jpeg", "image/png"];
+    const valid   = files.filter((f) => ALLOWED.includes(f.type) && f.size <= MAX_SIZE);
+    const invalid = files.filter((f) => !ALLOWED.includes(f.type) || f.size > MAX_SIZE);
+    if (invalid.length > 0) {
+      alert(`${invalid.length} file(s) rejected. Only PDF, JPG, PNG under 5 MB are allowed.`);
+    }
+    setUploadedFiles((prev) => [...prev, ...valid]);
+    e.target.value = "";
+  };
+
+  const removeFile = (index: number) => {
+    setUploadedFiles((prev) => prev.filter((_, i) => i !== index));
+  };
 
   const handleCopy = () => {
     navigator.clipboard.writeText(CASE_ID);
@@ -50,18 +80,14 @@ export default function AgentSupportPage() {
 
   const validate = (): boolean => {
     const newErrors: FormErrors = {};
-
     if (!title.trim())
       newErrors.title = "Title is required";
-
     if (!description.trim())
       newErrors.description = "Description is required";
     else if (description.trim().length < 10)
       newErrors.description = "Description must be at least 10 characters";
-
     if (!fullName.trim())
       newErrors.fullName = "Full name is required";
-
     if (preferredMode === "phone") {
       if (!phoneNumber.trim())
         newErrors.phoneNumber = "Phone number is required";
@@ -73,7 +99,6 @@ export default function AgentSupportPage() {
       else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
         newErrors.email = "Enter a valid email address";
     }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -84,9 +109,7 @@ export default function AgentSupportPage() {
   };
 
   const clearError = (field: keyof FormErrors) => {
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: undefined }));
-    }
+    if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }));
   };
 
   const isSubmitDisabled =
@@ -113,37 +136,31 @@ export default function AgentSupportPage() {
         <div className="flex-1 overflow-y-auto">
           <div className="flex flex-col gap-[30px] px-5 pt-[20px] pb-10">
 
-            {/* Preferred Mode */}
+            {/* ── Preferred Mode ── */}
             <div className="flex flex-col gap-[10px]">
               <p style={fontSwitzer} className="text-[14px] font-medium text-[#767676] tracking-[0.14px]">
                 PREFERRED MODE
               </p>
-              <div className="bg-[#f5f5f5] border border-[#d9d9d9] rounded-[12px] flex items-center px-[10px] py-[8px] gap-[8px]">
+              <div className="bg-[#f5f5f5] border border-[#d9d9d9] rounded-[12px] flex items-center px-[10px] py-[8px] gap-1">
                 <button
-                  onClick={() => {
-                    setPreferredMode("phone");
-                    setErrors((prev) => ({ ...prev, email: undefined }));
-                  }}
+                  onClick={() => { setPreferredMode("phone"); setErrors((p) => ({ ...p, email: undefined })); }}
                   style={fontSwitzer}
                   className={`flex flex-1 gap-[8px] items-center justify-center p-[8px] rounded-[8px] transition-all ${
                     preferredMode === "phone"
                       ? "bg-white border border-[#025fc9] text-[#025fc9]"
-                      : "text-[#5e5757]"
+                      : "text-[#5e5757] border border-transparent"
                   }`}
                 >
                   <Phone size={18} />
                   <span className="text-[16px] font-medium">Phone</span>
                 </button>
                 <button
-                  onClick={() => {
-                    setPreferredMode("email");
-                    setErrors((prev) => ({ ...prev, phoneNumber: undefined }));
-                  }}
+                  onClick={() => { setPreferredMode("email"); setErrors((p) => ({ ...p, phoneNumber: undefined })); }}
                   style={fontSwitzer}
                   className={`flex flex-1 gap-[8px] items-center justify-center p-[8px] rounded-[8px] transition-all ${
                     preferredMode === "email"
                       ? "bg-white border border-[#025fc9] text-[#025fc9]"
-                      : "text-[#5e5757]"
+                      : "text-[#5e5757] border border-transparent"
                   }`}
                 >
                   <Mail size={18} />
@@ -152,14 +169,16 @@ export default function AgentSupportPage() {
               </div>
             </div>
 
-            {/* Case ID */}
+            {/* ── Case ID ── */}
             <div className="flex flex-col gap-[10px]">
               <p style={fontSwitzer} className="text-[14px] font-medium text-[#767676] tracking-[0.14px]">
                 CASE ID (AUTO-GENERATED)
               </p>
-              <div className="bg-white border border-[#d9d9d9] rounded-[12px] overflow-hidden">
+              <div className="bg-white border border-[#d9d9d9] rounded-[12px]">
                 <div className="flex items-center justify-between px-4 py-5">
-                  <p style={fontSwitzer} className="text-[16px] text-[#5e5757]">{CASE_ID}</p>
+                  <p style={fontSwitzer} className="text-[16px] text-[#5e5757] leading-[21px] tracking-[0.16px]">
+                    {CASE_ID}
+                  </p>
                   <button onClick={handleCopy} className="flex items-center gap-1">
                     <Copy size={18} className={copied ? "text-[#025fc9]" : "text-[#a09898]"} />
                     {copied && (
@@ -170,7 +189,7 @@ export default function AgentSupportPage() {
               </div>
             </div>
 
-            {/* Issue Details */}
+            {/* ── Issue Details ── */}
             <div className="flex flex-col gap-[10px]">
               <p style={fontSwitzer} className="text-[14px] font-medium text-[#767676] tracking-[0.14px]">
                 ISSUE DETAILS
@@ -180,10 +199,10 @@ export default function AgentSupportPage() {
               }`}>
                 {/* Title */}
                 <div className={`border-b px-4 py-5 ${errors.title ? "border-red-200" : "border-[#d9d9d9]"}`}>
-                  <div className="flex gap-[8px] items-start">
-                    <User size={20} className="text-[#a09898] shrink-0 mt-[2px]" />
+                  <div className="flex gap-2 items-start">
+                    <User size={20} className="text-[#a09898] shrink-0 mt-0.5" />
                     <div className="flex flex-col gap-[6px] flex-1">
-                      <p style={fontSwitzer} className="text-[16px] font-medium text-[#5e5757]">
+                      <p style={fontSwitzer} className="text-[16px] font-medium text-[#5e5757] leading-[21px] tracking-[0.16px]">
                         TITLE <span className="text-red-500">*</span>
                       </p>
                       <input
@@ -205,10 +224,10 @@ export default function AgentSupportPage() {
                 </div>
                 {/* Description */}
                 <div className="px-4 py-5">
-                  <div className="flex gap-[8px] items-start">
-                    <FileText size={20} className="text-[#a09898] shrink-0 mt-[2px]" />
+                  <div className="flex gap-2 items-start">
+                    <FileText size={20} className="text-[#a09898] shrink-0 mt-0.5" />
                     <div className="flex flex-col gap-[6px] flex-1">
-                      <p style={fontSwitzer} className="text-[16px] font-medium text-[#5e5757]">
+                      <p style={fontSwitzer} className="text-[16px] font-medium text-[#5e5757] leading-[21px] tracking-[0.16px]">
                         DESCRIPTION <span className="text-red-500">*</span>
                       </p>
                       <textarea
@@ -231,27 +250,75 @@ export default function AgentSupportPage() {
               </div>
             </div>
 
-            {/* Upload File */}
+            {/* ── Upload File ── */}
             <div className="flex flex-col gap-[10px]">
               <p style={fontSwitzer} className="text-[14px] font-medium text-[#767676] tracking-[0.14px]">
                 UPLOAD FILE (OPTIONAL)
               </p>
               <div className="border border-[#d9d9d9] rounded-[12px] flex flex-col items-center gap-[8px] py-[16px] px-4">
                 <FileText size={24} className="text-[#a09898]" />
-                <p style={fontSwitzer} className="text-[14px] font-medium text-[#5e5757] text-center">
-                  Upload your file here
-                </p>
-                <div className="flex items-center gap-[5px]">
-                  <p style={fontSwitzer} className="text-[12px] text-[#a0a0a0]">Accepted Formats: PDF, JPG, PNG</p>
-                  <p style={fontSwitzer} className="text-[12px] text-[#a0a0a0]">(Max 5 MB per file)</p>
+                <div className="flex flex-col gap-[8px] items-center w-full">
+                  <p style={fontSwitzer} className="text-[14px] font-medium text-[#5e5757] text-center tracking-[0.14px]">
+                    Upload your file here
+                  </p>
+                  <div className="flex items-center gap-[5px]">
+                    <p style={fontSwitzer} className="text-[12px] text-[#a0a0a0] tracking-[0.12px]">
+                      Accepted Formats: PDF, JPG, PNG
+                    </p>
+                    <p style={fontSwitzer} className="text-[12px] text-[#a0a0a0] tracking-[0.12px]">
+                      (Max 5 MB per file)
+                    </p>
+                  </div>
                 </div>
-                <button style={fontSwitzer} className="bg-[#025fc9] text-white text-[16px] font-medium px-[10px] py-[8px] rounded-[8px]">
+
+                {/* Hidden file input */}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  multiple
+                  onChange={handleFileSelect}
+                  className="hidden"
+                />
+
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  style={fontSwitzer}
+                  className="bg-[#025fc9] text-white text-[16px] font-medium px-[10px] py-[8px] rounded-[8px] tracking-[0.16px]"
+                >
                   Upload
                 </button>
+
+                {/* Uploaded files list */}
+                {uploadedFiles.length > 0 && (
+                  <div className="w-full flex flex-col gap-2 mt-1">
+                    {uploadedFiles.map((file, i) => (
+                      <div key={i} className="flex items-center justify-between bg-[#f5f5f5] rounded-[8px] px-3 py-2">
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                          <FileText size={14} className="text-[#025fc9] shrink-0" />
+                          <p style={fontSwitzer} className="text-[13px] text-[#333] truncate">
+                            {file.name}
+                          </p>
+                          <p style={fontSwitzer} className="text-[11px] text-[#a09898] shrink-0">
+                            ({(file.size / 1024).toFixed(0)} KB)
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => removeFile(i)}
+                          className="ml-2 shrink-0 text-[#a09898] hover:text-red-500 transition-colors"
+                        >
+                          <AlertCircle size={14} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Contact Details */}
+            {/* ── Contact Details ── */}
             <div className="flex flex-col gap-[10px]">
               <p style={fontSwitzer} className="text-[14px] font-medium text-[#767676] tracking-[0.14px]">
                 CONTACT DETAILS
@@ -261,10 +328,10 @@ export default function AgentSupportPage() {
               }`}>
                 {/* Full Name */}
                 <div className={`border-b px-4 py-5 ${errors.fullName ? "border-red-200" : "border-[#d9d9d9]"}`}>
-                  <div className="flex gap-[8px] items-start">
-                    <User size={20} className="text-[#a09898] shrink-0 mt-[2px]" />
+                  <div className="flex gap-2 items-start">
+                    <User size={20} className="text-[#a09898] shrink-0 mt-0.5" />
                     <div className="flex flex-col gap-[6px] flex-1">
-                      <p style={fontSwitzer} className="text-[16px] font-medium text-[#5e5757]">
+                      <p style={fontSwitzer} className="text-[16px] font-medium text-[#5e5757] leading-[21px] tracking-[0.16px]">
                         FULL NAME <span className="text-red-500">*</span>
                       </p>
                       <input
@@ -284,22 +351,24 @@ export default function AgentSupportPage() {
                     </div>
                   </div>
                 </div>
+
                 {/* Phone */}
                 <div className={`border-b px-4 py-5 ${errors.phoneNumber ? "border-red-200" : "border-[#d9d9d9]"}`}>
-                  <div className="flex items-start">
-                    <div className="flex items-center gap-[8px] shrink-0 pt-[2px]">
-                      <span style={fontSwitzer} className="text-[16px] text-[#5e5757]">🇧🇩 +880</span>
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 shrink-0">
+                      <BDFlag />
+                      <span style={fontSwitzer} className="text-[16px] text-[#5e5757]">+880</span>
                       <ChevronDown size={16} className="text-[#5e5757]" />
                     </div>
-                    <div className="w-[1px] h-[48px] bg-[#d9d9d9] mx-3" />
+                    <div className="w-px h-10 bg-[#d9d9d9] shrink-0" />
                     <div className="flex flex-col gap-[6px] flex-1">
-                      <p style={fontSwitzer} className="text-[16px] font-medium text-[#5e5757]">
-                        PHONE NUMBER {preferredMode === "phone" && <span className="text-red-500">*</span>}
+                      <p style={fontSwitzer} className="text-[16px] font-medium text-[#5e5757] leading-[21px] tracking-[0.16px]">
+                        PHONE NUMBER{preferredMode === "phone" && <span className="text-red-500"> *</span>}
                       </p>
                       <input
                         type="tel"
                         value={phoneNumber}
-                        onChange={(e) => { setPhoneNumber(e.target.value); clearError("phoneNumber"); }}
+                        onChange={(e) => { setPhoneNumber(e.target.value.replace(/\D/g, "")); clearError("phoneNumber"); }}
                         placeholder="Enter your phone number"
                         style={fontSwitzer}
                         className="text-[16px] text-black placeholder:text-[#a09898] outline-none w-full bg-transparent"
@@ -313,13 +382,14 @@ export default function AgentSupportPage() {
                     </div>
                   </div>
                 </div>
+
                 {/* Email */}
                 <div className="px-4 py-5">
-                  <div className="flex gap-[8px] items-start">
-                    <Mail size={20} className="text-[#a09898] shrink-0 mt-[2px]" />
+                  <div className="flex gap-2 items-start">
+                    <Mail size={20} className="text-[#a09898] shrink-0 mt-0.5" />
                     <div className="flex flex-col gap-[6px] flex-1">
-                      <p style={fontSwitzer} className="text-[16px] font-medium text-[#5e5757]">
-                        EMAIL ADDRESS {preferredMode === "email" && <span className="text-red-500">*</span>}
+                      <p style={fontSwitzer} className="text-[16px] font-medium text-[#5e5757] leading-[21px] tracking-[0.16px]">
+                        EMAIL ADDRESS{preferredMode === "email" && <span className="text-red-500"> *</span>}
                       </p>
                       <input
                         type="email"
@@ -341,22 +411,25 @@ export default function AgentSupportPage() {
               </div>
             </div>
 
-            {/* Preferred Call Time */}
+            {/* ── Preferred Call Time ── */}
             <div className="flex flex-col gap-[10px]">
               <p style={fontSwitzer} className="text-[14px] font-medium text-[#767676] tracking-[0.14px]">
                 PREFERRED CALL TIME
               </p>
               <div className="bg-white border border-[#d9d9d9] rounded-[12px] overflow-hidden">
+                {/* Time slots */}
                 <div className="border-b border-[#d9d9d9] px-4 py-5">
                   <div className="flex flex-col gap-[10px]">
-                    <p style={fontSwitzer} className="text-[16px] font-medium text-[#5e5757]">SELECT A TIME</p>
-                    <div className="flex flex-wrap gap-[10px]">
+                    <p style={fontSwitzer} className="text-[16px] font-medium text-[#5e5757] leading-[21px] tracking-[0.16px]">
+                      SELECT A TIME
+                    </p>
+                    <div className="flex flex-wrap gap-[20px]">
                       {TIME_SLOTS.map((slot) => (
                         <button
                           key={slot}
                           onClick={() => setSelectedTime(slot)}
                           style={fontSwitzer}
-                          className={`px-[12px] py-[5px] rounded-[8px] border text-[16px] transition-all ${
+                          className={`px-[12px] py-[5px] rounded-[8px] border text-[16px] leading-[21px] tracking-[0.16px] transition-all ${
                             selectedTime === slot
                               ? "border-[#025fc9] text-[#025fc9] bg-[rgba(2,95,201,0.05)]"
                               : "border-[#d9d9d9] text-[#767676]"
@@ -368,55 +441,66 @@ export default function AgentSupportPage() {
                     </div>
                   </div>
                 </div>
+                {/* Preferred Day */}
                 <div className="px-4 py-5">
-                  <div className="flex flex-col gap-[6px]">
-                    <p style={fontSwitzer} className="text-[16px] font-medium text-[#5e5757]">PREFERRED DAY</p>
-                    <div className="flex items-center justify-between">
-                      <select
-                        value={selectedDay}
-                        onChange={(e) => setSelectedDay(e.target.value)}
-                        style={fontSwitzer}
-                        className="text-[16px] text-black outline-none bg-transparent w-full appearance-none"
-                      >
-                        {DAYS.map((day) => (
-                          <option key={day} value={day}>{day}</option>
-                        ))}
-                      </select>
-                      <ChevronDown size={20} className="text-[#5e5757] shrink-0" />
+                  <div className="flex gap-2 items-start">
+                    <Calendar size={20} className="text-[#5e5757] shrink-0 mt-0.5" />
+                    <div className="flex flex-col gap-[6px] flex-1">
+                      <p style={fontSwitzer} className="text-[16px] font-medium text-[#5e5757] leading-[21px] tracking-[0.16px]">
+                        PREFERRED DAY
+                      </p>
+                      <div className="flex items-center justify-between">
+                        <select
+                          value={selectedDay}
+                          onChange={(e) => setSelectedDay(e.target.value)}
+                          style={fontSwitzer}
+                          className="text-[16px] text-black outline-none bg-transparent w-full appearance-none leading-[21px] tracking-[0.16px]"
+                        >
+                          {DAYS.map((day) => (
+                            <option key={day} value={day}>{day}</option>
+                          ))}
+                        </select>
+                        <ChevronDown size={20} className="text-[#5e5757] shrink-0" />
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Contact Language */}
+            {/* ── Contact Language ── */}
             <div className="flex flex-col gap-[10px]">
               <p style={fontSwitzer} className="text-[14px] font-medium text-[#767676] tracking-[0.14px]">
                 CONTACT LANGUAGE
               </p>
               <div className="bg-white border border-[#d9d9d9] rounded-[12px] overflow-hidden">
                 <div className="px-4 py-5">
-                  <div className="flex flex-col gap-[6px]">
-                    <p style={fontSwitzer} className="text-[16px] font-medium text-[#5e5757]">PREFERRED LANGUAGE</p>
-                    <div className="flex items-center justify-between">
-                      <select
-                        value={selectedLanguage}
-                        onChange={(e) => setSelectedLanguage(e.target.value)}
-                        style={fontSwitzer}
-                        className="text-[16px] text-black outline-none bg-transparent w-full appearance-none"
-                      >
-                        {LANGUAGES.map((lang) => (
-                          <option key={lang} value={lang}>{lang}</option>
-                        ))}
-                      </select>
-                      <ChevronDown size={20} className="text-[#5e5757] shrink-0" />
+                  <div className="flex gap-2 items-start">
+                    <Globe size={20} className="text-[#5e5757] shrink-0 mt-0.5" />
+                    <div className="flex flex-col gap-[6px] flex-1">
+                      <p style={fontSwitzer} className="text-[16px] font-medium text-[#5e5757] leading-[21px] tracking-[0.16px]">
+                        PREFERRED LANGUAGE
+                      </p>
+                      <div className="flex items-center justify-between">
+                        <select
+                          value={selectedLanguage}
+                          onChange={(e) => setSelectedLanguage(e.target.value)}
+                          style={fontSwitzer}
+                          className="text-[16px] text-black outline-none bg-transparent w-full appearance-none leading-[21px] tracking-[0.16px]"
+                        >
+                          {LANGUAGES.map((lang) => (
+                            <option key={lang} value={lang}>{lang}</option>
+                          ))}
+                        </select>
+                        <ChevronDown size={20} className="text-[#5e5757] shrink-0" />
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Accessibility Needs */}
+            {/* ── Accessibility Needs ── */}
             <div className="flex flex-col gap-[10px]">
               <p style={fontSwitzer} className="text-[14px] font-medium text-[#767676] tracking-[0.14px]">
                 ACCESSIBILITY NEEDS (IF ANY)
@@ -424,16 +508,16 @@ export default function AgentSupportPage() {
               <div className="bg-white border border-[#d9d9d9] rounded-[12px] overflow-hidden">
                 <div className="px-4 py-5">
                   <div className="flex flex-col gap-[10px]">
-                    <p style={fontSwitzer} className="text-[16px] font-medium text-[#5e5757]">
+                    <p style={fontSwitzer} className="text-[16px] font-medium text-[#5e5757] leading-[21px] tracking-[0.16px]">
                       SELECT ALL THAT APPLIES
                     </p>
-                    <div className="flex flex-wrap gap-[10px]">
+                    <div className="flex flex-wrap gap-[20px]">
                       {ACCESSIBILITY_OPTIONS.map((option) => (
                         <button
                           key={option}
                           onClick={() => toggleAccessibility(option)}
                           style={fontSwitzer}
-                          className={`px-[12px] py-[5px] rounded-[8px] border text-[16px] transition-all ${
+                          className={`px-[12px] py-[5px] rounded-[8px] border text-[16px] leading-[21px] tracking-[0.16px] transition-all ${
                             selectedAccessibility.includes(option)
                               ? "border-[#025fc9] text-[#025fc9] bg-[rgba(2,95,201,0.05)]"
                               : "border-[#d9d9d9] text-[#767676]"
@@ -448,15 +532,15 @@ export default function AgentSupportPage() {
               </div>
             </div>
 
-            {/* Info Banner */}
-            <div className="border border-[#d9d9d9] rounded-[12px] flex gap-[8px] items-start px-4 py-[10px]">
+            {/* ── Info Banner ── */}
+            <div className="border border-[#d9d9d9] rounded-[12px] flex gap-[3px] items-start px-4 py-[10px]">
               <Shield size={14} className="text-[#a09898] shrink-0 mt-[1px]" />
-              <p style={fontSwitzer} className="text-[12px] text-[#a09898] leading-[14px] tracking-[0.12px]">
+              <p style={fontSwitzer} className="text-[12px] text-[#a09898] leading-[14px] tracking-[0.12px] flex-1">
                 Your case will be assigned a reference number. Average response time is under 4 hours during business hours.
               </p>
             </div>
 
-            {/* Submit Button */}
+            {/* ── Submit Button ── */}
             <button
               onClick={handleSubmit}
               disabled={isSubmitDisabled}

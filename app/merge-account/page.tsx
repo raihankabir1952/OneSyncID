@@ -11,13 +11,13 @@ import OtpVerifySection from "@/components/merge-account/OtpVerifySection";
 
 export default function MergeAccountPage() {
   const router = useRouter();
-  const [authTab, setAuthTab] = useState<"password" | "pin">("password");
-  const [otpTab, setOtpTab] = useState<"phone" | "email">("phone");
+  const [authTab, setAuthTab]               = useState<"password" | "pin">("password");
+  const [otpTab, setOtpTab]                 = useState<"phone" | "email">("phone");
   const [usernameOrEmail, setUsernameOrEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [pin, setPin] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [emailOtp, setEmailOtp] = useState("");
+  const [password, setPassword]             = useState("");
+  const [pin, setPin]                       = useState("");
+  const [phoneNumber, setPhoneNumber]       = useState("");
+  const [emailOtp, setEmailOtp]             = useState("");
 
   const isFormValid =
     usernameOrEmail.trim().length > 0 &&
@@ -26,8 +26,6 @@ export default function MergeAccountPage() {
   return (
     <div className="min-h-screen bg-gray-100 flex justify-center">
       <div className="w-full max-w-[393px] bg-white min-h-screen flex flex-col">
-
-        {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto">
 
           {/* Header */}
@@ -41,7 +39,7 @@ export default function MergeAccountPage() {
             </button>
             <div className="flex items-center justify-center">
               <h1 style={fontSwitzer} className="text-[20px] font-semibold text-black">
-                {/* Merge accounts */}
+                Merge accounts
               </h1>
             </div>
           </div>
@@ -55,13 +53,12 @@ export default function MergeAccountPage() {
             {/* New Account Badge */}
             <NewAccountBadge email="johndoe@mail.com" />
 
-            {/* Existing Account Section */}
             <div className="flex flex-col gap-[40px]">
 
               {/* Sign In Section */}
               <div className="flex flex-col gap-[10px]">
                 <p style={fontSwitzer} className="text-[14px] font-medium text-[#767676] tracking-[0.14px]">
-                  {/* SIGN INTO YOUR EXISTING ACCOUNT */}
+                  SIGN INTO YOUR EXISTING ACCOUNT
                 </p>
                 <ExistingAccountForm
                   authTab={authTab}
@@ -73,7 +70,6 @@ export default function MergeAccountPage() {
                   pin={pin}
                   onPinChange={setPin}
                 />
-                {/* Forgot password */}
                 <div className="flex justify-end">
                   <button
                     type="button"
@@ -81,7 +77,7 @@ export default function MergeAccountPage() {
                     className="text-[14px] text-[#0052b4]"
                     onClick={() => router.push("/reset-password")}
                   >
-                    {/* Forgot password? */}
+                    Forgot password?
                   </button>
                 </div>
               </div>
@@ -89,7 +85,7 @@ export default function MergeAccountPage() {
               {/* OTP Section */}
               <div className="flex flex-col gap-[10px]">
                 <p style={fontSwitzer} className="text-[14px] font-medium text-[#767676] tracking-[0.14px]">
-                  {/* OR VERIFY WITH OTP INSTEAD */}
+                  OR VERIFY WITH OTP INSTEAD
                 </p>
                 <OtpVerifySection
                   otpTab={otpTab}
