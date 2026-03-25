@@ -19,23 +19,34 @@ function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
+// Min age 18, max age 120
+function isValidDOB(dob: string): boolean {
+  if (!dob) return false;
+  const birth = new Date(dob);
+  const today = new Date();
+  const age =
+    today.getFullYear() - birth.getFullYear() -
+    (today < new Date(today.getFullYear(), birth.getMonth(), birth.getDate()) ? 1 : 0);
+  return age >= 18 && age <= 120;
+}
+
 export default function PersonalFormPage() {
-  const [fullName, setFullName] = useState("");
-  const [dateOfBirth, setDateOfBirth] = useState("");
-  const [gender, setGender] = useState<Gender>("");
-  const [state, setState] = useState("");
-  const [city, setCity] = useState("");
-  const [email, setEmail] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [password, setPassword] = useState("");
+  const [fullName, setFullName]               = useState("");
+  const [dateOfBirth, setDateOfBirth]         = useState("");
+  const [gender, setGender]                   = useState<Gender>("");
+  const [state, setState]                     = useState("");
+  const [city, setCity]                       = useState("");
+  const [email, setEmail]                     = useState("");
+  const [phoneNumber, setPhoneNumber]         = useState("");
+  const [password, setPassword]               = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [verifyMethod, setVerifyMethod] = useState<VerifyMethod>("email");
+  const [verifyMethod, setVerifyMethod]       = useState<VerifyMethod>("email");
   const router = useRouter();
 
   const isFormValid =
     fullName.trim().length >= 3 &&
     /^[a-zA-Z\s]+$/.test(fullName) &&
-    dateOfBirth.trim().length > 0 &&
+    isValidDOB(dateOfBirth) &&
     gender !== "" &&
     isValidEmail(email) &&
     phoneNumber.trim().length >= 10 &&
@@ -75,10 +86,7 @@ export default function PersonalFormPage() {
 
             {/* Account Type Toggle */}
             <div className="flex flex-col gap-[10px]">
-              <p
-                style={fontSwitzer}
-                className="text-[14px] text-[#767676] font-medium"
-              >
+              <p style={fontSwitzer} className="text-[14px] text-[#767676] font-medium">
                 ACCOUNT TYPE
               </p>
               <AccountTypeToggle
@@ -91,10 +99,7 @@ export default function PersonalFormPage() {
 
             {/* Personal Information */}
             <div className="flex flex-col gap-[10px]">
-              <p
-                style={fontSwitzer}
-                className="text-[14px] text-[#767676] font-medium"
-              >
+              <p style={fontSwitzer} className="text-[14px] text-[#767676] font-medium">
                 PERSONAL INFORMATION
               </p>
               <PersonalInfoSection
@@ -110,10 +115,7 @@ export default function PersonalFormPage() {
 
             {/* Location */}
             <div className="flex flex-col gap-[10px]">
-              <p
-                style={fontSwitzer}
-                className="text-[14px] text-[#767676] font-medium"
-              >
+              <p style={fontSwitzer} className="text-[14px] text-[#767676] font-medium">
                 LOCATION
               </p>
               <LocationSection
@@ -126,10 +128,7 @@ export default function PersonalFormPage() {
 
             {/* Contact */}
             <div className="flex flex-col gap-[10px]">
-              <p
-                style={fontSwitzer}
-                className="text-[14px] text-[#767676] font-medium"
-              >
+              <p style={fontSwitzer} className="text-[14px] text-[#767676] font-medium">
                 CONTACT
               </p>
               <ContactSection
@@ -144,10 +143,7 @@ export default function PersonalFormPage() {
 
             {/* Security */}
             <div className="flex flex-col gap-[10px]">
-              <p
-                style={fontSwitzer}
-                className="text-[14px] text-[#767676] font-medium"
-              >
+              <p style={fontSwitzer} className="text-[14px] text-[#767676] font-medium">
                 SECURITY
               </p>
               <SecuritySection
@@ -160,10 +156,7 @@ export default function PersonalFormPage() {
 
             {/* Verify With */}
             <div className="flex flex-col gap-[10px]">
-              <p
-                style={fontSwitzer}
-                className="text-[14px] text-[#767676] font-medium"
-              >
+              <p style={fontSwitzer} className="text-[14px] text-[#767676] font-medium">
                 VERIFY WITH
               </p>
               <VerifyWithSection
@@ -180,7 +173,6 @@ export default function PersonalFormPage() {
                 and{" "}
                 <span className="text-[#025fc9]">Privacy Policy</span>
               </p>
-
               <button
                 disabled={!isFormValid}
                 onClick={() => {
@@ -201,10 +193,7 @@ export default function PersonalFormPage() {
             {/* Merge accounts banner */}
             <div className="flex items-start gap-[3px] bg-[rgba(2,95,201,0.05)] border border-[rgba(2,95,201,0.2)] rounded-[12px] px-[16px] py-[10px]">
               <Info size={16} className="text-[#025fc9] shrink-0 mt-0.5" />
-              <div
-                style={fontSwitzer}
-                className="text-[12px] text-[#025fc9] leading-4 tracking-[0.12px] flex-1"
-              >
+              <div style={fontSwitzer} className="text-[12px] text-[#025fc9] leading-4 tracking-[0.12px] flex-1">
                 <p>Already have an account with another email?</p>
                 <Link href="/merge-account" className="font-semibold">
                   Merge accounts
