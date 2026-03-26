@@ -75,7 +75,7 @@ export default function OtpVerifySection({
      * Figma node: 1854:11518
      * w: 353px | gap: 10px
      */
-    <div style={fontSwitzer} className="flex flex-col w-[353px]" style2={{ gap: "10px" }}>
+    <div style={fontSwitzer} className="flex flex-col gap-[10px] w-[353px]">
       <div className="flex flex-col w-full" style={{ gap: "10px" }}>
 
         {/* ── Phone / Email Tab Switcher ──
