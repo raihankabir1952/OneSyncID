@@ -10,8 +10,7 @@ import LanguageCountryCard from "@/components/get-started/LanguageCountryCard";
 import PhoneEmailToggle from "@/components/get-started/PhoneEmailToggle";
 import PhoneInput from "@/components/get-started/PhoneInput";
 
-// ─── Inline SVG Icons (no expiry) ────────────────────────────────────────────
-
+// ─── Inline SVG Back Icon (no expiry) ─────────────────────────────────────────
 const BackIcon = () => (
   <svg
     width="24"
@@ -27,8 +26,7 @@ const BackIcon = () => (
   </svg>
 );
 
-// ─── Types & Schemas ──────────────────────────────────────────────────────────
-
+// ─── Types & Validation Schemas ───────────────────────────────────────────────
 type TabType = "phone" | "email";
 
 const phoneSchema = z.object({
@@ -47,8 +45,7 @@ const emailSchema = z.object({
 
 type FormValues = { contact: string };
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
-
+// ─── Page Component ───────────────────────────────────────────────────────────
 export default function GetStartedPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabType>("phone");
@@ -79,22 +76,30 @@ export default function GetStartedPage() {
   };
 
   return (
-    /*
-     * Figma canvas: 393 × 852px (iPhone 14 frame)
-     * Centered on gray bg to match mobile preview
-     */
+    // Outer wrapper — centers the 393px frame on larger screens
     <div className="min-h-screen bg-gray-100 flex justify-center">
+
+      {/*
+       * ── Figma frame ──
+       * width  : 393px  (Figma exact)
+       * height : 852px  (Figma exact — fixed, not minHeight)
+       * overflow: hidden (clips any content outside the frame)
+       */}
       <div
-        className="relative bg-white"
-        style={{ width: "393px", minHeight: "852px" }}
+        className="relative bg-white overflow-hidden"
+        style={{ width: "393px", height: "852px" }}
       >
 
-        {/* ── Header  (Figma: top: 80px, px: 20px, gap: 10px) ── */}
+        {/*
+         * ── Header ──
+         * Figma: top: 80px | left: 0 | width: 393px
+         *        px: 20px  | gap: 10px
+         */}
         <div
-          className="absolute left-0 w-full px-5 flex flex-col gap-[10px]"
-          style={{ top: "80px" }}
+          className="absolute left-0 w-full px-5 flex flex-col"
+          style={{ top: "80px", gap: "10px" }}
         >
-          {/* Back button — 24×24px */}
+          {/* Back button — Figma: 24×24px */}
           <div className="flex items-center">
             <button
               onClick={() => router.back()}
@@ -106,12 +111,9 @@ export default function GetStartedPage() {
           </div>
 
           {/*
-           * Figma:
-           *   font-family : Switzer Semibold
-           *   font-size   : 20px
-           *   line-height : normal
-           *   color       : #000000
-           *   text-align  : left (not centered — matches Figma layout)
+           * Title
+           * Figma: Switzer Semibold | 20px | line-height: normal | color: #000
+           * text-center — per your request
            */}
           <p
             style={fontSwitzer}
@@ -121,7 +123,10 @@ export default function GetStartedPage() {
           </p>
         </div>
 
-        {/* ── Main Content (Figma: top: 190px, gap: 30px) ── */}
+        {/*
+         * ── Main Content ──
+         * Figma: top: 190px | left: 0 | width: 393px | gap: 30px
+         */}
         <form
           onSubmit={handleSubmit(onSubmit)}
           noValidate
@@ -129,13 +134,16 @@ export default function GetStartedPage() {
           style={{ top: "190px", gap: "30px" }}
         >
 
-          {/* Inner column — gap: 40px */}
-          <div className="flex flex-col items-center w-full" style={{ gap: "40px" }}>
+          {/* Inner column — Figma gap: 40px */}
+          <div
+            className="flex flex-col items-center w-full"
+            style={{ gap: "40px" }}
+          >
 
             {/*
              * Language & Country Card
-             * Figma: px: 20px, border: 1px #d9d9d9, border-radius: 12px
-             * Row height: py: 20px px: 16px
+             * Figma: px: 20px | border: 1px #d9d9d9 | radius: 12px
+             * Row:   px: 16px | py: 20px | height: 64px each
              */}
             <div className="px-5 w-full">
               <LanguageCountryCard
@@ -147,17 +155,19 @@ export default function GetStartedPage() {
             </div>
 
             {/*
-             * Phone/Email toggle + input
-             * Figma: w: 353px, gap: 10px
+             * Phone / Email Toggle + Input
+             * Figma: width: 353px | gap: 10px
              */}
-            <div className="flex flex-col w-[353px]" style={{ gap: "10px" }}>
-
+            <div
+              className="flex flex-col w-[353px]"
+              style={{ gap: "10px" }}
+            >
               {/*
-               * Tab switcher
-               * Figma: bg #f5f5f5, border 1px #d9d9d9, radius 12px
-               *        px 10px py 8px
-               * Active tab: bg white, border 1px #025fc9, radius 8px, p 8px
-               * Label: Switzer Medium 16px leading-[21px] tracking-[0.16px]
+               * Tab Switcher
+               * Figma: bg #f5f5f5 | border 1px #d9d9d9 | radius 12px
+               *        px 10px | py 8px
+               * Active: bg white | border 1px #025fc9 | radius 8px | p 8px
+               * Label:  Switzer Medium | 16px | leading-[21px] | tracking-[0.16px]
                */}
               <PhoneEmailToggle
                 activeTab={activeTab}
@@ -165,11 +175,11 @@ export default function GetStartedPage() {
               />
 
               {/*
-               * Phone input field
-               * Figma: border 1px #d9d9d9, radius 12px, px 16px py 20px
-               * Dial code: Switzer Regular 16px #5e5757
-               * Label:     Switzer Medium  16px #5e5757 tracking-[0.16px] leading-[21px]
-               * Placeholder: Switzer Regular 16px #a09898
+               * Phone / Email Input
+               * Figma: border 1px #d9d9d9 | radius 12px | px 16px | py 20px
+               * Dial code:   Switzer Regular | 16px | #5e5757
+               * Field label: Switzer Medium  | 16px | #5e5757 | tracking-[0.16px] | leading-[21px]
+               * Placeholder: Switzer Regular | 16px | #a09898
                */}
               <PhoneInput
                 activeTab={activeTab}
@@ -187,7 +197,7 @@ export default function GetStartedPage() {
                 }}
               />
 
-              {/* Validation error — Switzer Regular 12px red-500 */}
+              {/* Validation error — Switzer Regular | 12px | red-500 */}
               {errors.contact && (
                 <p
                   style={fontSwitzer}
@@ -200,16 +210,16 @@ export default function GetStartedPage() {
           </div>
 
           {/*
-           * Buttons
-           * Figma: gap 12px, w 353px, h 44px, radius 8px
-           * Primary  : bg #025fc9, text white,    Switzer Medium 16px
-           * Secondary: border 1.5px #025fc9, text #025fc9, Switzer Medium 16px
+           * ── Buttons ──
+           * Figma: gap 12px | w 353px | h 44px | radius 8px
+           * Primary  : bg #025fc9 | text white   | Switzer Medium 16px
+           * Secondary: border 1.5px #025fc9 | text #025fc9 | Switzer Medium 16px
            */}
           <div
             className="flex flex-col items-center w-full pb-8"
             style={{ gap: "12px" }}
           >
-            {/* Sign In — Primary */}
+            {/* Primary — Sign In */}
             <button
               type="submit"
               disabled={!contact.trim()}
@@ -226,7 +236,7 @@ export default function GetStartedPage() {
               </span>
             </button>
 
-            {/* Create OneSyncID — Secondary */}
+            {/* Secondary — Create OneSyncID */}
             <button
               type="button"
               onClick={() => router.push("/create-account")}
