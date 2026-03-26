@@ -8,7 +8,7 @@ type Gender = "male" | "female" | "non-binary" | "prefer-not-to-say" | "";
 
 type Props = {
   fullName: string;
-  dateOfBirth: string; // "YYYY-MM-DD"
+  dateOfBirth: string;
   gender: Gender;
   isActive?: boolean;
   onFullNameChange: (value: string) => void;
@@ -29,7 +29,6 @@ const MONTHS = [
 ];
 const DAYS = ["Su","Mo","Tu","We","Th","Fr","Sa"];
 
-// Gender icon — inline SVG (no expiry, no external URL)
 function GenderIcon({ className }: { className?: string }) {
   return (
     <svg
@@ -38,14 +37,12 @@ function GenderIcon({ className }: { className?: string }) {
       strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
       className={className}
     >
-      {/* Female circle */}
       <circle cx="12" cy="9" r="4" />
       <line x1="12" y1="13" x2="12" y2="21" />
       <line x1="9"  y1="18" x2="15" y2="18" />
-      {/* Male arrow */}
-      <line x1="17" y1="3" x2="22" y2="3" />
-      <line x1="22" y1="3" x2="22" y2="8" />
-      <line x1="16" y1="8" x2="22" y2="3" />
+      <line x1="17" y1="3"  x2="22" y2="3" />
+      <line x1="22" y1="3"  x2="22" y2="8" />
+      <line x1="16" y1="8"  x2="22" y2="3" />
     </svg>
   );
 }
@@ -71,31 +68,25 @@ export default function PersonalInfoSection({
   onDateOfBirthChange,
   onGenderChange,
 }: Props) {
-  const today = new Date();
+  const nameRef = useRef<HTMLInputElement>(null);
+  const calRef  = useRef<HTMLDivElement>(null);
 
-  // Must be at least 18 years old
-  const maxAllowed = new Date(
-    today.getFullYear() - 18,
-    today.getMonth(),
-    today.getDate()
-  );
-  // Max 120 years old
-  const minAllowed = new Date(
-    today.getFullYear() - 120,
-    today.getMonth(),
-    today.getDate()
-  );
-
+  const [nameFocused,    setNameFocused]    = useState(false);
   const [calOpen,        setCalOpen]        = useState(false);
   const [showYearPicker, setShowYearPicker] = useState(false);
-  const calRef = useRef<HTMLDivElement>(null);
 
-  // Default calendar view: year 2000
+  const today = new Date();
+  const maxAllowed = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
+  const minAllowed = new Date(today.getFullYear() - 120, today.getMonth(), today.getDate());
+
   const initDate = dateOfBirth ? new Date(dateOfBirth) : new Date(2000, 0, 1);
   const [viewYear,  setViewYear]  = useState(initDate.getFullYear());
   const [viewMonth, setViewMonth] = useState(initDate.getMonth());
 
-  // Close on outside click
+  // Floating state
+  const nameFloated = nameFocused || fullName.length > 0;
+  const dobFloated  = calOpen || !!dateOfBirth;
+
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (calRef.current && !calRef.current.contains(e.target as Node)) {
@@ -107,11 +98,11 @@ export default function PersonalInfoSection({
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
-  /* ── Month navigation ── */
   function prevMonth() {
     if (viewMonth === 0) { setViewMonth(11); setViewYear(y => y - 1); }
     else setViewMonth(m => m - 1);
   }
+
   function nextMonth() {
     const atMax =
       viewYear > maxAllowed.getFullYear() ||
@@ -139,7 +130,6 @@ export default function PersonalInfoSection({
     return d > maxAllowed || d < minAllowed;
   }
 
-  // Calendar grid
   const daysInMonth = getDaysInMonth(viewYear, viewMonth);
   const firstDay    = getFirstDayOfMonth(viewYear, viewMonth);
   const cells: (number | null)[] = [
@@ -147,78 +137,106 @@ export default function PersonalInfoSection({
     ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
   ];
 
-  // Year list: maxAllowed year → minAllowed year
   const years: number[] = [];
-  for (let y = maxAllowed.getFullYear(); y >= minAllowed.getFullYear(); y--) {
-    years.push(y);
-  }
+  for (let y = maxAllowed.getFullYear(); y >= minAllowed.getFullYear(); y--) years.push(y);
 
   const canGoNext =
     viewYear < maxAllowed.getFullYear() ||
     (viewYear === maxAllowed.getFullYear() && viewMonth < maxAllowed.getMonth());
-
-  const hasName = fullName.trim().length > 0;
 
   return (
     <div
       style={fontSwitzer}
       className="bg-white border border-[rgba(2,95,201,0.4)] rounded-[12px] shadow-[0px_0px_3px_2px_rgba(2,95,201,0.1)] overflow-visible flex flex-col w-full"
     >
+
       {/* ── Full Name ── */}
-      <div className="border-b border-[#d9d9d9] flex items-start gap-2 px-4 py-5">
-        <User
-          size={20}
-          className={`shrink-0 mt-0.5 ${hasName ? "text-[#025fc9]" : "text-[#5e5757]"}`}
-        />
-        <div className="flex flex-col gap-[6px] flex-1">
-          <p className={`text-[16px] font-medium leading-[21px] tracking-[0.16px] ${
-            hasName ? "text-[#025fc9]" : "text-[#5e5757]"
-          }`}>
-            FULL NAME
-          </p>
-          <input
-            type="text"
-            value={fullName}
-            onChange={(e) => onFullNameChange(e.target.value)}
-            placeholder="John Doe"
-            className="text-[16px] font-normal leading-[21px] tracking-[0.16px] text-black placeholder:text-[#a09898] bg-transparent outline-none w-full"
+      <div
+        className={`border-b transition-colors duration-200 cursor-text ${
+          nameFocused ? "border-[#025fc9]" : "border-[#d9d9d9]"
+        }`}
+        onClick={() => nameRef.current?.focus()}
+      >
+        <div className="flex items-center gap-2 px-4 h-[64px]">
+          <User
+            size={20}
+            className={`shrink-0 transition-colors ${
+              nameFocused || fullName ? "text-[#025fc9]" : "text-[#5e5757]"
+            }`}
           />
+          <div className="relative flex-1 h-full cursor-text">
+            <label
+              style={fontSwitzer}
+              className={`absolute left-0 pointer-events-none transition-all duration-200 font-medium tracking-[0.16px] ${
+                nameFloated
+                  ? "top-[10px] text-[11px] text-[#025fc9]"
+                  : "top-1/2 -translate-y-1/2 text-[16px] text-[#a09898]"
+              }`}
+            >
+              Full Name
+            </label>
+            <input
+              ref={nameRef}
+              type="text"
+              value={fullName}
+              onChange={(e) => onFullNameChange(e.target.value)}
+              onFocus={() => setNameFocused(true)}
+              onBlur={() => setNameFocused(false)}
+              style={fontSwitzer}
+              className="absolute inset-0 w-full h-full text-[16px] text-black bg-transparent outline-none border-none pt-[28px] pb-[8px]"
+            />
+          </div>
         </div>
       </div>
 
       {/* ── Date of Birth ── */}
-      <div className="border-b border-[#d9d9d9] flex items-start gap-2 px-4 py-5 relative" ref={calRef}>
-        <button
-          type="button"
+      <div
+        className={`border-b transition-colors duration-200 cursor-pointer ${
+          calOpen ? "border-[#025fc9]" : "border-[#d9d9d9]"
+        }`}
+        ref={calRef}
+      >
+        <div
+          className="flex items-center gap-2 px-4 h-[64px]"
           onClick={() => { setCalOpen(o => !o); setShowYearPicker(false); }}
-          className="shrink-0 mt-0.5 focus:outline-none text-[#5e5757] hover:text-[#025fc9] transition-colors"
         >
-          <Calendar size={20} />
-        </button>
-
-        <div className="flex flex-col gap-[6px] flex-1">
-          <p className="text-[16px] font-medium leading-[21px] tracking-[0.16px] text-[#5e5757]">
-            DATE OF BIRTH
-          </p>
-          <button
-            type="button"
-            onClick={() => { setCalOpen(o => !o); setShowYearPicker(false); }}
-            className="text-left focus:outline-none"
-          >
-            {dateOfBirth
-              ? <span className="text-[16px] text-black font-normal">{formatDisplay(dateOfBirth)}</span>
-              : <span className="text-[16px] text-[#a09898] font-normal">DD/MM/YYYY</span>
-            }
-          </button>
+          <Calendar
+            size={20}
+            className={`shrink-0 transition-colors ${
+              calOpen || dateOfBirth ? "text-[#025fc9]" : "text-[#5e5757]"
+            }`}
+          />
+          <div className="relative flex-1 h-full">
+            {/* Floating Label */}
+            <label
+              style={fontSwitzer}
+              className={`absolute left-0 pointer-events-none transition-all duration-200 font-medium tracking-[0.16px] ${
+                dobFloated
+                  ? "top-[10px] text-[11px] text-[#025fc9]"
+                  : "top-1/2 -translate-y-1/2 text-[16px] text-[#a09898]"
+              }`}
+            >
+              Date of Birth
+            </label>
+            {/* Selected value */}
+            {dateOfBirth && (
+              <span
+                style={fontSwitzer}
+                className="absolute bottom-[10px] left-0 text-[16px] text-black"
+              >
+                {formatDisplay(dateOfBirth)}
+              </span>
+            )}
+          </div>
         </div>
 
-        {/* ── Calendar Popup ── */}
+        {/* Calendar Popup */}
         {calOpen && (
           <div
-            className="absolute left-0 top-full mt-2 z-50 bg-white border border-[#d9d9d9] rounded-[16px] shadow-[0px_8px_32px_rgba(0,0,0,0.12)] p-4 w-[300px]"
+            className="mx-4 mb-3 bg-white border border-[#d9d9d9] rounded-[16px] shadow-[0px_8px_32px_rgba(0,0,0,0.12)] p-4"
             style={fontSwitzer}
+            onClick={(e) => e.stopPropagation()}
           >
-            {/* Header */}
             <div className="flex items-center justify-between mb-3">
               <button
                 type="button"
@@ -227,7 +245,6 @@ export default function PersonalInfoSection({
               >
                 <ChevronLeft size={18} className="text-[#5e5757]" />
               </button>
-
               <button
                 type="button"
                 onClick={() => setShowYearPicker(y => !y)}
@@ -239,7 +256,6 @@ export default function PersonalInfoSection({
                   className={`text-[#025fc9] transition-transform ${showYearPicker ? "rotate-90" : ""}`}
                 />
               </button>
-
               <button
                 type="button"
                 onClick={nextMonth}

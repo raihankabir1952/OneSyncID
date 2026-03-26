@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef, useState } from "react";
 import { Phone, Mail, ChevronDown } from "lucide-react";
 import * as Flags from "country-flag-icons/react/3x2";
 import { fontSwitzer } from "@/lib/styles";
@@ -29,6 +30,15 @@ export default function OtpVerifySection({
   email,
   onEmailChange,
 }: Props) {
+  const phoneRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
+
+  const [phoneFocused, setPhoneFocused] = useState(false);
+  const [emailFocused, setEmailFocused] = useState(false);
+
+  const phoneFloated = phoneFocused || phoneNumber.length > 0;
+  const emailFloated = emailFocused || email.length > 0;
+
   return (
     <div style={fontSwitzer} className="flex flex-col gap-[10px]">
 
@@ -62,47 +72,84 @@ export default function OtpVerifySection({
 
       {/* Phone input */}
       {otpTab === "phone" && (
-        <div className="border border-[#d9d9d9] rounded-[12px] flex items-center px-4 py-5 gap-3">
-          {/* Country code */}
-          <div className="flex items-center gap-2 shrink-0">
-            <BDFlag />
-            <span className="text-[16px] text-[#5e5757]">+880</span>
-            <ChevronDown size={16} className="text-[#5e5757]" />
-          </div>
-          {/* Divider */}
-          <div className="w-px h-8 bg-[#d9d9d9] shrink-0" />
-          {/* Input */}
-          <div className="flex flex-col gap-[6px] flex-1">
-            <p className="text-[16px] font-medium leading-[21px] tracking-[0.16px] text-[#5e5757]">
-              PHONE NUMBER
-            </p>
-            <input
-              type="tel"
-              inputMode="numeric"
-              value={phoneNumber}
-              onChange={(e) => onPhoneNumberChange(e.target.value.replace(/\D/g, ""))}
-              placeholder="Enter your phone number"
-              className="text-[16px] font-normal leading-[21px] tracking-[0.16px] text-black placeholder:text-[#a09898] bg-transparent outline-none w-full"
-            />
+        <div
+          className={`border rounded-[12px] transition-colors duration-200 cursor-text ${
+            phoneFocused ? "border-[#025fc9]" : "border-[#d9d9d9]"
+          }`}
+          onClick={() => phoneRef.current?.focus()}
+        >
+          <div className="flex items-center gap-3 px-4 h-[64px]">
+            <div
+              className="flex items-center gap-2 shrink-0"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <BDFlag />
+              <span className="text-[16px] text-[#5e5757]">+880</span>
+              <ChevronDown size={16} className="text-[#5e5757]" />
+            </div>
+            <div className="w-px h-[40px] bg-[#d9d9d9] shrink-0" />
+            <div className="relative flex-1 h-full">
+              <label
+                style={fontSwitzer}
+                className={`absolute left-0 pointer-events-none transition-all duration-200 font-medium tracking-[0.16px] ${
+                  phoneFloated
+                    ? "top-[10px] text-[11px] text-[#025fc9]"
+                    : "top-1/2 -translate-y-1/2 text-[16px] text-[#a09898]"
+                }`}
+              >
+                Phone Number
+              </label>
+              <input
+                ref={phoneRef}
+                type="tel"
+                inputMode="numeric"
+                value={phoneNumber}
+                onChange={(e) => onPhoneNumberChange(e.target.value.replace(/\D/g, ""))}
+                onFocus={() => setPhoneFocused(true)}
+                onBlur={() => setPhoneFocused(false)}
+                style={fontSwitzer}
+                className="absolute inset-0 w-full h-full text-[16px] text-black bg-transparent outline-none border-none pt-[28px] pb-[8px]"
+              />
+            </div>
           </div>
         </div>
       )}
 
       {/* Email input */}
       {otpTab === "email" && (
-        <div className="border border-[#d9d9d9] rounded-[12px] flex items-start gap-2 px-4 py-5">
-          <Mail size={20} className="text-[#5e5757] shrink-0 mt-0.5" />
-          <div className="flex flex-col gap-[6px] flex-1">
-            <p className="text-[16px] font-medium leading-[21px] tracking-[0.16px] text-[#5e5757]">
-              EMAIL ADDRESS
-            </p>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => onEmailChange(e.target.value)}
-              placeholder="Enter your email"
-              className="text-[16px] font-normal leading-[21px] tracking-[0.16px] text-black placeholder:text-[#a09898] bg-transparent outline-none w-full"
+        <div
+          className={`border rounded-[12px] transition-colors duration-200 cursor-text ${
+            emailFocused ? "border-[#025fc9]" : "border-[#d9d9d9]"
+          }`}
+          onClick={() => emailRef.current?.focus()}
+        >
+          <div className="flex items-center gap-2 px-4 h-[64px]">
+            <Mail
+              size={20}
+              className={`shrink-0 transition-colors ${emailFocused || email ? "text-[#025fc9]" : "text-[#5e5757]"}`}
             />
+            <div className="relative flex-1 h-full">
+              <label
+                style={fontSwitzer}
+                className={`absolute left-0 pointer-events-none transition-all duration-200 font-medium tracking-[0.16px] ${
+                  emailFloated
+                    ? "top-[10px] text-[11px] text-[#025fc9]"
+                    : "top-1/2 -translate-y-1/2 text-[16px] text-[#a09898]"
+                }`}
+              >
+                Email Address
+              </label>
+              <input
+                ref={emailRef}
+                type="email"
+                value={email}
+                onChange={(e) => onEmailChange(e.target.value)}
+                onFocus={() => setEmailFocused(true)}
+                onBlur={() => setEmailFocused(false)}
+                style={fontSwitzer}
+                className="absolute inset-0 w-full h-full text-[16px] text-black bg-transparent outline-none border-none pt-[28px] pb-[8px]"
+              />
+            </div>
           </div>
         </div>
       )}

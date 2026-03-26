@@ -12,7 +12,7 @@ type Props = {
 
 export default function VerifyWithSection({ method, onMethodChange }: Props) {
   return (
-    // ✅ label নেই — PersonalFormPage এ আছে
+    
     <div className="flex gap-[20px]">
       {/* Email OTP */}
       <button

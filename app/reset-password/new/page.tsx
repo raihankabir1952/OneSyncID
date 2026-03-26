@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Lock, Eye, EyeOff, Check } from "lucide-react";
 import { fontSwitzer } from "@/lib/styles";
@@ -11,62 +11,46 @@ interface Requirement {
 }
 
 const requirements: Requirement[] = [
-  { label: "Minimum 8 characters", test: (pw) => pw.length >= 8 },
+  { label: "Minimum 8 characters",    test: (pw) => pw.length >= 8 },
   { label: "One uppercase character", test: (pw) => /[A-Z]/.test(pw) },
   { label: "One lowercase character", test: (pw) => /[a-z]/.test(pw) },
-  { label: "One special character", test: (pw) => /[^a-zA-Z0-9]/.test(pw) },
-  { label: "One number", test: (pw) => /[0-9]/.test(pw) },
+  { label: "One special character",   test: (pw) => /[^a-zA-Z0-9]/.test(pw) },
+  { label: "One number",              test: (pw) => /[0-9]/.test(pw) },
 ];
 
 function RequirementDot({ passed, started }: { passed: boolean; started: boolean }) {
   if (!started) return <div className="w-4 h-4 rounded-full border-2 border-[#d9d9d9] shrink-0" />;
-  if (passed) return <div className="w-4 h-4 rounded-full bg-[#11a75c] shrink-0 flex items-center justify-center"><Check size={10} className="text-white" /></div>;
+  if (passed)   return <div className="w-4 h-4 rounded-full bg-[#11a75c] shrink-0 flex items-center justify-center"><Check size={10} className="text-white" /></div>;
   return <div className="w-4 h-4 rounded-full bg-[#ff3838] shrink-0" />;
 }
 
 export default function CreateNewPasswordPage() {
   const router = useRouter();
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
-  const [logOutAll, setLogOutAll] = useState(false);
-  const [passwordFocused, setPasswordFocused] = useState(false);
 
-  const allPassed = requirements.every((r) => r.test(password));
+  const passwordRef = useRef<HTMLInputElement>(null);
+  const confirmRef  = useRef<HTMLInputElement>(null);
+
+  const [password,        setPassword]        = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword,    setShowPassword]    = useState(false);
+  const [showConfirm,     setShowConfirm]     = useState(false);
+  const [logOutAll,       setLogOutAll]       = useState(false);
+  const [passwordFocused, setPasswordFocused] = useState(false);
+  const [confirmFocused,  setConfirmFocused]  = useState(false);
+
+  const passwordFloated = passwordFocused || password.length > 0;
+  const confirmFloated  = confirmFocused  || confirmPassword.length > 0;
+
+  const allPassed      = requirements.every((r) => r.test(password));
   const passwordsMatch = password === confirmPassword && confirmPassword.length > 0;
-  const isFormValid = allPassed && passwordsMatch;
+  const isFormValid    = allPassed && passwordsMatch;
 
   return (
     <div className="min-h-screen bg-gray-100 flex justify-center">
       <div className="w-full max-w-[393px] bg-white min-h-screen flex flex-col">
-
-        {/* Status Bar */}
-        {/* <div className="flex items-center justify-between px-6 pt-4 pb-2 shrink-0">
-          <span className="text-[17px] font-semibold text-black">9:41</span>
-          <div className="flex items-center gap-2">
-            <div className="flex items-end gap-[2px] h-[12px]">
-              <div className="w-[3px] h-[4px] bg-black rounded-sm" />
-              <div className="w-[3px] h-[6px] bg-black rounded-sm" />
-              <div className="w-[3px] h-[8px] bg-black rounded-sm" />
-              <div className="w-[3px] h-[10px] bg-black rounded-sm" />
-            </div>
-            <svg width="16" height="12" viewBox="0 0 24 24" fill="none">
-              <path d="M12 18C12.83 18 13.5 18.67 13.5 19.5S12.83 21 12 21 10.5 20.33 10.5 19.5 11.17 18 12 18Z" fill="black" />
-              <path d="M12 13C14.21 13 16.21 13.9 17.66 15.34L19.07 13.93C17.24 12.1 14.75 11 12 11S6.76 12.1 4.93 13.93L6.34 15.34C7.79 13.9 9.79 13 12 13Z" fill="black" />
-              <path d="M12 8C15.54 8 18.73 9.44 21.04 11.77L22.45 10.36C19.75 7.66 16.06 6 12 6S4.25 7.66 1.55 10.36L2.96 11.77C5.27 9.44 8.46 8 12 8Z" fill="black" />
-            </svg>
-            <div className="flex items-center">
-              <div className="w-[22px] h-[11px] border border-black rounded-[2px] flex items-center px-[1px]">
-                <div className="w-full h-[7px] bg-black rounded-[1px]" />
-              </div>
-              <div className="w-[1px] h-[4px] bg-black ml-[1px]" />
-            </div>
-          </div>
-        </div> */}
-
-        {/* Content */}
         <div className="flex-1 overflow-y-auto">
+
+          {/* Header */}
           <div className="px-5 pt-6 pb-2 flex justify-center">
             <h1 style={fontSwitzer} className="text-[20px] font-semibold text-black">
               Create a new password
@@ -81,38 +65,53 @@ export default function CreateNewPasswordPage() {
 
               <div className="flex flex-col gap-[20px]">
 
-                {/* New Password Input */}
-                <div className={`border rounded-xl px-4 py-5 transition-all ${
-                  passwordFocused
-                    ? "border-[rgba(2,95,201,0.4)] shadow-[0_0_3px_2px_rgba(2,95,201,0.1)]"
-                    : "border-[#d9d9d9]"
-                }`}>
-                  <div className="flex items-start gap-2">
-                    <Lock size={20} className={`shrink-0 mt-[2px] ${passwordFocused ? "text-[#025fc9]" : "text-[#5e5757]"}`} />
-                    <div className="flex flex-col gap-[6px] flex-1">
-                      <p style={fontSwitzer} className={`text-[16px] font-medium leading-[21px] tracking-[0.16px] ${passwordFocused ? "text-[#025fc9]" : "text-[#5e5757]"}`}>
-                        NEW PASSWORD
-                      </p>
-                      <div className="flex items-center justify-between">
-                        <input
-                          type={showPassword ? "text" : "password"}
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          onFocus={() => setPasswordFocused(true)}
-                          onBlur={() => setPasswordFocused(false)}
-                          placeholder="Create a strong password"
-                          className="text-[16px] text-black placeholder:text-[#a09898] bg-transparent outline-none flex-1"
-                          style={fontSwitzer}
-                        />
-                        <button onClick={() => setShowPassword((p) => !p)} className="shrink-0 ml-2 text-[#a09898]">
-                          {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                        </button>
-                      </div>
+                {/* New Password */}
+                <div
+                  className={`border rounded-xl transition-all duration-200 cursor-text ${
+                    passwordFocused
+                      ? "border-[rgba(2,95,201,0.4)] shadow-[0_0_3px_2px_rgba(2,95,201,0.1)]"
+                      : "border-[#d9d9d9]"
+                  }`}
+                  onClick={() => passwordRef.current?.focus()}
+                >
+                  <div className="flex items-center gap-2 px-4 h-[64px]">
+                    <Lock
+                      size={20}
+                      className={`shrink-0 transition-colors ${passwordFocused || password ? "text-[#025fc9]" : "text-[#5e5757]"}`}
+                    />
+                    <div className="relative flex-1 h-full">
+                      <label
+                        style={fontSwitzer}
+                        className={`absolute left-0 pointer-events-none transition-all duration-200 font-medium tracking-[0.16px] ${
+                          passwordFloated
+                            ? "top-[10px] text-[11px] text-[#025fc9]"
+                            : "top-1/2 -translate-y-1/2 text-[16px] text-[#a09898]"
+                        }`}
+                      >
+                        New Password
+                      </label>
+                      <input
+                        ref={passwordRef}
+                        type={showPassword ? "text" : "password"}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        onFocus={() => setPasswordFocused(true)}
+                        onBlur={() => setPasswordFocused(false)}
+                        style={fontSwitzer}
+                        className="absolute inset-0 w-full h-full text-[16px] text-black bg-transparent outline-none border-none pt-[28px] pb-[8px] pr-8"
+                      />
                     </div>
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); setShowPassword((p) => !p); }}
+                      className="shrink-0 text-[#a09898]"
+                    >
+                      {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
                   </div>
                 </div>
 
-                {/* Requirements (shows when typing) */}
+                {/* Requirements */}
                 {password.length > 0 && (
                   <div className="border border-[#d9d9d9] rounded-xl px-4 py-5">
                     <div className="flex flex-col gap-[6px]">
@@ -128,11 +127,7 @@ export default function CreateNewPasswordPage() {
                               <span
                                 style={fontSwitzer}
                                 className={`text-[16px] leading-[21px] tracking-[0.16px] ${
-                                  password.length === 0
-                                    ? "text-[#a09898]"
-                                    : passed
-                                    ? "text-[#11a75c]"
-                                    : "text-[#ff3838]"
+                                  passed ? "text-[#11a75c]" : "text-[#ff3838]"
                                 }`}
                               >
                                 {req.label}
@@ -147,39 +142,68 @@ export default function CreateNewPasswordPage() {
 
                 {/* Confirm Password */}
                 <div className="flex flex-col gap-3">
-                  <div className="border border-[#d9d9d9] rounded-xl px-4 py-5">
-                    <div className="flex items-start gap-2">
-                      <Check size={20} className="text-[#5e5757] shrink-0 mt-[2px]" />
-                      <div className="flex flex-col gap-[6px] flex-1">
-                        <p style={fontSwitzer} className="text-[16px] font-medium text-[#5e5757] leading-[21px] tracking-[0.16px]">
-                          CONFIRM PASSWORD
-                        </p>
-                        <div className="flex items-center justify-between">
-                          <input
-                            type={showConfirm ? "text" : "password"}
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                            placeholder="Re-enter password"
-                            className="text-[16px] text-black placeholder:text-[#a09898] bg-transparent outline-none flex-1"
-                            style={fontSwitzer}
-                          />
-                          <button onClick={() => setShowConfirm((p) => !p)} className="shrink-0 ml-2 text-[#a09898]">
-                            {showConfirm ? <EyeOff size={20} /> : <Eye size={20} />}
-                          </button>
-                        </div>
+                  <div
+                    className={`border rounded-xl transition-colors duration-200 cursor-text ${
+                      confirmFocused ? "border-[#025fc9]" : "border-[#d9d9d9]"
+                    }`}
+                    onClick={() => confirmRef.current?.focus()}
+                  >
+                    <div className="flex items-center gap-2 px-4 h-[64px]">
+                      <Check
+                        size={20}
+                        className={`shrink-0 transition-colors ${
+                          passwordsMatch ? "text-[#11a75c]" : confirmFocused ? "text-[#025fc9]" : "text-[#5e5757]"
+                        }`}
+                      />
+                      <div className="relative flex-1 h-full">
+                        <label
+                          style={fontSwitzer}
+                          className={`absolute left-0 pointer-events-none transition-all duration-200 font-medium tracking-[0.16px] ${
+                            confirmFloated
+                              ? `top-[10px] text-[11px] ${passwordsMatch ? "text-[#11a75c]" : "text-[#025fc9]"}`
+                              : "top-1/2 -translate-y-1/2 text-[16px] text-[#a09898]"
+                          }`}
+                        >
+                          Confirm Password
+                        </label>
+                        <input
+                          ref={confirmRef}
+                          type={showConfirm ? "text" : "password"}
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          onFocus={() => setConfirmFocused(true)}
+                          onBlur={() => setConfirmFocused(false)}
+                          style={fontSwitzer}
+                          className="absolute inset-0 w-full h-full text-[16px] text-black bg-transparent outline-none border-none pt-[28px] pb-[8px] pr-8"
+                        />
                       </div>
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); setShowConfirm((p) => !p); }}
+                        className="shrink-0 text-[#a09898]"
+                      >
+                        {showConfirm ? <EyeOff size={20} /> : <Eye size={20} />}
+                      </button>
                     </div>
                   </div>
 
-                  {/* Passwords don't match warning */}
-                  {confirmPassword.length > 0 && !passwordsMatch && (
+                  {/* Mismatch warning */}
+                  {confirmPassword.length > 0 && !confirmFocused && !passwordsMatch && (
                     <p style={fontSwitzer} className="text-[12px] text-[#ff3838] px-1">
                       Passwords do not match
                     </p>
                   )}
 
+                  {/* Match success */}
+                  {passwordsMatch && !confirmFocused && (
+                    <p style={fontSwitzer} className="text-[12px] text-[#11a75c] px-1">
+                      ✓ Passwords match
+                    </p>
+                  )}
+
                   {/* Log out of all devices */}
                   <button
+                    type="button"
                     onClick={() => setLogOutAll((l) => !l)}
                     className="flex items-center gap-2"
                   >
@@ -209,7 +233,6 @@ export default function CreateNewPasswordPage() {
             >
               <span className="text-[16px] font-medium text-white">Reset & Log In</span>
             </button>
-
           </div>
         </div>
       </div>

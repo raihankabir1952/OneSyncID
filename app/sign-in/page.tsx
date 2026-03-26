@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, User, Lock, Eye, EyeOff, ScanFace, Fingerprint } from "lucide-react";
 import Link from "next/link";
@@ -11,12 +11,20 @@ type AuthTab = "password" | "pin";
 export default function SignInPage() {
   const router = useRouter();
 
-  const [authTab, setAuthTab]             = useState<AuthTab>("password");
+  const usernameRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+
+  const [authTab,         setAuthTab]         = useState<AuthTab>("password");
   const [usernameOrEmail, setUsernameOrEmail] = useState("");
-  const [password, setPassword]           = useState("");
-  const [pin, setPin]                     = useState("");
-  const [showPassword, setShowPassword]   = useState(false);
-  const [rememberMe, setRememberMe]       = useState(false);
+  const [password,        setPassword]        = useState("");
+  const [pin,             setPin]             = useState("");
+  const [showPassword,    setShowPassword]    = useState(false);
+  const [rememberMe,      setRememberMe]      = useState(false);
+  const [usernameFocused, setUsernameFocused] = useState(false);
+  const [passwordFocused, setPasswordFocused] = useState(false);
+
+  const usernameFloated = usernameFocused || usernameOrEmail.length > 0;
+  const passwordFloated = passwordFocused || password.length > 0;
 
   const isFormValid =
     usernameOrEmail.trim().length > 0 &&
@@ -29,10 +37,7 @@ export default function SignInPage() {
 
           {/* Header */}
           <div className="px-5 pt-6 pb-2 flex flex-col gap-[10px]">
-            <button
-              onClick={() => router.back()}
-              className="w-6 h-6 flex items-center justify-center"
-            >
+            <button onClick={() => router.back()} className="w-6 h-6 flex items-center justify-center">
               <ArrowLeft size={24} className="text-black" />
             </button>
             <div className="flex justify-center">
@@ -44,28 +49,45 @@ export default function SignInPage() {
 
           {/* Form */}
           <div className="flex flex-col gap-[40px] px-5 pt-[50px] pb-10">
-
-            {/* Input Card + extras */}
             <div className="flex flex-col gap-3">
 
               {/* Main Input Card */}
               <div className="border border-[#d9d9d9] rounded-[12px] overflow-hidden bg-white">
 
                 {/* Username / Email */}
-                <div className="border-b border-[#d9d9d9] px-4 py-5 flex items-start gap-2">
-                  <User size={20} className="text-[#5e5757] shrink-0 mt-0.5" />
-                  <div className="flex flex-col gap-[6px] flex-1">
-                    <p style={fontSwitzer} className="text-[16px] font-medium text-[#5e5757] leading-[21px] tracking-[0.16px]">
-                      USERNAME OR EMAIL
-                    </p>
-                    <input
-                      type="text"
-                      value={usernameOrEmail}
-                      onChange={(e) => setUsernameOrEmail(e.target.value)}
-                      placeholder="Enter your username or email"
-                      style={fontSwitzer}
-                      className="text-[16px] text-black placeholder:text-[#a09898] leading-[21px] tracking-[0.16px] bg-transparent outline-none w-full"
+                <div
+                  className={`border-b transition-colors duration-200 cursor-text ${
+                    usernameFocused ? "border-[#025fc9]" : "border-[#d9d9d9]"
+                  }`}
+                  onClick={() => usernameRef.current?.focus()}
+                >
+                  <div className="flex items-center gap-2 px-4 h-[64px]">
+                    <User
+                      size={20}
+                      className={`shrink-0 transition-colors ${usernameFocused || usernameOrEmail ? "text-[#025fc9]" : "text-[#5e5757]"}`}
                     />
+                    <div className="relative flex-1 h-full">
+                      <label
+                        style={fontSwitzer}
+                        className={`absolute left-0 pointer-events-none transition-all duration-200 font-medium tracking-[0.16px] ${
+                          usernameFloated
+                            ? "top-[10px] text-[11px] text-[#025fc9]"
+                            : "top-1/2 -translate-y-1/2 text-[16px] text-[#a09898]"
+                        }`}
+                      >
+                        Username or Email
+                      </label>
+                      <input
+                        ref={usernameRef}
+                        type="text"
+                        value={usernameOrEmail}
+                        onChange={(e) => setUsernameOrEmail(e.target.value)}
+                        onFocus={() => setUsernameFocused(true)}
+                        onBlur={() => setUsernameFocused(false)}
+                        style={fontSwitzer}
+                        className="absolute inset-0 w-full h-full text-[16px] text-black bg-transparent outline-none border-none pt-[28px] pb-[8px]"
+                      />
+                    </div>
                   </div>
                 </div>
 
@@ -97,40 +119,57 @@ export default function SignInPage() {
 
                 {/* Password Input */}
                 {authTab === "password" && (
-                  <div className="px-4 py-5 flex items-start gap-2">
-                    <Lock size={20} className="text-[#5e5757] shrink-0 mt-0.5" />
-                    <div className="flex flex-col gap-[6px] flex-1">
-                      <p style={fontSwitzer} className="text-[16px] font-medium text-[#5e5757] leading-[21px] tracking-[0.16px]">
-                        PASSWORD
-                      </p>
-                      <div className="flex items-center justify-between">
+                  <div
+                    className={`transition-colors duration-200 cursor-text ${
+                      passwordFocused ? "border border-[#025fc9] rounded-b-[12px]" : ""
+                    }`}
+                    onClick={() => passwordRef.current?.focus()}
+                  >
+                    <div className="flex items-center gap-2 px-4 h-[64px]">
+                      <Lock
+                        size={20}
+                        className={`shrink-0 transition-colors ${passwordFocused || password ? "text-[#025fc9]" : "text-[#5e5757]"}`}
+                      />
+                      <div className="relative flex-1 h-full">
+                        <label
+                          style={fontSwitzer}
+                          className={`absolute left-0 pointer-events-none transition-all duration-200 font-medium tracking-[0.16px] ${
+                            passwordFloated
+                              ? "top-[10px] text-[11px] text-[#025fc9]"
+                              : "top-1/2 -translate-y-1/2 text-[16px] text-[#a09898]"
+                          }`}
+                        >
+                          Password
+                        </label>
                         <input
+                          ref={passwordRef}
                           type={showPassword ? "text" : "password"}
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
-                          placeholder="Enter your password"
+                          onFocus={() => setPasswordFocused(true)}
+                          onBlur={() => setPasswordFocused(false)}
                           style={fontSwitzer}
-                          className="text-[16px] text-black placeholder:text-[#a09898] leading-[21px] tracking-[0.16px] bg-transparent outline-none flex-1"
+                          className="absolute inset-0 w-full h-full text-[16px] text-black bg-transparent outline-none border-none pt-[28px] pb-[8px] pr-8"
                         />
-                        <button
-                          onClick={() => setShowPassword((p) => !p)}
-                          className="shrink-0 ml-2 text-[#a09898]"
-                        >
-                          {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                        </button>
                       </div>
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); setShowPassword((p) => !p); }}
+                        className="shrink-0 text-[#a09898]"
+                      >
+                        {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                      </button>
                     </div>
                   </div>
                 )}
 
-                {/* PIN Input */}
+                {/* PIN Input  */}
                 {authTab === "pin" && (
                   <div className="px-4 py-5">
                     <div className="flex flex-col gap-[6px]">
                       <p style={fontSwitzer} className="text-[16px] font-medium text-[#5e5757] leading-[21px] tracking-[0.16px]">
                         6 DIGIT PIN
                       </p>
-                      {/* PIN dots — centered */}
                       <div className="flex items-center justify-center gap-6 py-2">
                         {Array.from({ length: 6 }).map((_, i) => (
                           <div
@@ -143,18 +182,15 @@ export default function SignInPage() {
                           />
                         ))}
                       </div>
-                      {/* Hidden numeric input */}
                       <input
                         type="tel"
                         value={pin}
-                        onChange={(e) => {
-                          const val = e.target.value.replace(/\D/g, "").slice(0, 6);
-                          setPin(val);
-                        }}
+                        onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 6))}
                         className="opacity-0 absolute w-0 h-0"
                         autoFocus
                       />
                       <button
+                        type="button"
                         onClick={() => {
                           const input = document.querySelector('input[type="tel"]') as HTMLInputElement;
                           input?.focus();
@@ -162,17 +198,18 @@ export default function SignInPage() {
                         style={fontSwitzer}
                         className="text-[13px] text-[#a09898] text-center"
                       >
-                        Tap to enter PIN
+                        Tap here to enter PIN
                       </button>
                     </div>
                   </div>
                 )}
               </div>
 
-              {/* Remember me + Forgot — PIN mode-এ Remember me নেই (Figma match) */}
+              {/* Remember me + Forgot */}
               <div className="flex items-center justify-between">
                 {authTab === "password" ? (
                   <button
+                    type="button"
                     onClick={() => setRememberMe((r) => !r)}
                     className="flex items-center gap-2"
                   >
@@ -188,10 +225,10 @@ export default function SignInPage() {
                     <span style={fontSwitzer} className="text-[14px] text-[#5e5757]">Remember me</span>
                   </button>
                 ) : (
-                  <div /> // spacer so Forgot PIN stays right-aligned
+                  <div />
                 )}
-
                 <button
+                  type="button"
                   onClick={() => router.push("/reset-password")}
                   style={fontSwitzer}
                   className="text-[14px] text-[#0052b4]"
@@ -203,6 +240,7 @@ export default function SignInPage() {
               {/* Face ID + Fingerprint */}
               <div className="flex items-center gap-[12px] pt-5">
                 <button
+                  type="button"
                   onClick={() => router.push("/passkey/not-found")}
                   style={fontSwitzer}
                   className="flex-1 flex items-center justify-center gap-2 bg-[rgba(2,95,201,0.1)] rounded-[12px] px-4 py-[8px]"
@@ -211,6 +249,7 @@ export default function SignInPage() {
                   <span className="text-[16px] font-medium text-[#025fc9] leading-[21px] tracking-[0.16px]">Face ID</span>
                 </button>
                 <button
+                  type="button"
                   onClick={() => router.push("/passkey/not-found")}
                   style={fontSwitzer}
                   className="flex-1 flex items-center justify-center gap-2 bg-[rgba(2,95,201,0.1)] rounded-[12px] px-4 py-[8px]"
@@ -250,13 +289,13 @@ export default function SignInPage() {
 
             {/* OTP Button */}
             <button
+              type="button"
               onClick={() => router.push("/sign-in/otp")}
               style={fontSwitzer}
               className="w-full h-11 border-[1.5px] border-[#025fc9] rounded-[8px] flex items-center justify-center"
             >
               <span className="text-[16px] font-medium text-[#025fc9]">Sign In with One Time Password</span>
             </button>
-
           </div>
         </div>
       </div>

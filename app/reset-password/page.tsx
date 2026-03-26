@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Phone, Mail, ChevronDown } from "lucide-react";
 import { fontSwitzer } from "@/lib/styles";
@@ -10,17 +10,26 @@ type ContactTab = "phone" | "email";
 
 export default function ResetPasswordPage() {
   const router = useRouter();
-  const [tab, setTab] = useState<ContactTab>("phone");
-  const [phone, setPhone] = useState("");
-  const [email, setEmail] = useState("");
 
-  const isValid = tab === "phone" ? phone.length >= 10 : /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const phoneRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
+
+  const [tab,          setTab]          = useState<ContactTab>("phone");
+  const [phone,        setPhone]        = useState("");
+  const [email,        setEmail]        = useState("");
+  const [phoneFocused, setPhoneFocused] = useState(false);
+  const [emailFocused, setEmailFocused] = useState(false);
+
+  const phoneFloated = phoneFocused || phone.length > 0;
+  const emailFloated = emailFocused || email.length > 0;
+
+  const isValid = tab === "phone"
+    ? phone.length >= 10
+    : /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   return (
     <div className="min-h-screen bg-gray-100 flex justify-center">
       <div className="w-full max-w-[393px] bg-white min-h-screen flex flex-col">
-
-        {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto">
 
           {/* Header */}
@@ -37,8 +46,8 @@ export default function ResetPasswordPage() {
 
           {/* Body */}
           <div className="flex flex-col gap-[40px] px-5 pt-[50px] pb-10">
-
             <div className="flex flex-col gap-[20px]">
+
               {/* Illustration */}
               <div className="w-full rounded-xl overflow-hidden">
                 <Image
@@ -51,6 +60,7 @@ export default function ResetPasswordPage() {
               </div>
 
               <div className="flex flex-col gap-3">
+
                 {/* Description */}
                 <p style={fontSwitzer} className="text-[16px] text-[#333]">
                   Type your registered phone or email to reset your password.
@@ -85,11 +95,19 @@ export default function ResetPasswordPage() {
                 </div>
 
                 {/* Input */}
-                <div className="border border-[#d9d9d9] rounded-xl px-4 py-5">
-                  {tab === "phone" ? (
-                    <div className="flex items-center gap-3">
+                {tab === "phone" ? (
+                  <div
+                    className={`border rounded-xl transition-colors duration-200 cursor-text ${
+                      phoneFocused ? "border-[#025fc9]" : "border-[#d9d9d9]"
+                    }`}
+                    onClick={() => phoneRef.current?.focus()}
+                  >
+                    <div className="flex items-center gap-3 px-4 h-[64px]">
                       {/* BD Flag */}
-                      <div className="flex items-center gap-1 shrink-0">
+                      <div
+                        className="flex items-center gap-1 shrink-0"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <div className="w-[30px] h-[20px] rounded-[2px] overflow-hidden border border-[#eee] shrink-0">
                           <div className="w-full h-full bg-[#006A4E] flex items-center justify-center">
                             <div className="w-[11px] h-[11px] rounded-full bg-[#F42A41] ml-[2px]" />
@@ -98,43 +116,77 @@ export default function ResetPasswordPage() {
                         <span style={fontSwitzer} className="text-[16px] text-[#5e5757]">+880</span>
                         <ChevronDown size={16} className="text-[#5e5757]" />
                       </div>
-                      <div className="w-px h-[48px] bg-[#d9d9d9] shrink-0" />
-                      <div style={fontSwitzer} className="flex flex-col gap-[6px] flex-1">
-                        <p className="text-[16px] font-medium text-[#5e5757] leading-[21px] tracking-[0.16px]">PHONE NUMBER</p>
+                      <div className="w-px h-[40px] bg-[#d9d9d9] shrink-0" />
+                      <div className="relative flex-1 h-full">
+                        <label
+                          style={fontSwitzer}
+                          className={`absolute left-0 pointer-events-none transition-all duration-200 font-medium tracking-[0.16px] ${
+                            phoneFloated
+                              ? "top-[10px] text-[11px] text-[#025fc9]"
+                              : "top-1/2 -translate-y-1/2 text-[16px] text-[#a09898]"
+                          }`}
+                        >
+                          Phone Number
+                        </label>
                         <input
+                          ref={phoneRef}
                           type="tel"
                           value={phone}
                           onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
-                          placeholder="Enter your phone number"
-                          className="text-[16px] text-black placeholder:text-[#a09898] bg-transparent outline-none w-full"
+                          onFocus={() => setPhoneFocused(true)}
+                          onBlur={() => setPhoneFocused(false)}
                           style={fontSwitzer}
+                          className="absolute inset-0 w-full h-full text-[16px] text-black bg-transparent outline-none border-none pt-[28px] pb-[8px]"
                         />
                       </div>
                     </div>
-                  ) : (
-                    <div className="flex items-start gap-2">
-                      <Mail size={20} className="text-[#5e5757] shrink-0 mt-[2px]" />
-                      <div style={fontSwitzer} className="flex flex-col gap-[6px] flex-1">
-                        <p className="text-[16px] font-medium text-[#5e5757] leading-[21px] tracking-[0.16px]">EMAIL ADDRESS</p>
+                  </div>
+                ) : (
+                  <div
+                    className={`border rounded-xl transition-colors duration-200 cursor-text ${
+                      emailFocused ? "border-[#025fc9]" : "border-[#d9d9d9]"
+                    }`}
+                    onClick={() => emailRef.current?.focus()}
+                  >
+                    <div className="flex items-center gap-2 px-4 h-[64px]">
+                      <Mail
+                        size={20}
+                        className={`shrink-0 transition-colors ${emailFocused || email ? "text-[#025fc9]" : "text-[#5e5757]"}`}
+                      />
+                      <div className="relative flex-1 h-full">
+                        <label
+                          style={fontSwitzer}
+                          className={`absolute left-0 pointer-events-none transition-all duration-200 font-medium tracking-[0.16px] ${
+                            emailFloated
+                              ? "top-[10px] text-[11px] text-[#025fc9]"
+                              : "top-1/2 -translate-y-1/2 text-[16px] text-[#a09898]"
+                          }`}
+                        >
+                          Email Address
+                        </label>
                         <input
+                          ref={emailRef}
                           type="email"
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
-                          placeholder="Enter your email address"
-                          className="text-[16px] text-black placeholder:text-[#a09898] bg-transparent outline-none w-full"
+                          onFocus={() => setEmailFocused(true)}
+                          onBlur={() => setEmailFocused(false)}
                           style={fontSwitzer}
+                          className="absolute inset-0 w-full h-full text-[16px] text-black bg-transparent outline-none border-none pt-[28px] pb-[8px]"
                         />
                       </div>
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
 
                 {/* Need help */}
                 <div className="flex items-center gap-1">
                   <span style={fontSwitzer} className="text-[14px] text-[#333]">Need help?</span>
                   <button
-                   onClick={() => router.push("/support")} 
-                  style={fontSwitzer} className="text-[14px] font-medium text-[#0052b4]">
+                    onClick={() => router.push("/support")}
+                    style={fontSwitzer}
+                    className="text-[14px] font-medium text-[#0052b4]"
+                  >
                     Contact Support
                   </button>
                 </div>
@@ -152,7 +204,6 @@ export default function ResetPasswordPage() {
             >
               <span className="text-[16px] font-medium text-white">Send OTP</span>
             </button>
-
           </div>
         </div>
       </div>
