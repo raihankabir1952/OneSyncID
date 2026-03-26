@@ -11,6 +11,10 @@ import PhoneEmailToggle from "@/components/get-started/PhoneEmailToggle";
 import PhoneInput from "@/components/get-started/PhoneInput";
 
 // ─── Inline SVG Back Icon (no expiry) ─────────────────────────────────────────
+/*
+ * Figma: ep:back — left-pointing arrow
+ * 24×24px | stroke #000 | strokeWidth 1.5
+ */
 const BackIcon = () => (
   <svg
     width="24"
@@ -22,11 +26,13 @@ const BackIcon = () => (
     strokeLinecap="round"
     strokeLinejoin="round"
   >
-    <path d="M15 18L9 12L15 6" />
+    <path d="M19 12H5" />
+    <path d="M12 19l-7-7 7-7" />
   </svg>
 );
 
-// ─── Types & Validation Schemas ───────────────────────────────────────────────
+// ─── Types & Validation ───────────────────────────────────────────────────────
+
 type TabType = "phone" | "email";
 
 const phoneSchema = z.object({
@@ -45,11 +51,12 @@ const emailSchema = z.object({
 
 type FormValues = { contact: string };
 
-// ─── Page Component ───────────────────────────────────────────────────────────
+// ─── Page ─────────────────────────────────────────────────────────────────────
+
 export default function GetStartedPage() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<TabType>("phone");
-  const [phoneCode, setPhoneCode] = useState("+880");
+  const [activeTab,   setActiveTab]   = useState<TabType>("phone");
+  const [phoneCode,   setPhoneCode]   = useState("+880");
   const [countryCode, setCountryCode] = useState("BD");
 
   const {
@@ -76,14 +83,16 @@ export default function GetStartedPage() {
   };
 
   return (
-    // Outer wrapper — centers the 393px frame on larger screens
+    /*
+     * Outer wrapper — centers the 393px frame on larger screens
+     */
     <div className="min-h-screen bg-gray-100 flex justify-center">
 
       {/*
        * ── Figma frame ──
-       * width  : 393px  (Figma exact)
-       * height : 852px  (Figma exact — fixed, not minHeight)
-       * overflow: hidden (clips any content outside the frame)
+       * width  : 393px (Figma exact)
+       * height : 852px (Figma exact — fixed)
+       * overflow: hidden
        */}
       <div
         className="relative bg-white overflow-hidden"
@@ -92,14 +101,13 @@ export default function GetStartedPage() {
 
         {/*
          * ── Header ──
-         * Figma: top: 80px | left: 0 | width: 393px
-         *        px: 20px  | gap: 10px
+         * Figma: top: 80px | px: 20px | gap: 10px
          */}
         <div
           className="absolute left-0 w-full px-5 flex flex-col"
           style={{ top: "80px", gap: "10px" }}
         >
-          {/* Back button — Figma: 24×24px */}
+          {/* Back button — 24×24px */}
           <div className="flex items-center">
             <button
               onClick={() => router.back()}
@@ -111,9 +119,8 @@ export default function GetStartedPage() {
           </div>
 
           {/*
-           * Title
-           * Figma: Switzer Semibold | 20px | line-height: normal | color: #000
-           * text-center — per your request
+           * Figma: Switzer Semibold | 20px | leading-normal | #000
+           * text-center per user request
            */}
           <p
             style={fontSwitzer}
@@ -125,7 +132,7 @@ export default function GetStartedPage() {
 
         {/*
          * ── Main Content ──
-         * Figma: top: 190px | left: 0 | width: 393px | gap: 30px
+         * Figma: top: 190px | gap: 30px
          */}
         <form
           onSubmit={handleSubmit(onSubmit)}
@@ -133,17 +140,15 @@ export default function GetStartedPage() {
           className="absolute left-0 w-full flex flex-col items-center"
           style={{ top: "190px", gap: "30px" }}
         >
-
           {/* Inner column — Figma gap: 40px */}
           <div
             className="flex flex-col items-center w-full"
             style={{ gap: "40px" }}
           >
-
             {/*
              * Language & Country Card
-             * Figma: px: 20px | border: 1px #d9d9d9 | radius: 12px
-             * Row:   px: 16px | py: 20px | height: 64px each
+             * Figma: px: 20px | border 1px #d9d9d9 | radius 12px
+             * Row: px 16px | py 20px | h 64px each
              */}
             <div className="px-5 w-full">
               <LanguageCountryCard
@@ -155,19 +160,16 @@ export default function GetStartedPage() {
             </div>
 
             {/*
-             * Phone / Email Toggle + Input
-             * Figma: width: 353px | gap: 10px
+             * Phone/Email Toggle + Input
+             * Figma: w 353px | gap 10px
              */}
-            <div
-              className="flex flex-col w-[353px]"
-              style={{ gap: "10px" }}
-            >
+            <div className="flex flex-col w-[353px]" style={{ gap: "10px" }}>
               {/*
                * Tab Switcher
                * Figma: bg #f5f5f5 | border 1px #d9d9d9 | radius 12px
-               *        px 10px | py 8px
+               *        px 10px | py 8px | h 53px
                * Active: bg white | border 1px #025fc9 | radius 8px | p 8px
-               * Label:  Switzer Medium | 16px | leading-[21px] | tracking-[0.16px]
+               * Label: Switzer Medium | 16px | leading-[21px] | tracking-[0.16px]
                */}
               <PhoneEmailToggle
                 activeTab={activeTab}
@@ -175,11 +177,11 @@ export default function GetStartedPage() {
               />
 
               {/*
-               * Phone / Email Input
+               * Input Field
                * Figma: border 1px #d9d9d9 | radius 12px | px 16px | py 20px
-               * Dial code:   Switzer Regular | 16px | #5e5757
-               * Field label: Switzer Medium  | 16px | #5e5757 | tracking-[0.16px] | leading-[21px]
-               * Placeholder: Switzer Regular | 16px | #a09898
+               * Dial code:   Switzer Regular 16px #5e5757
+               * Field label: Switzer Medium  16px #5e5757 tracking-[0.16px] leading-[21px]
+               * Placeholder: Switzer Regular 16px #a09898
                */}
               <PhoneInput
                 activeTab={activeTab}
@@ -197,7 +199,7 @@ export default function GetStartedPage() {
                 }}
               />
 
-              {/* Validation error — Switzer Regular | 12px | red-500 */}
+              {/* Validation error — Switzer Regular 12px red-500 */}
               {errors.contact && (
                 <p
                   style={fontSwitzer}
@@ -212,48 +214,39 @@ export default function GetStartedPage() {
           {/*
            * ── Buttons ──
            * Figma: gap 12px | w 353px | h 44px | radius 8px
-           * Primary  : bg #025fc9 | text white   | Switzer Medium 16px
-           * Secondary: border 1.5px #025fc9 | text #025fc9 | Switzer Medium 16px
+           * Primary  : bg #025fc9 | white   | Switzer Medium 16px
+           * Secondary: border 1.5px #025fc9 | #025fc9 | Switzer Medium 16px
            */}
           <div
             className="flex flex-col items-center w-full pb-8"
             style={{ gap: "12px" }}
           >
-            {/* Primary — Sign In */}
+            {/* Sign In — Primary */}
             <button
               type="submit"
               disabled={!contact.trim()}
               style={fontSwitzer}
-              className={`
-                w-[353px] h-[44px] rounded-[8px]
-                flex items-center justify-center
-                bg-[#025fc9] transition-opacity
-                ${!contact.trim() ? "opacity-60 cursor-not-allowed" : "opacity-100"}
-              `}
+              className={`w-[353px] h-[44px] rounded-[8px] flex items-center justify-center bg-[#025fc9] transition-opacity ${
+                !contact.trim() ? "opacity-60 cursor-not-allowed" : "opacity-100"
+              }`}
             >
               <span className="text-[16px] font-medium leading-normal text-white">
                 Sign In
               </span>
             </button>
 
-            {/* Secondary — Create OneSyncID */}
+            {/* Create OneSyncID — Secondary */}
             <button
               type="button"
               onClick={() => router.push("/create-account")}
               style={fontSwitzer}
-              className="
-                w-[353px] h-[44px] rounded-[8px]
-                border-[1.5px] border-[#025fc9]
-                flex items-center justify-center
-                bg-white
-              "
+              className="w-[353px] h-[44px] rounded-[8px] border-[1.5px] border-[#025fc9] flex items-center justify-center bg-white"
             >
               <span className="text-[16px] font-medium leading-normal text-[#025fc9]">
                 Create OneSyncID
               </span>
             </button>
           </div>
-
         </form>
       </div>
     </div>
