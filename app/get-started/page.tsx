@@ -7,41 +7,32 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { fontSwitzer } from "@/lib/styles";
 import LanguageCountryCard from "@/components/get-started/LanguageCountryCard";
-import PhoneEmailToggle from "@/components/get-started/PhoneEmailToggle";
+import PhoneEmailToggle, { TabType } from "@/components/get-started/PhoneEmailToggle";
 import PhoneInput from "@/components/get-started/PhoneInput";
 
-// ─── Inline SVG Back Icon (no expiry) ─────────────────────────────────────────
-/*
- * Figma: ep:back — left-pointing arrow
- * 24×24px | stroke #000 | strokeWidth 1.5
- */
+// ─── Inline SVG Back Icon ─────────────────────────────────────────────────────
 const BackIcon = () => (
-  <svg
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="#000"
-    strokeWidth="1.5"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+    stroke="#000" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
     <path d="M19 12H5" />
     <path d="M12 19l-7-7 7-7" />
   </svg>
 );
 
-// ─── Types & Validation ───────────────────────────────────────────────────────
+// ─── Mock Credentials ─────────────────────────────────────────────────────────
+// Valid phone : +880 1798546751  → goes to /otp
+// Valid email : test@onesyncid.com → goes to /otp
+// Anything else → State 4 "No account found"
+const VALID_PHONE = "1798546751";
+const VALID_EMAIL = "test@onesyncid.com";
 
-type TabType = "phone" | "email";
-
+// ─── Validation ───────────────────────────────────────────────────────────────
 const phoneSchema = z.object({
   contact: z
     .string()
     .min(1, "Phone number is required")
-    .regex(/^1[3-9]\d{8}$/, "Enter a valid phone number"),
+    .regex(/^\d{10}$/, "Enter a valid 10-digit phone number"),
 });
-
 const emailSchema = z.object({
   contact: z
     .string()
@@ -52,20 +43,18 @@ const emailSchema = z.object({
 type FormValues = { contact: string };
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
-
 export default function GetStartedPage() {
   const router = useRouter();
+
   const [activeTab,   setActiveTab]   = useState<TabType>("phone");
   const [phoneCode,   setPhoneCode]   = useState("+880");
   const [countryCode, setCountryCode] = useState("BD");
+  const [serverError, setServerError] = useState<string | null>(null);
 
   const {
-    setValue,
-    watch,
-    handleSubmit,
+    setValue, watch, handleSubmit,
     formState: { errors },
-    clearErrors,
-    reset,
+    clearErrors, reset,
   } = useForm<FormValues>({
     resolver: zodResolver(activeTab === "phone" ? phoneSchema : emailSchema),
     defaultValues: { contact: "" },
@@ -75,41 +64,51 @@ export default function GetStartedPage() {
 
   const handleTabChange = (tab: TabType) => {
     setActiveTab(tab);
+    setServerError(null);
     reset({ contact: "" });
   };
 
-  const onSubmit = () => {
-    router.push("/sign-in");
+  // ── Submit ──────────────────────────────────────────────────────────────────
+  const onSubmit = ({ contact }: FormValues) => {
+    setServerError(null);
+
+    if (activeTab === "phone") {
+      if (contact === VALID_PHONE) {
+        // ✅ Pass full phone number (dialCode + number) to OTP page via query param
+        const fullPhone = encodeURIComponent(`${phoneCode}${contact}`);
+        router.push(`/otp?phone=${fullPhone}&type=phone`);
+      } else {
+        setServerError(
+          "No account found with this phone number.\nCreate an account to continue."
+        );
+      }
+    } else {
+      if (contact === VALID_EMAIL) {
+        // ✅ Pass email to OTP page
+        const encodedEmail = encodeURIComponent(contact);
+        router.push(`/otp?email=${encodedEmail}&type=email`);
+      } else {
+        setServerError(
+          "No account found with this email address.\nCreate an account to continue."
+        );
+      }
+    }
   };
 
   return (
-    /*
-     * Outer wrapper — centers the 393px frame on larger screens
-     */
     <div className="min-h-screen bg-gray-100 flex justify-center">
 
-      {/*
-       * ── Figma frame ──
-       * width  : 393px (Figma exact)
-       * height : 852px (Figma exact — fixed)
-       * overflow: hidden
-       */}
-      <div
-        className="relative bg-white overflow-hidden"
-        style={{ width: "393px", height: "852px" }}
-      >
+      {/* ── 393×852 Figma frame ── */}
+      <div className="relative bg-white overflow-hidden" style={{ width: "393px", minHeight: "852px" }}>
 
-        {/*
-         * ── Header ──
-         * Figma: top: 80px | px: 20px | gap: 10px
-         */}
+        {/* ── Header — top: 80px ── */}
         <div
-          className="absolute left-0 w-full px-5 flex flex-col"
+          className="absolute left-0 w-full px-[20px] flex flex-col"
           style={{ top: "80px", gap: "10px" }}
         >
-          {/* Back button — 24×24px */}
           <div className="flex items-center">
             <button
+              type="button"
               onClick={() => router.back()}
               className="w-6 h-6 flex items-center justify-center"
               aria-label="Go back"
@@ -117,40 +116,23 @@ export default function GetStartedPage() {
               <BackIcon />
             </button>
           </div>
-
-          {/*
-           * Figma: Switzer Semibold | 20px | leading-normal | #000
-           * text-center per user request
-           */}
-          <p
-            style={fontSwitzer}
-            className="text-[20px] font-semibold leading-normal text-black text-center w-full"
-          >
+          <p style={fontSwitzer} className="text-[20px] font-semibold leading-normal text-black text-center w-full">
             Welcome. Let&apos;s verify it&apos;s you.
           </p>
         </div>
 
-        {/*
-         * ── Main Content ──
-         * Figma: top: 190px | gap: 30px
-         */}
+        {/* ── Body — top: 190px ── */}
         <form
           onSubmit={handleSubmit(onSubmit)}
           noValidate
           className="absolute left-0 w-full flex flex-col items-center"
           style={{ top: "190px", gap: "30px" }}
         >
-          {/* Inner column — Figma gap: 40px */}
-          <div
-            className="flex flex-col items-center w-full"
-            style={{ gap: "40px" }}
-          >
-            {/*
-             * Language & Country Card
-             * Figma: px: 20px | border 1px #d9d9d9 | radius 12px
-             * Row: px 16px | py 20px | h 64px each
-             */}
-            <div className="px-5 w-full">
+          {/* Inner column — gap 40px */}
+          <div className="flex flex-col items-center w-full" style={{ gap: "40px" }}>
+
+            {/* Language & Country */}
+            <div className="px-[20px] w-full">
               <LanguageCountryCard
                 onCountryChange={(code, cc) => {
                   setPhoneCode(code);
@@ -159,30 +141,10 @@ export default function GetStartedPage() {
               />
             </div>
 
-            {/*
-             * Phone/Email Toggle + Input
-             * Figma: w 353px | gap 10px
-             */}
-            <div className="flex flex-col w-[353px]" style={{ gap: "10px" }}>
-              {/*
-               * Tab Switcher
-               * Figma: bg #f5f5f5 | border 1px #d9d9d9 | radius 12px
-               *        px 10px | py 8px | h 53px
-               * Active: bg white | border 1px #025fc9 | radius 8px | p 8px
-               * Label: Switzer Medium | 16px | leading-[21px] | tracking-[0.16px]
-               */}
-              <PhoneEmailToggle
-                activeTab={activeTab}
-                onTabChange={handleTabChange}
-              />
+            {/* Toggle + Input */}
+            <div className="flex flex-col w-[353px]" style={{ gap: "30px" }}>
+              <PhoneEmailToggle activeTab={activeTab} onTabChange={handleTabChange} />
 
-              {/*
-               * Input Field
-               * Figma: border 1px #d9d9d9 | radius 12px | px 16px | py 20px
-               * Dial code:   Switzer Regular 16px #5e5757
-               * Field label: Switzer Medium  16px #5e5757 tracking-[0.16px] leading-[21px]
-               * Placeholder: Switzer Regular 16px #a09898
-               */}
               <PhoneInput
                 activeTab={activeTab}
                 phoneNumber={activeTab === "phone" ? contact : ""}
@@ -192,36 +154,26 @@ export default function GetStartedPage() {
                 onPhoneChange={(val) => {
                   setValue("contact", val);
                   clearErrors("contact");
+                  setServerError(null);
                 }}
                 onEmailChange={(val) => {
                   setValue("contact", val);
                   clearErrors("contact");
+                  setServerError(null);
                 }}
               />
 
-              {/* Validation error — Switzer Regular 12px red-500 */}
+              {/* Zod field error */}
               {errors.contact && (
-                <p
-                  style={fontSwitzer}
-                  className="text-[12px] font-normal leading-normal text-red-500 px-1"
-                >
+                <p style={fontSwitzer} className="text-[12px] text-red-500 leading-normal px-1 -mt-[20px]">
                   {errors.contact.message}
                 </p>
               )}
             </div>
           </div>
 
-          {/*
-           * ── Buttons ──
-           * Figma: gap 12px | w 353px | h 44px | radius 8px
-           * Primary  : bg #025fc9 | white   | Switzer Medium 16px
-           * Secondary: border 1.5px #025fc9 | #025fc9 | Switzer Medium 16px
-           */}
-          <div
-            className="flex flex-col items-center w-full pb-8"
-            style={{ gap: "12px" }}
-          >
-            {/* Sign In — Primary */}
+          {/* ── Buttons ── */}
+          <div className="flex flex-col items-center" style={{ gap: "12px" }}>
             <button
               type="submit"
               disabled={!contact.trim()}
@@ -230,23 +182,27 @@ export default function GetStartedPage() {
                 !contact.trim() ? "opacity-60 cursor-not-allowed" : "opacity-100"
               }`}
             >
-              <span className="text-[16px] font-medium leading-normal text-white">
-                Sign In
-              </span>
+              <span className="text-[16px] font-medium leading-normal text-white">Sign In</span>
             </button>
 
-            {/* Create OneSyncID — Secondary */}
             <button
               type="button"
               onClick={() => router.push("/create-account")}
               style={fontSwitzer}
               className="w-[353px] h-[44px] rounded-[8px] border-[1.5px] border-[#025fc9] flex items-center justify-center bg-white"
             >
-              <span className="text-[16px] font-medium leading-normal text-[#025fc9]">
-                Create OneSyncID
-              </span>
+              <span className="text-[16px] font-medium leading-normal text-[#025fc9]">Create OneSyncID</span>
             </button>
           </div>
+
+          {/* ── State 4 — No account found ── */}
+          {serverError && (
+            <div style={fontSwitzer} className="flex flex-col items-center text-[14px] leading-normal text-center w-[353px] pb-6">
+              <p className="text-[#f42a41]">{serverError.split("\n")[0]}</p>
+              <p className="text-[#5e5757]">{serverError.split("\n")[1]}</p>
+            </div>
+          )}
+
         </form>
       </div>
     </div>

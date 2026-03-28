@@ -1,74 +1,91 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, KeyboardEvent, ClipboardEvent } from "react";
 import { fontSwitzer } from "@/lib/styles";
-  
 
-type OtpStatus = "entering" | "success" | "error";
+// ─── Types ────────────────────────────────────────────────────────────────────
+export type OtpStatus = "idle" | "success" | "error";
 
 type Props = {
-  digits: string[];
+  value: string[];
+  onChange: (val: string[]) => void;
   status: OtpStatus;
-  onChange: (digits: string[]) => void;
 };
 
-export default function OtpInput({ digits = ["", "", "", "", "", ""], status, onChange }: Props) {
-  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+// ─── Border color per status ──────────────────────────────────────────────────
+function boxBorder(index: number, filled: boolean, status: OtpStatus, activeIndex: number) {
+  if (status === "success") return "border-[#11a75c]";
+  if (status === "error")   return "border-[#ff3838]";
+  if (index === activeIndex) return "border-[#025fc9]";
+  if (filled)                return "border-[#025fc9]";
+  return "border-[#d9d9d9]";
+}
 
-  const getBorderColor = () => {
-    if (status === "success") return "border-[#11a75c]";
-    if (status === "error") return "border-[#ff3838]";
-    return "border-[#d9d9d9]";
+// ─── Component ───────────────────────────────────────────────────────────────
+/*
+ * Figma: 6 boxes | each 50×50px | gap 10px | border 2px | radius 12px
+ * Total width: 6×50 + 5×10 = 350px ≈ fits inside w-[353px] container
+ *
+ * Fix: use fixed w-[50px] h-[50px] instead of flex-1
+ * to prevent overflow on small/variable screens
+ */
+export default function OtpInput({ value, onChange, status }: Props) {
+  const refs = useRef<(HTMLInputElement | null)[]>([]);
+
+  const activeIndex = value.findIndex((v) => v === "");
+  const focusIndex  = activeIndex === -1 ? 5 : activeIndex;
+
+  const handleChange = (i: number, char: string) => {
+    if (!/^\d$/.test(char)) return;
+    const next = [...value];
+    next[i] = char;
+    onChange(next);
+    if (i < 5) refs.current[i + 1]?.focus();
   };
 
-  const getActiveBorderColor = () => {
-    if (status === "success") return "border-[#11a75c]";
-    if (status === "error") return "border-[#ff3838]";
-    return "border-[#025fc9]";
-  };
-
-  const handleChange = (index: number, value: string) => {
-    if (!/^\d*$/.test(value)) return;
-    const newDigits = [...digits];
-    newDigits[index] = value.slice(-1);
-    onChange(newDigits);
-    if (value && index < 5) {
-      inputRefs.current[index + 1]?.focus();
+  const handleKeyDown = (i: number, e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Backspace") {
+      e.preventDefault();
+      const next = [...value];
+      if (next[i]) {
+        next[i] = "";
+        onChange(next);
+      } else if (i > 0) {
+        next[i - 1] = "";
+        onChange(next);
+        refs.current[i - 1]?.focus();
+      }
     }
   };
 
-  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Backspace" && !digits[index] && index > 0) {
-      inputRefs.current[index - 1]?.focus();
-    }
-  };
-
-  const handlePaste = (e: React.ClipboardEvent) => {
+  const handlePaste = (e: ClipboardEvent<HTMLInputElement>) => {
     e.preventDefault();
-    const pastedData = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
-    const newDigits = [...digits];
-    pastedData.split("").forEach((char, i) => { newDigits[i] = char; });
-    onChange(newDigits);
-    const lastIndex = Math.min(pastedData.length, 5);
-    inputRefs.current[lastIndex]?.focus();
+    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+    if (!pasted) return;
+    const next = Array(6).fill("");
+    pasted.split("").forEach((c, i) => { next[i] = c; });
+    onChange(next);
+    const focusAt = Math.min(pasted.length, 5);
+    refs.current[focusAt]?.focus();
   };
 
   return (
-    <div className="flex gap-[10px] items-center w-full">
-      {digits.map((digit, index) => (
+    <div className="flex items-center justify-between w-full">
+      {value.map((digit, i) => (
         <input
-          key={index}
-          ref={(el) => { inputRefs.current[index] = el; }}
-          type="tel"
+          key={i}
+          ref={(el) => { refs.current[i] = el; }}
+          type="text"
+          inputMode="numeric"
           maxLength={1}
           value={digit}
-          onChange={(e) => handleChange(index, e.target.value)}
-          onKeyDown={(e) => handleKeyDown(index, e)}
+          onChange={(e) => handleChange(i, e.target.value)}
+          onKeyDown={(e) => handleKeyDown(i, e)}
           onPaste={handlePaste}
-          style={fontSwitzer}
-          className={`flex-1 min-w-0 h-[50px] border-2 rounded-xl text-center text-[18px] font-semibold text-black outline-none transition-colors
-            ${digit ? getActiveBorderColor() : getBorderColor()}
-          `}
+          onFocus={() => refs.current[i]?.select()}
+          style={{ ...fontSwitzer, width: "50px", height: "50px" }}
+          className={`shrink-0 rounded-[12px] border-2 text-center text-[18px] font-semibold text-black outline-none transition-colors bg-white
+            ${boxBorder(i, !!digit, status, focusIndex)}`}
         />
       ))}
     </div>

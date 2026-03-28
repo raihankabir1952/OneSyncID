@@ -4,13 +4,16 @@ import { useRef, useState } from "react";
 import { fontSwitzer } from "@/lib/styles";
 import * as Flags from "country-flag-icons/react/3x2";
 
+// ─── Inline SVG Chevron ───────────────────────────────────────────────────────
 const ChevronDownIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5e5757" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M6 9l6 6 6-6"/>
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+    stroke="#5e5757" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M6 9l6 6 6-6" />
   </svg>
 );
 
-type TabType = "phone" | "email";
+// ─── Types ────────────────────────────────────────────────────────────────────
+export type TabType = "phone" | "email";
 
 type Props = {
   activeTab: TabType;
@@ -32,6 +35,21 @@ function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
+// ─── Component ───────────────────────────────────────────────────────────────
+/*
+ * Figma: APP/1.2.1 — node 4295:12154 / 4295:12156
+ *
+ * PHONE layout (border-bottom flat style):
+ *   Label   : "PHONE NUMBER" — Switzer Medium 16px #5e5757 tracking-[0.16px] leading-[21px]
+ *   Row     : border-b 1px #d9d9d9 | py 10px
+ *   Dial    : flag 30×20px | code Switzer Regular 16px #5e5757 | chevron
+ *   Input   : Switzer Regular 16px #3a3a3a | placeholder #a09898
+ *
+ * EMAIL layout (same flat style):
+ *   Label   : "EMAIL ADDRESS"
+ *   Row     : border-b 1px #d9d9d9 | py 10px | h 41px
+ *   Input   : placeholder "Enter your email address"
+ */
 export default function PhoneInput({
   activeTab,
   phoneNumber,
@@ -41,117 +59,99 @@ export default function PhoneInput({
   onPhoneChange,
   onEmailChange,
 }: Props) {
-  const phoneInputRef = useRef<HTMLInputElement>(null);
-  const emailInputRef = useRef<HTMLInputElement>(null);
+  const phoneRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
 
   const [phoneFocused, setPhoneFocused] = useState(false);
   const [emailFocused, setEmailFocused] = useState(false);
 
-  const phoneLabelFloated = phoneFocused || phoneNumber.length > 0;
-  const emailLabelFloated = emailFocused || email.length > 0;
   const emailTouched = email.length > 0;
-  const emailValid = isValidEmail(email);
+  const emailValid   = isValidEmail(email);
 
+  // ── Phone ─────────────────────────────────────────────────────────────────
   if (activeTab === "phone") {
     return (
-      <div
-        className={`relative border rounded-[12px] px-4 transition-colors duration-200 cursor-text ${
-          phoneFocused ? "border-[#025fc9]" : "border-[#d9d9d9]"
-        }`}
-        onClick={() => phoneInputRef.current?.focus()}
-      >
-        <div className="flex items-center h-[64px]">
+      <div className="flex flex-col gap-[10px] w-full">
+        {/* Label */}
+        <p style={fontSwitzer} className="text-[16px] font-medium leading-[21px] tracking-[0.16px] text-[#5e5757]">
+          PHONE NUMBER
+        </p>
 
-          {/* Flag + code + chevron */}
-          <div
-            className="flex items-center gap-2 shrink-0"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <FlagIcon
-              countryCode={countryCode}
-              className="w-[30px] h-[20px] border border-[#eee]"
-            />
-            <span style={fontSwitzer} className="text-[16px] text-[#5e5757]">
-              {phoneCode}
-            </span>
+        {/* Input row — flat bottom border, Figma style */}
+        <div
+          className={`flex items-center justify-between border-b py-[10px] w-full overflow-hidden transition-colors ${
+            phoneFocused ? "border-[#025fc9]" : "border-[#d9d9d9]"
+          }`}
+          onClick={() => phoneRef.current?.focus()}
+        >
+          {/* Flag + dial code + chevron */}
+          <div className="flex items-center gap-[3px] shrink-0 cursor-pointer">
+            <div className="flex items-center gap-[8px]">
+              <FlagIcon
+                countryCode={countryCode}
+                className="w-[30px] h-[20px] border border-[#eee] shrink-0"
+              />
+              <span style={fontSwitzer} className="text-[16px] text-[#5e5757] whitespace-nowrap">
+                {phoneCode}
+              </span>
+            </div>
             <ChevronDownIcon />
           </div>
 
-          {/* Divider */}
-          <div className="w-px h-[40px] bg-[#d9d9d9] mx-3 shrink-0" />
-
-          {/* Floating Label + Input */}
-          <div className="relative flex-1 h-full cursor-text">
-
-            <label
-              style={fontSwitzer}
-              className={`absolute left-0 pointer-events-none transition-all duration-200 font-medium tracking-[0.16px] ${
-                phoneLabelFloated
-                  ? "top-[10px] text-[11px] text-[#025fc9]"
-                  : "top-1/2 -translate-y-1/2 text-[16px] text-[#a09898]"
-              }`}
-            >
-              Phone Number
-            </label>
-
-            <input
-              ref={phoneInputRef}
-              type="tel"
-              value={phoneNumber}
-              onChange={(e) => onPhoneChange(e.target.value.replace(/\D/g, ""))}
-              onFocus={() => setPhoneFocused(true)}
-              onBlur={() => setPhoneFocused(false)}
-              style={fontSwitzer}
-              className="absolute inset-0 w-full h-full text-[16px] text-black bg-transparent outline-none border-none pt-[28px] pb-[8px]"
-            />
-          </div>
+          {/* Number input */}
+          <input
+            ref={phoneRef}
+            type="tel"
+            value={phoneNumber}
+            onChange={(e) => onPhoneChange(e.target.value.replace(/\D/g, ""))}
+            onFocus={() => setPhoneFocused(true)}
+            onBlur={() => setPhoneFocused(false)}
+            placeholder="Enter your number"
+            style={fontSwitzer}
+            className="flex-1 ml-[8px] bg-transparent outline-none text-[16px] text-[#3a3a3a] placeholder:text-[#a09898]"
+          />
         </div>
       </div>
     );
   }
 
+  // ── Email ─────────────────────────────────────────────────────────────────
   return (
-    <div
-      className={`relative border rounded-[12px] px-4 transition-colors duration-200 cursor-text ${
-        emailTouched && !emailValid && !emailFocused
-          ? "border-red-400"
-          : emailFocused
-          ? "border-[#025fc9]"
-          : emailTouched && emailValid
-          ? "border-green-400"
-          : "border-[#d9d9d9]"
-      }`}
-      onClick={() => emailInputRef.current?.focus()}
-    >
-      <div className="flex items-center h-[64px]">
-        <div className="relative flex-1 h-full cursor-text">
+    <div className="flex flex-col gap-[10px] w-full">
+      {/* Label */}
+      <p style={fontSwitzer} className="text-[16px] font-medium leading-[21px] tracking-[0.16px] text-[#5e5757]">
+        EMAIL ADDRESS
+      </p>
 
-          <label
-            style={fontSwitzer}
-            className={`absolute left-0 pointer-events-none transition-all duration-200 font-medium tracking-[0.16px] ${
-              emailLabelFloated
-                ? "top-[10px] text-[11px] text-[#025fc9]"
-                : "top-1/2 -translate-y-1/2 text-[16px] text-[#a09898]"
-            }`}
-          >
-            Email Address
-          </label>
-
-          <input
-            ref={emailInputRef}
-            type="email"
-            value={email}
-            onChange={(e) => onEmailChange(e.target.value)}
-            onFocus={() => setEmailFocused(true)}
-            onBlur={() => setEmailFocused(false)}
-            style={fontSwitzer}
-            className="absolute inset-0 w-full h-full text-[16px] text-black bg-transparent outline-none border-none pt-[28px] pb-[8px]"
-          />
-        </div>
+      {/* Input row */}
+      <div
+        className={`flex items-center border-b h-[41px] py-[10px] w-full overflow-hidden transition-colors ${
+          emailTouched && !emailValid && !emailFocused
+            ? "border-red-400"
+            : emailFocused
+            ? "border-[#025fc9]"
+            : emailTouched && emailValid
+            ? "border-green-400"
+            : "border-[#d9d9d9]"
+        }`}
+        onClick={() => emailRef.current?.focus()}
+      >
+        <input
+          ref={emailRef}
+          type="email"
+          value={email}
+          onChange={(e) => onEmailChange(e.target.value)}
+          onFocus={() => setEmailFocused(true)}
+          onBlur={() => setEmailFocused(false)}
+          placeholder="Enter your email address"
+          style={fontSwitzer}
+          className="w-full bg-transparent outline-none text-[16px] text-[#3a3a3a] placeholder:text-[#a09898]"
+        />
       </div>
 
+      {/* Inline validation hint */}
       {emailTouched && !emailFocused && (
-        <p style={fontSwitzer} className={`text-[12px] pb-2 -mt-1 ${emailValid ? "text-green-500" : "text-red-500"}`}>
+        <p style={fontSwitzer} className={`text-[12px] leading-normal ${emailValid ? "text-green-500" : "text-red-500"}`}>
           {emailValid ? "✓ Valid email" : "Please enter a valid email address"}
         </p>
       )}
