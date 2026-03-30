@@ -19,7 +19,6 @@ function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-// Min age 18, max age 120
 function isValidDOB(dob: string): boolean {
   if (!dob) return false;
   const birth = new Date(dob);
@@ -51,6 +50,10 @@ export default function PersonalFormPage() {
     isValidEmail(email) &&
     phoneNumber.trim().length >= 10 &&
     password.length >= 8 &&
+    /[A-Z]/.test(password) &&
+    /[a-z]/.test(password) &&
+    /[^a-zA-Z0-9]/.test(password) &&
+    /[0-9]/.test(password) &&
     password === confirmPassword;
 
   return (
@@ -82,11 +85,11 @@ export default function PersonalFormPage() {
           </div>
 
           {/* Form */}
-          <div className="flex flex-col gap-[40px] px-5 pt-[50px] pb-8">
+          <div className="flex flex-col gap-[25px] px-5 pt-[50px] pb-8">
 
             {/* Account Type Toggle */}
             <div className="flex flex-col gap-[10px]">
-              <p style={fontSwitzer} className="text-[14px] text-[#767676] font-medium">
+              <p style={fontSwitzer} className="text-[16px] font-medium text-[#5e5757] tracking-[0.16px]">
                 ACCOUNT TYPE
               </p>
               <AccountTypeToggle
@@ -98,24 +101,19 @@ export default function PersonalFormPage() {
             </div>
 
             {/* Personal Information */}
-            <div className="flex flex-col gap-[10px]">
-              <p style={fontSwitzer} className="text-[14px] text-[#767676] font-medium">
-                PERSONAL INFORMATION
-              </p>
-              <PersonalInfoSection
-                fullName={fullName}
-                dateOfBirth={dateOfBirth}
-                gender={gender}
-                isActive={!!fullName}
-                onFullNameChange={setFullName}
-                onDateOfBirthChange={setDateOfBirth}
-                onGenderChange={setGender}
-              />
-            </div>
+            <PersonalInfoSection
+              fullName={fullName}
+              dateOfBirth={dateOfBirth}
+              gender={gender}
+              isActive={!!fullName}
+              onFullNameChange={setFullName}
+              onDateOfBirthChange={setDateOfBirth}
+              onGenderChange={setGender}
+            />
 
             {/* Location */}
             <div className="flex flex-col gap-[10px]">
-              <p style={fontSwitzer} className="text-[14px] text-[#767676] font-medium">
+              <p style={fontSwitzer} className="text-[16px] font-medium text-[#5e5757] tracking-[0.16px]">
                 LOCATION
               </p>
               <LocationSection
@@ -127,36 +125,26 @@ export default function PersonalFormPage() {
             </div>
 
             {/* Contact */}
-            <div className="flex flex-col gap-[10px]">
-              <p style={fontSwitzer} className="text-[14px] text-[#767676] font-medium">
-                CONTACT
-              </p>
-              <ContactSection
-                email={email}
-                phoneNumber={phoneNumber}
-                phoneCode="+880"
-                countryCode="BD"
-                onEmailChange={setEmail}
-                onPhoneChange={setPhoneNumber}
-              />
-            </div>
+            <ContactSection
+              email={email}
+              phoneNumber={phoneNumber}
+              phoneCode="+880"
+              countryCode="BD"
+              onEmailChange={setEmail}
+              onPhoneChange={setPhoneNumber}
+            />
 
             {/* Security */}
-            <div className="flex flex-col gap-[10px]">
-              <p style={fontSwitzer} className="text-[14px] text-[#767676] font-medium">
-                SECURITY
-              </p>
-              <SecuritySection
-                password={password}
-                confirmPassword={confirmPassword}
-                onPasswordChange={setPassword}
-                onConfirmPasswordChange={setConfirmPassword}
-              />
-            </div>
+            <SecuritySection
+              password={password}
+              confirmPassword={confirmPassword}
+              onPasswordChange={setPassword}
+              onConfirmPasswordChange={setConfirmPassword}
+            />
 
             {/* Verify With */}
             <div className="flex flex-col gap-[10px]">
-              <p style={fontSwitzer} className="text-[14px] text-[#767676] font-medium">
+              <p style={fontSwitzer} className="text-[16px] font-medium text-[#5e5757] tracking-[0.16px]">
                 VERIFY WITH
               </p>
               <VerifyWithSection

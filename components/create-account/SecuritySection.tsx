@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Lock, Check, Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import { fontSwitzer } from "@/lib/styles";
 
 type Props = {
@@ -10,6 +10,41 @@ type Props = {
   onPasswordChange: (value: string) => void;
   onConfirmPasswordChange: (value: string) => void;
 };
+
+type CheckItem = {
+  label: string;
+  test: (pw: string) => boolean;
+};
+
+const checks: CheckItem[] = [
+  { label: "Minimum 8 characters",    test: (pw) => pw.length >= 8 },
+  { label: "One uppercase character", test: (pw) => /[A-Z]/.test(pw) },
+  { label: "One lowercase character", test: (pw) => /[a-z]/.test(pw) },
+  { label: "One special character",   test: (pw) => /[^a-zA-Z0-9]/.test(pw) },
+  { label: "One number",              test: (pw) => /[0-9]/.test(pw) },
+];
+
+function CheckDot({ status }: { status: "pass" | "fail" | "idle" }) {
+  if (status === "pass") {
+    return (
+      <span className="shrink-0 w-4 h-4 rounded-full bg-[#11a75c] flex items-center justify-center">
+        <svg width="10" height="7" viewBox="0 0 10 7" fill="none">
+          <path d="M1 3.5L3.5 6L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </span>
+    );
+  }
+  if (status === "fail") {
+    return (
+      <span className="shrink-0 w-4 h-4 rounded-full bg-[#ff3838] flex items-center justify-center">
+        <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
+          <path d="M1 1L7 7M7 1L1 7" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+        </svg>
+      </span>
+    );
+  }
+  return <span className="shrink-0 w-4 h-4 rounded-full border-2 border-[#d9d9d9]" />;
+}
 
 export default function SecuritySection({
   password,
@@ -20,115 +55,103 @@ export default function SecuritySection({
   const passwordRef = useRef<HTMLInputElement>(null);
   const confirmRef  = useRef<HTMLInputElement>(null);
 
-  const [showPassword, setShowPassword]   = useState(false);
-  const [showConfirm,  setShowConfirm]    = useState(false);
-  const [passFocused,  setPassFocused]    = useState(false);
+  const [showPassword, setShowPassword]     = useState(false);
+  const [showConfirm,  setShowConfirm]      = useState(false);
+  const [passFocused,  setPassFocused]      = useState(false);
   const [confirmFocused, setConfirmFocused] = useState(false);
-  const [passTouched,  setPassTouched]    = useState(false);
   const [confirmTouched, setConfirmTouched] = useState(false);
 
-  const passFloated    = passFocused    || password.length > 0;
-  const confirmFloated = confirmFocused || confirmPassword.length > 0;
-
-  const passwordTooShort  = passTouched && !passFocused && password.length > 0 && password.length < 8;
   const passwordsMatch    = password && confirmPassword && password === confirmPassword;
   const passwordsMismatch = confirmTouched && !confirmFocused && confirmPassword.length > 0 && password !== confirmPassword;
+  const showChecklist     = password.length > 0;
 
   return (
-    <div className="border border-[#d9d9d9] rounded-[12px] overflow-hidden">
+    <div className="flex flex-col gap-[20px] w-full">
 
-      {/* Password */}
-      <div
-        className={`relative border-b transition-colors duration-200 cursor-text ${
-          passFocused ? "border-[#025fc9]" : "border-[#d9d9d9]"
-        }`}
-        onClick={() => passwordRef.current?.focus()}
-      >
-        <div className="flex items-center gap-3 px-4 h-[64px]">
-          <Lock
-            size={20}
-            className={`shrink-0 transition-colors ${passFocused ? "text-[#025fc9]" : "text-[#5e5757]"}`}
+      {/* ── PASSWORD ── */}
+      <div className="flex flex-col gap-[10px]">
+        <p style={fontSwitzer} className="text-[16px] font-medium text-[#5e5757] tracking-[0.16px] leading-[21px]">
+          PASSWORD
+        </p>
+        <div
+          className={`border-b py-[10px] flex items-center gap-3 cursor-text transition-colors ${
+            passFocused ? "border-[rgba(2,95,201,0.3)]" : "border-[#d9d9d9]"
+          }`}
+          onClick={() => passwordRef.current?.focus()}
+        >
+          <input
+            ref={passwordRef}
+            type={showPassword ? "text" : "password"}
+            value={password}
+            placeholder="Create a strong password"
+            onChange={(e) => onPasswordChange(e.target.value)}
+            onFocus={() => setPassFocused(true)}
+            onBlur={() => setPassFocused(false)}
+            style={fontSwitzer}
+            className="flex-1 text-[16px] text-black bg-transparent outline-none border-none placeholder:text-[#a09898] tracking-[0.16px]"
           />
-          <div className="relative flex-1 h-full cursor-text">
-            <label
-              style={fontSwitzer}
-              className={`absolute left-0 pointer-events-none transition-all duration-200 font-medium tracking-[0.16px] ${
-                passFloated
-                  ? "top-[10px] text-[11px] text-[#025fc9]"
-                  : "top-1/2 -translate-y-1/2 text-[16px] text-[#a09898]"
-              }`}
-            >
-              Password
-            </label>
-            <input
-              ref={passwordRef}
-              type={showPassword ? "text" : "password"}
-              value={password}
-              onChange={(e) => onPasswordChange(e.target.value)}
-              onFocus={() => setPassFocused(true)}
-              onBlur={() => { setPassFocused(false); setPassTouched(true); }}
-              style={fontSwitzer}
-              className="absolute inset-0 w-full h-full text-[16px] text-black bg-transparent outline-none border-none pt-[28px] pb-[8px] pr-8"
-            />
-          </div>
-          {/* Eye toggle — stopPropagation যাতে input focus না হয় */}
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); setShowPassword(!showPassword); }}
-            className="shrink-0"
-          >
+          <button type="button" onClick={(e) => { e.stopPropagation(); setShowPassword(!showPassword); }} className="shrink-0">
             {showPassword
               ? <EyeOff size={20} className="text-[#5e5757]" />
               : <Eye    size={20} className="text-[#5e5757]" />
             }
           </button>
         </div>
-        {passwordTooShort && (
-          <p style={fontSwitzer} className="text-[12px] text-[#ff3838] px-4 pb-2 -mt-1">
-            Password must be at least 8 characters
-          </p>
+
+        {/* Password checklist */}
+        {showChecklist && (
+          <div className="flex flex-col gap-[6px] pt-[2px]">
+            <p style={fontSwitzer} className="text-[16px] font-medium text-[#5e5757] tracking-[0.16px]">
+              PASSWORD MUST INCLUDE
+            </p>
+            <div className="flex flex-col gap-[6px]">
+              {checks.map((c) => {
+                const passed = c.test(password);
+                const status = passed ? "pass" : password.length > 0 ? "fail" : "idle";
+                return (
+                  <div key={c.label} className="flex items-center gap-[8px] h-[21px]">
+                    <CheckDot status={status} />
+                    <span
+                      style={fontSwitzer}
+                      className={`text-[16px] tracking-[0.16px] leading-[21px] ${
+                        status === "pass" ? "text-[#11a75c]"
+                          : status === "fail" ? "text-[#ff3838]"
+                          : "text-[#a09898]"
+                      }`}
+                    >
+                      {c.label}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         )}
       </div>
 
-      {/* Confirm Password */}
-      <div
-        className={`relative transition-colors duration-200 cursor-text ${
-          confirmFocused ? "border border-[#025fc9] rounded-b-[12px]" : ""
-        }`}
-        onClick={() => confirmRef.current?.focus()}
-      >
-        <div className="flex items-center gap-3 px-4 h-[64px]">
-          <Check
-            size={20}
-            className={`shrink-0 transition-colors ${passwordsMatch ? "text-[#11a75c]" : confirmFocused ? "text-[#025fc9]" : "text-[#5e5757]"}`}
+      {/* ── CONFIRM PASSWORD ── */}
+      <div className="flex flex-col gap-[10px]">
+        <p style={fontSwitzer} className="text-[16px] font-medium text-[#5e5757] tracking-[0.16px] leading-[21px]">
+          CONFIRM PASSWORD
+        </p>
+        <div
+          className={`border-b py-[10px] flex items-center gap-3 cursor-text transition-colors ${
+            confirmFocused ? "border-[rgba(2,95,201,0.3)]" : "border-[#d9d9d9]"
+          }`}
+          onClick={() => confirmRef.current?.focus()}
+        >
+          <input
+            ref={confirmRef}
+            type={showConfirm ? "text" : "password"}
+            value={confirmPassword}
+            placeholder="Re-enter password"
+            onChange={(e) => onConfirmPasswordChange(e.target.value)}
+            onFocus={() => setConfirmFocused(true)}
+            onBlur={() => { setConfirmFocused(false); setConfirmTouched(true); }}
+            style={fontSwitzer}
+            className="flex-1 text-[16px] text-black bg-transparent outline-none border-none placeholder:text-[#a09898] tracking-[0.16px]"
           />
-          <div className="relative flex-1 h-full cursor-text">
-            <label
-              style={fontSwitzer}
-              className={`absolute left-0 pointer-events-none transition-all duration-200 font-medium tracking-[0.16px] ${
-                confirmFloated
-                  ? `top-[10px] text-[11px] ${passwordsMatch ? "text-[#11a75c]" : "text-[#025fc9]"}`
-                  : "top-1/2 -translate-y-1/2 text-[16px] text-[#a09898]"
-              }`}
-            >
-              Confirm Password
-            </label>
-            <input
-              ref={confirmRef}
-              type={showConfirm ? "text" : "password"}
-              value={confirmPassword}
-              onChange={(e) => onConfirmPasswordChange(e.target.value)}
-              onFocus={() => setConfirmFocused(true)}
-              onBlur={() => { setConfirmFocused(false); setConfirmTouched(true); }}
-              style={fontSwitzer}
-              className="absolute inset-0 w-full h-full text-[16px] text-black bg-transparent outline-none border-none pt-[28px] pb-[8px] pr-8"
-            />
-          </div>
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); setShowConfirm(!showConfirm); }}
-            className="shrink-0"
-          >
+          <button type="button" onClick={(e) => { e.stopPropagation(); setShowConfirm(!showConfirm); }} className="shrink-0">
             {showConfirm
               ? <EyeOff size={20} className="text-[#5e5757]" />
               : <Eye    size={20} className="text-[#5e5757]" />
@@ -136,16 +159,13 @@ export default function SecuritySection({
           </button>
         </div>
         {passwordsMismatch && (
-          <p style={fontSwitzer} className="text-[12px] text-[#ff3838] px-4 pb-2 -mt-1">
-            Passwords do not match
-          </p>
+          <p style={fontSwitzer} className="text-[12px] text-[#ff3838]">Passwords do not match</p>
         )}
         {passwordsMatch && !confirmFocused && (
-          <p style={fontSwitzer} className="text-[12px] text-[#11a75c] px-4 pb-2 -mt-1">
-            ✓ Passwords match
-          </p>
+          <p style={fontSwitzer} className="text-[12px] text-[#11a75c]">✓ Passwords match</p>
         )}
       </div>
+
     </div>
   );
 }

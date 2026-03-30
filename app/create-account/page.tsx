@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Info } from "lucide-react";
@@ -48,38 +49,19 @@ export default function CreateAccountPage() {
               ACCOUNT TYPE
             </p>
 
-            {/* Toggle — Personal */}
-            <div className="bg-[#f5f5f5] border border-[#d9d9d9] rounded-[12px] px-[10px] py-[8px] flex gap-1">
+            {/* Toggle */}
+            <AccountTypeToggle
+              activeType={accountType}
+              onTypeChange={(type) => {
+                if (type === "personal") {
+                  router.push("/create-account/personal");
+                } else {
+                  setAccountType("organization");
+                }
+              }}
+            />
 
-              {/* ✅ Personal = Link, instant navigation */}
-              <Link
-                href="/create-account/personal"
-                style={fontSwitzer}
-                className={`flex-1 py-[8px] rounded-[8px] text-[16px] font-medium tracking-[0.16px] text-center transition-all ${
-                  accountType === "personal"
-                    ? "bg-white border border-[#025fc9] text-[#025fc9]"
-                    : "text-[#a09898] border border-transparent"
-                }`}
-              >
-                Personal
-              </Link>
-
-              {/* Organization = button, state change  */}
-              <button
-                type="button"
-                onClick={() => setAccountType("organization")}
-                style={fontSwitzer}
-                className={`flex-1 py-[8px] rounded-[8px] text-[16px] font-medium tracking-[0.16px] transition-all ${
-                  accountType === "organization"
-                    ? "bg-white border border-[#025fc9] text-[#025fc9]"
-                    : "text-[#a09898] border border-transparent"
-                }`}
-              >
-                Organization
-              </button>
-            </div>
-
-            {/* Organization Message */}
+            {/* Organization Message + Illustration */}
             {accountType === "organization" && (
               <div className="flex flex-col gap-[12px]">
                 <p
@@ -95,6 +77,17 @@ export default function CreateAccountPage() {
                 >
                   Please create a personal account first to proceed.
                 </Link>
+
+                {/* AI Screen Illustration */}
+                <div className="relative h-[232px] w-full overflow-hidden rounded-[12px]">
+                  <Image
+                    src="/images/ai-screen.png"
+                    alt="AI Screen illustration"
+                    fill
+                    className="object-cover object-center"
+                    priority
+                  />
+                </div>
               </div>
             )}
           </div>
