@@ -1,112 +1,255 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { fontSwitzer } from "@/lib/styles";
-import { Link2 } from "lucide-react";
 
-interface AccountCardProps {
-  email: string;
-  badge: "Existing" | "New";
-}
+const BackIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+    stroke="#000" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M19 12H5" />
+    <path d="M12 19l-7-7 7-7" />
+  </svg>
+);
 
-function AccountCard({ email, badge }: AccountCardProps) {
-  return (
-    <div className="border border-[#d9d9d9] rounded-xl p-4 w-full flex items-center justify-between">
-      <div className="flex items-center gap-2">
-        <div className="w-6 h-6 rounded-full bg-[#d9d9d9] shrink-0" />
-        <p style={fontSwitzer} className="text-[16px] font-medium text-[#333] tracking-[0.16px]">
-          {email}
-        </p>
-      </div>
-      <div className="bg-[rgba(2,95,201,0.1)] rounded-xl px-2 py-[3px]">
-        <p style={fontSwitzer} className="text-[12px] font-medium text-[#025fc9] tracking-[0.12px]">
-          {badge}
-        </p>
-      </div>
-    </div>
-  );
-}
+type OtpState = "entering" | "success" | "error";
 
-export default function MergeVerifyPage() {
+const RESEND_SECONDS = 24;
+const CORRECT_CODE = "444444"; // demo — replace with real API
+
+export default function MergeAccountVerifyPage() {
   const router = useRouter();
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const [otp,       setOtp]       = useState("");
+  const [otpState,  setOtpState]  = useState<OtpState>("entering");
+  const [attempts,  setAttempts]  = useState(3);
+  const [countdown, setCountdown] = useState(RESEND_SECONDS);
+
+  // countdown timer
+  useEffect(() => {
+    if (otpState !== "entering" || countdown <= 0) return;
+    const t = setTimeout(() => setCountdown((c) => c - 1), 1000);
+    return () => clearTimeout(t);
+  }, [countdown, otpState]);
+
+  // auto-verify when 6 digits entered
+  useEffect(() => {
+    if (otp.length !== 6) {
+      if (otpState === "error") return; // keep error until Try Again
+      setOtpState("entering");
+      return;
+    }
+    if (otp === CORRECT_CODE) {
+      setOtpState("success");
+      setTimeout(() => router.push("/merge-account/verify/confirm"), 700);
+    } else {
+      setOtpState("error");
+      setAttempts((a) => a - 1);
+    }
+  }, [otp]);
+
+  const handleTryAgain = () => {
+    setOtp("");
+    setOtpState("entering");
+    setTimeout(() => inputRef.current?.focus(), 50);
+  };
+
+  const handleResend = () => {
+    setOtp("");
+    setOtpState("entering");
+    setCountdown(RESEND_SECONDS);
+    setTimeout(() => inputRef.current?.focus(), 50);
+  };
+
+  // box border color per state
+  const activeBorderColor =
+    otpState === "success"
+      ? "#11a75c"
+      : otpState === "error"
+      ? "#ff3838"
+      : "#025fc9";
+
+  const isValid = otp.length === 6 && otpState !== "error";
 
   return (
     <div className="min-h-screen bg-gray-100 flex justify-center">
-      <div className="w-full max-w-[393px] bg-white min-h-screen flex flex-col">
+      <div
+        className="relative bg-white"
+        style={{ width: "393px", minHeight: "1011px" }}
+      >
+        <div className="absolute inset-0 overflow-y-auto">
 
-        {/* Status Bar */}
-        {/* <div className="flex items-center justify-between px-6 pt-4 pb-2 shrink-0">
-          <span className="text-[17px] font-semibold text-black">9:41</span>
-          <div className="flex items-center gap-2">
-            <div className="flex items-end gap-[2px] h-[12px]">
-              <div className="w-[3px] h-[4px] bg-black rounded-sm" />
-              <div className="w-[3px] h-[6px] bg-black rounded-sm" />
-              <div className="w-[3px] h-[8px] bg-black rounded-sm" />
-              <div className="w-[3px] h-[10px] bg-black rounded-sm" />
-            </div>
-            <svg width="16" height="12" viewBox="0 0 24 24" fill="none">
-              <path d="M12 18C12.83 18 13.5 18.67 13.5 19.5S12.83 21 12 21 10.5 20.33 10.5 19.5 11.17 18 12 18Z" fill="black" />
-              <path d="M12 13C14.21 13 16.21 13.9 17.66 15.34L19.07 13.93C17.24 12.1 14.75 11 12 11S6.76 12.1 4.93 13.93L6.34 15.34C7.79 13.9 9.79 13 12 13Z" fill="black" />
-              <path d="M12 8C15.54 8 18.73 9.44 21.04 11.77L22.45 10.36C19.75 7.66 16.06 6 12 6S4.25 7.66 1.55 10.36L2.96 11.77C5.27 9.44 8.46 8 12 8Z" fill="black" />
-            </svg>
+          {/* ── Header ── */}
+          <div
+            className="px-5 flex flex-col"
+            style={{ paddingTop: "80px", gap: "10px" }}
+          >
             <div className="flex items-center">
-              <div className="w-[22px] h-[11px] border border-black rounded-[2px] flex items-center px-[1px]">
-                <div className="w-full h-[7px] bg-black rounded-[1px]" />
-              </div>
-              <div className="w-[1px] h-[4px] bg-black ml-[1px]" />
-            </div>
-          </div>
-        </div> */}
-
-        {/* Content */}
-        <div className="flex-1 flex flex-col gap-[50px] pt-[30px] pb-10">
-
-          {/* Title */}
-          <div className="flex justify-center px-5">
-            <h1 style={fontSwitzer} className="text-[20px] font-semibold text-black">
-              2 accounts merged
-            </h1>
-          </div>
-
-          <div className="flex flex-col gap-[30px] px-5">
-
-            {/* Accounts Preview */}
-            <div className="flex flex-col items-center w-full">
-              <AccountCard email="johndoe9@gmail.com" badge="Existing" />
-              <div className="flex flex-col items-center py-1">
-                <div className="w-px h-5 bg-[#d9d9d9]" />
-                <div className="w-10 h-10 rounded-full bg-[rgba(2,95,201,0.1)] flex items-center justify-center">
-                  <Link2 size={20} className="text-[#025fc9]" />
-                </div>
-                <div className="w-px h-5 bg-[#d9d9d9]" />
-              </div>
-              <AccountCard email="johndoe@yahoo.com" badge="New" />
-            </div>
-
-            {/* Info text */}
-            <p style={fontSwitzer} className="text-[14px] text-[#5e5757] tracking-[0.14px]">
-              Your documents, history & preferences from the existing account will carry over.
-            </p>
-
-            {/* Buttons */}
-            <div className="flex flex-col gap-3">
               <button
-                onClick={() => router.push("/merge-account/success")}
-                style={fontSwitzer}
-                className="w-full h-11 bg-[#025fc9] rounded-lg flex items-center justify-center"
+                onClick={() => router.back()}
+                className="w-6 h-6 flex items-center justify-center"
+                aria-label="Go back"
               >
-                <span className="text-[16px] font-medium text-white">Confirm Merge</span>
-              </button>
-
-              <button
-                onClick={() => router.push("/merge-account/cancelled")}
-                style={fontSwitzer}
-                className="w-full h-11 border-[1.5px] border-[#025fc9] rounded-lg flex items-center justify-center"
-              >
-                <span className="text-[16px] font-medium text-[#025fc9]">Undo & Disconnect</span>
+                <BackIcon />
               </button>
             </div>
+            <div className="flex items-center justify-center w-full">
+              <h1
+                style={fontSwitzer}
+                className="text-[20px] font-semibold leading-normal text-black"
+              >
+                Verify to continue.
+              </h1>
+            </div>
+          </div>
 
+          {/* ── Body ── */}
+          <div
+            className="flex flex-col items-center px-5 pb-10"
+            style={{ paddingTop: "50px", gap: "40px" }}
+          >
+            <div className="flex flex-col w-[353px]" style={{ gap: "20px" }}>
+
+              {/* Description */}
+              <p style={fontSwitzer} className="text-[16px] text-[#333] leading-normal">
+                A 6-digit verification code is on its way to{" "}
+                <span className="text-[#0052b4]">+8801723456789</span>.
+              </p>
+
+              <p
+                style={fontSwitzer}
+                className="text-[16px] font-medium text-black text-center"
+              >
+                Enter your verification code
+              </p>
+
+              {/* OTP Boxes */}
+              <div
+                className="flex items-center w-full cursor-text"
+                style={{ gap: "10px" }}
+                onClick={() => inputRef.current?.focus()}
+              >
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="flex flex-1 h-[50px] rounded-[12px] items-center justify-center transition-all"
+                    style={{
+                      border: `2px solid ${
+                        i < otp.length
+                          ? activeBorderColor
+                          : i === otp.length && otpState === "entering"
+                          ? "#025fc9"
+                          : "#d9d9d9"
+                      }`,
+                    }}
+                  >
+                    <span
+                      style={fontSwitzer}
+                      className="text-[18px] font-semibold text-black"
+                    >
+                      {otp[i] ?? ""}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Hidden input */}
+              <input
+                ref={inputRef}
+                type="tel"
+                value={otp}
+                onChange={(e) => {
+                  if (otpState === "error") return;
+                  setOtp(e.target.value.replace(/\D/g, "").slice(0, 6));
+                }}
+                className="opacity-0 absolute w-0 h-0"
+                autoFocus
+              />
+
+              {/* Status row */}
+              <div
+                className="flex items-center justify-center"
+                style={{ height: "18px" }}
+              >
+                {otpState === "success" && (
+                  <p
+                    style={fontSwitzer}
+                    className="text-[14px] font-medium text-[#11a75c] text-center"
+                  >
+                    Phone number verified!
+                  </p>
+                )}
+                {otpState === "error" && (
+                  <p
+                    style={fontSwitzer}
+                    className="text-[14px] font-medium text-[#ff3838] text-center"
+                  >
+                    That code doesn't match. {attempts} attempt
+                    {attempts !== 1 ? "s" : ""} remaining.
+                  </p>
+                )}
+                {otpState === "entering" && countdown > 0 && (
+                  <p
+                    style={fontSwitzer}
+                    className="text-[14px] text-[#5e5757] text-center"
+                  >
+                    Resend code in 0
+                    <span className="text-[#0052b4]">
+                      :{String(countdown).padStart(2, "0")}
+                    </span>
+                  </p>
+                )}
+                {otpState === "entering" && countdown === 0 && (
+                  <button
+                    style={fontSwitzer}
+                    className="text-[14px] font-medium text-[#0052b4]"
+                    onClick={handleResend}
+                  >
+                    Resend code
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Need help */}
+            <div className="flex items-center justify-center gap-1 w-[353px]">
+              <span style={fontSwitzer} className="text-[14px] text-[#333]">
+                Need help?
+              </span>
+              <button
+                style={fontSwitzer}
+                className="text-[14px] font-medium text-[#0052b4]"
+              >
+                Contact Support
+              </button>
+            </div>
+
+            {/* Action button */}
+            {otpState === "error" ? (
+              <button
+                onClick={handleTryAgain}
+                style={{ ...fontSwitzer, backgroundColor: "#ff3838" }}
+                className="w-[353px] h-[44px] rounded-[8px] flex items-center justify-center"
+              >
+                <span className="text-[16px] font-medium text-white">
+                  Try Again
+                </span>
+              </button>
+            ) : (
+              <button
+                disabled={!isValid}
+                onClick={() => router.push("/merge-account/verify/confirm")}
+                style={fontSwitzer}
+                className={`w-[353px] h-[44px] bg-[#025fc9] rounded-[8px] flex items-center justify-center transition-opacity ${
+                  !isValid ? "opacity-60 cursor-not-allowed" : "opacity-100"
+                }`}
+              >
+                <span className="text-[16px] font-medium text-white">
+                  Verify
+                </span>
+              </button>
+            )}
           </div>
         </div>
       </div>
