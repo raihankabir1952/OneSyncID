@@ -30,6 +30,15 @@ export default function SignInPage() {
     usernameOrEmail.trim().length > 0 &&
     (authTab === "password" ? password.length >= 6 : pin.length === 6);
 
+  // "Forgot" button routes differently per tab
+  const handleForgot = () => {
+    if (authTab === "password") {
+      router.push("/reset-password");
+    } else {
+      router.push("/reset-pin");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 flex justify-center">
       <div className="w-full max-w-[393px] bg-white min-h-screen flex flex-col">
@@ -229,7 +238,7 @@ export default function SignInPage() {
                 )}
                 <button
                   type="button"
-                  onClick={() => router.push("/reset-password")}
+                  onClick={handleForgot}
                   style={fontSwitzer}
                   className="text-[14px] text-[#0052b4]"
                 >
