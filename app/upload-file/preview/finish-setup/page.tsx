@@ -57,7 +57,7 @@ export default function FinishSetupPage() {
     <div className="min-h-screen bg-gray-100 flex justify-center">
       <div className="w-full max-w-[393px] bg-white min-h-screen flex flex-col">
 
-        {/* ── Nav h=54 ── */}
+        {/* Nav */}
         <div
           className="flex items-center justify-between bg-white shrink-0"
           style={{ paddingLeft: "20px", paddingRight: "20px", height: "54px" }}
@@ -84,7 +84,7 @@ export default function FinishSetupPage() {
           </div>
         </div>
 
-        {/* ── Search Bar ── */}
+        {/* Search Bar */}
         <div className="bg-white shrink-0" style={{ paddingLeft: "20px", paddingRight: "20px", paddingTop: "3px" }}>
           <div
             className="flex items-center w-full"
@@ -97,12 +97,12 @@ export default function FinishSetupPage() {
           </div>
         </div>
 
-        {/* ── Body ── */}
+        {/* Body */}
         <div
           className="bg-white flex flex-col overflow-y-auto"
           style={{ paddingLeft: "20px", paddingRight: "20px", paddingTop: "47px", paddingBottom: "40px", gap: "30px" }}
         >
-          {/* Quick Setup heading */}
+          {/* Heading */}
           <div className="flex items-center" style={{ gap: "5px" }}>
             <span style={{ ...fontSwitzer, fontSize: "20px", fontWeight: 600, color: "#000", letterSpacing: "0.8px", lineHeight: "32px" }}>
               Quick Setup
@@ -132,7 +132,6 @@ export default function FinishSetupPage() {
                   </button>
                 </div>
 
-                {/* NAME row — pending */}
                 <InfoRow label="NAME" value="John Doe" pending={true} />
                 <InfoRow label="DATE OF BIRTH" value="12 April 2000" />
                 <InfoRow label="FATHER'S NAME" value="Jack Doe" />
@@ -153,6 +152,7 @@ export default function FinishSetupPage() {
               </span>
             </button>
             <button
+              onClick={() => router.push("/personal-information")}
               className="flex items-center justify-center rounded-[8px] flex-1"
               style={{ height: "44px", backgroundColor: "#025fc9" }}
             >
