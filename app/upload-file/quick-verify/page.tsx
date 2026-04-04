@@ -3,9 +3,9 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { fontSwitzer } from "@/lib/styles";
-import { Menu, Bell, Mail, Search, Upload, Scan, Info } from "lucide-react";
+import { Menu, Bell, Mail, Search, Info, ScanLine } from "lucide-react";
 
-export default function UploadFilePage() {
+export default function QuickVerifyPage() {
   const router = useRouter();
 
   return (
@@ -49,57 +49,58 @@ export default function UploadFilePage() {
           className="bg-white flex flex-col"
           style={{ paddingLeft: "20px", paddingRight: "20px", paddingTop: "47px", paddingBottom: "40px", gap: "30px" }}
         >
+          {/* Heading */}
           <div className="flex items-center" style={{ gap: "5px" }}>
             <span style={{ ...fontSwitzer, fontSize: "20px", fontWeight: 600, color: "#000", letterSpacing: "0.8px", lineHeight: "32px" }}>
-              Quick Setup
+              Quick Verify
             </span>
             <Info size={16} className="text-[#025fc9]" />
           </div>
 
-          <div className="flex flex-col" style={{ gap: "30px" }}>
-            <div className="flex flex-col w-full" style={{ gap: "8px" }}>
+          {/* Center content */}
+          <div className="flex flex-col items-center" style={{ gap: "30px", paddingTop: "40px" }}>
+
+            {/* Scan frame icon */}
+            <div
+              className="flex items-center justify-center"
+              style={{ width: "120px", height: "120px" }}
+            >
+              {/* Corner brackets */}
+              <div className="relative w-full h-full">
+                {/* Top-left */}
+                <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-[#025fc9] rounded-tl-[4px]" />
+                {/* Top-right */}
+                <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-[#025fc9] rounded-tr-[4px]" />
+                {/* Bottom-left */}
+                <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-[#025fc9] rounded-bl-[4px]" />
+                {/* Bottom-right */}
+                <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-[#025fc9] rounded-br-[4px]" />
+                {/* Center line */}
+                <div className="absolute top-1/2 left-[10%] right-[10%] h-[2px] bg-[#025fc9] -translate-y-1/2" />
+              </div>
+            </div>
+
+            {/* Text */}
+            <div className="flex flex-col items-center w-full" style={{ gap: "8px" }}>
               <p style={{ ...fontSwitzer, fontSize: "16px", fontWeight: 500, color: "#000", textAlign: "center", letterSpacing: "0.16px", lineHeight: "21px" }}>
-                Upload or scan a valid document
+                Verify your identity to access entire profile
               </p>
-              <p style={{ ...fontSwitzer, fontSize: "12px", color: "#5e5757", letterSpacing: "0.12px" }}>
-                Suggested documents:{" "}
-                <span style={{ fontWeight: 500 }}>NID Card, birth certificate, or passport.</span>
-              </p>
-            </div>
-
-            <div className="flex flex-col w-full">
-              {/* Upload document */}
-              <button
-                onClick={() => router.push("/upload-file/quick-verify")}
-                className="flex items-center justify-center w-full"
-                style={{ height: "44px", border: "1px solid #d9d9d9", borderRadius: "12px", gap: "12px" }}
-              >
-                <Upload size={24} className="text-[#5e5757] shrink-0" />
-                <span style={{ ...fontSwitzer, fontSize: "16px", fontWeight: 600, color: "#5e5757", letterSpacing: "0.16px" }}>
-                  Upload document
-                </span>
-              </button>
-
-              <div style={{ height: "20px" }} />
-
-              {/* Scan document */}
-              <button
-                onClick={() => router.push("/upload-file/quick-verify")}
-                className="flex items-center justify-center w-full"
-                style={{ height: "44px", border: "1px solid #d9d9d9", borderRadius: "12px", gap: "12px" }}
-              >
-                <Scan size={24} className="text-[#5e5757] shrink-0" />
-                <span style={{ ...fontSwitzer, fontSize: "16px", fontWeight: 600, color: "#5e5757", letterSpacing: "0.16px" }}>
-                  Scan Document
-                </span>
-              </button>
-
-              <div style={{ height: "20px" }} />
-
-              <p style={{ ...fontSwitzer, fontSize: "12px", color: "#5e5757", letterSpacing: "0.12px" }}>
-                Upload or scan your documents using your phone. Accepted Formats: PDF, JPG, PNG (maximum 5 MB per file)
+              <p style={{ ...fontSwitzer, fontSize: "12px", color: "#5e5757", letterSpacing: "0.12px", textAlign: "left", width: "100%" }}>
+                Suggested documents: NID card, birth certificate, driver's license or passport.
               </p>
             </div>
+
+            {/* Start Scanning button */}
+            <button
+              onClick={() => router.push("/upload-file/scan")}
+              className="flex items-center justify-center w-full rounded-[12px]"
+              style={{ height: "44px", backgroundColor: "#025fc9" }}
+            >
+              <span style={{ ...fontSwitzer, fontSize: "16px", fontWeight: 500, color: "#fff", letterSpacing: "0.16px" }}>
+                Start Scanning
+              </span>
+            </button>
+
           </div>
         </div>
 
