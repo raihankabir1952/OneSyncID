@@ -69,8 +69,6 @@ interface WorkEntry {
 export default function WorkExperiencePage() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // ── Sidebar state ──
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const [entries, setEntries] = useState<WorkEntry[]>([
@@ -116,50 +114,55 @@ export default function WorkExperiencePage() {
     <div className="min-h-screen bg-gray-100 flex justify-center">
       <div className="w-full max-w-[393px] bg-white min-h-screen flex flex-col">
 
-        {/* ── Sidebar: fixed overlay, main screen এর উপরে ── */}
+        {/* ── Sidebar ── */}
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-        {/* ── Nav ── */}
-        <div
-          className="flex items-center justify-between bg-white shrink-0"
-          style={{ paddingLeft: "20px", paddingRight: "20px", height: "54px" }}
-        >
-          <div className="flex items-center" style={{ gap: "20px" }}>
-            {/* Hamburger */}
-            <button
-              className="w-6 h-6 flex items-center justify-center"
-              aria-label="Menu"
-              onClick={() => setSidebarOpen(true)}
-            >
-              <Menu size={24} className="text-black" />
-            </button>
-            <Image src="/images/Vector.png" alt="OneSyncID" width={116} height={20} style={{ objectFit: "contain" }} />
-          </div>
-          <div className="flex items-center" style={{ gap: "20px" }}>
-            <button className="w-6 h-6 flex items-center justify-center" aria-label="Notifications">
-              <Bell size={24} className="text-black" />
-            </button>
-            <button className="w-6 h-6 flex items-center justify-center" aria-label="Messages">
-              <Mail size={24} className="text-black" />
-            </button>
-          </div>
-        </div>
+        {/* ── Sticky Header (Nav + Search) ── */}
+        <div className="sticky top-0 z-10 bg-white">
 
-        {/* ── Search Bar ── */}
-        <div className="bg-white shrink-0" style={{ paddingLeft: "20px", paddingRight: "20px", paddingTop: "3px" }}>
+          {/* Nav */}
           <div
-            className="flex items-center w-full"
-            style={{ height: "44px", border: "1px solid #9fbfe4", borderRadius: "28px", paddingLeft: "20px", gap: "10px" }}
+            className="flex items-center justify-between"
+            style={{ paddingLeft: "20px", paddingRight: "20px", height: "54px" }}
           >
-            <Search size={20} className="text-[#5e5757] shrink-0" />
-            <span style={{ ...fontSwitzer, fontSize: "16px", color: "#5e5757", letterSpacing: "0.5px" }}>Search</span>
+            <div className="flex items-center" style={{ gap: "20px" }}>
+              <button
+                className="w-6 h-6 flex items-center justify-center"
+                aria-label="Menu"
+                onClick={() => setSidebarOpen(true)}
+              >
+                <Menu size={24} className="text-black" />
+              </button>
+              <Image src="/images/Vector.png" alt="OneSyncID" width={116} height={20} style={{ objectFit: "contain" }} />
+            </div>
+            <div className="flex items-center" style={{ gap: "20px" }}>
+              <button className="w-6 h-6 flex items-center justify-center" aria-label="Notifications">
+                <Bell size={24} className="text-black" />
+              </button>
+              <button className="w-6 h-6 flex items-center justify-center" aria-label="Messages">
+                <Mail size={24} className="text-black" />
+              </button>
+            </div>
           </div>
-        </div>
 
-        {/* ── Body ── */}
+          {/* Search Bar */}
+          <div style={{ paddingLeft: "20px", paddingRight: "20px", paddingTop: "3px", paddingBottom: "10px" }}>
+            <div
+              className="flex items-center w-full"
+              style={{ height: "44px", border: "1px solid #9fbfe4", borderRadius: "28px", paddingLeft: "20px", gap: "10px" }}
+            >
+              <Search size={20} className="text-[#5e5757] shrink-0" />
+              <span style={{ ...fontSwitzer, fontSize: "16px", color: "#5e5757", letterSpacing: "0.5px" }}>Search</span>
+            </div>
+          </div>
+
+        </div>
+        {/* ── End Sticky Header ── */}
+
+        {/* ── Scrollable Body ── */}
         <div
-          className="bg-white flex flex-col overflow-y-auto"
-          style={{ paddingLeft: "20px", paddingRight: "20px", paddingTop: "47px", paddingBottom: "40px", gap: "4px" }}
+          className="bg-white flex flex-col flex-1 overflow-y-auto"
+          style={{ paddingLeft: "20px", paddingRight: "20px", paddingTop: "30px", paddingBottom: "40px", gap: "4px" }}
         >
           {/* Heading */}
           <div className="flex items-center gap-[5px]" style={{ marginBottom: "20px" }}>

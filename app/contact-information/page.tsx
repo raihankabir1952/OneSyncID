@@ -4,7 +4,8 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { fontSwitzer } from "@/lib/styles";
-import { Menu, Bell, Mail, Search, Info, Pencil, ChevronDown, Plus, X } from "lucide-react";
+import { Menu, Bell, Mail, Search, Info, Pencil, ChevronDown, Plus, X, Check } from "lucide-react";
+import Sidebar from "@/components/Sidebar";
 
 interface PhoneEntry {
   id: number;
@@ -23,8 +24,47 @@ interface LinkEntry {
   link: string;
 }
 
+// ─── Verified Badge ───────────────────────────────────────────────────────────
+function VerifiedBadge() {
+  return (
+    <div
+      className="flex items-center justify-center self-start rounded-[8px]"
+      style={{ backgroundColor: "#e5ffe9", border: "1px solid #b7ebc3", paddingLeft: "10px", paddingRight: "10px", paddingTop: "3px", paddingBottom: "3px" }}
+    >
+      <span style={{ ...fontSwitzer, fontSize: "12px", fontWeight: 500, color: "#006a4e", letterSpacing: "0.12px" }}>
+        Verified
+      </span>
+    </div>
+  );
+}
+
+// ─── OTP Checkbox ─────────────────────────────────────────────────────────────
+function OtpCheckbox({ checked, onToggle, label }: { checked: boolean; onToggle: () => void; label: string }) {
+  return (
+    <div className="flex items-center gap-[8px]">
+      <span style={{ ...fontSwitzer, fontSize: "12px", color: "#5e5757", letterSpacing: "0.12px" }}>
+        {label}
+      </span>
+      <button
+        onClick={onToggle}
+        className="flex items-center justify-center rounded-[4px] shrink-0"
+        style={{
+          width: "18px", height: "18px",
+          backgroundColor: checked ? "#025fc9" : "#fff",
+          border: checked ? "none" : "2px solid #d9d9d9",
+        }}
+      >
+        {checked && <Check size={12} color="white" strokeWidth={3} />}
+      </button>
+    </div>
+  );
+}
+
 export default function ContactInformationPage() {
   const router = useRouter();
+
+  // ── Sidebar state ──
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const [phones, setPhones] = useState<PhoneEntry[]>([
     { id: 1, number: "", otpOnly: true },
@@ -51,42 +91,55 @@ export default function ContactInformationPage() {
     <div className="min-h-screen bg-gray-100 flex justify-center">
       <div className="w-full max-w-[393px] bg-white min-h-screen flex flex-col">
 
-        {/* Nav */}
-        <div
-          className="flex items-center justify-between bg-white shrink-0"
-          style={{ paddingLeft: "20px", paddingRight: "20px", height: "54px" }}
-        >
-          <div className="flex items-center" style={{ gap: "20px" }}>
-            <button className="w-6 h-6 flex items-center justify-center" aria-label="Menu">
-              <Menu size={24} className="text-black" />
-            </button>
-            <Image src="/images/Vector.png" alt="OneSyncID" width={116} height={20} style={{ objectFit: "contain" }} />
-          </div>
-          <div className="flex items-center" style={{ gap: "20px" }}>
-            <button className="w-6 h-6 flex items-center justify-center" aria-label="Notifications">
-              <Bell size={24} className="text-black" />
-            </button>
-            <button className="w-6 h-6 flex items-center justify-center" aria-label="Messages">
-              <Mail size={24} className="text-black" />
-            </button>
-          </div>
-        </div>
+        {/* ── Sidebar ── */}
+        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-        {/* Search Bar */}
-        <div className="bg-white shrink-0" style={{ paddingLeft: "20px", paddingRight: "20px", paddingTop: "3px" }}>
+        {/* ── Sticky Header (Nav + Search) ── */}
+        <div className="sticky top-0 z-10 bg-white">
+
+          {/* Nav */}
           <div
-            className="flex items-center w-full"
-            style={{ height: "44px", border: "1px solid #9fbfe4", borderRadius: "28px", paddingLeft: "20px", gap: "10px" }}
+            className="flex items-center justify-between"
+            style={{ paddingLeft: "20px", paddingRight: "20px", height: "54px" }}
           >
-            <Search size={20} className="text-[#5e5757] shrink-0" />
-            <span style={{ ...fontSwitzer, fontSize: "16px", color: "#5e5757", letterSpacing: "0.5px" }}>Search</span>
+            <div className="flex items-center" style={{ gap: "20px" }}>
+              <button
+                className="w-6 h-6 flex items-center justify-center"
+                aria-label="Menu"
+                onClick={() => setSidebarOpen(true)}
+              >
+                <Menu size={24} className="text-black" />
+              </button>
+              <Image src="/images/Vector.png" alt="OneSyncID" width={116} height={20} style={{ objectFit: "contain" }} />
+            </div>
+            <div className="flex items-center" style={{ gap: "20px" }}>
+              <button className="w-6 h-6 flex items-center justify-center" aria-label="Notifications">
+                <Bell size={24} className="text-black" />
+              </button>
+              <button className="w-6 h-6 flex items-center justify-center" aria-label="Messages">
+                <Mail size={24} className="text-black" />
+              </button>
+            </div>
           </div>
-        </div>
 
-        {/* Body */}
+          {/* Search Bar */}
+          <div style={{ paddingLeft: "20px", paddingRight: "20px", paddingTop: "3px", paddingBottom: "10px" }}>
+            <div
+              className="flex items-center w-full"
+              style={{ height: "44px", border: "1px solid #9fbfe4", borderRadius: "28px", paddingLeft: "20px", gap: "10px" }}
+            >
+              <Search size={20} className="text-[#5e5757] shrink-0" />
+              <span style={{ ...fontSwitzer, fontSize: "16px", color: "#5e5757", letterSpacing: "0.5px" }}>Search</span>
+            </div>
+          </div>
+
+        </div>
+        {/* ── End Sticky Header ── */}
+
+        {/* ── Scrollable Body ── */}
         <div
           className="bg-white flex flex-col overflow-y-auto"
-          style={{ paddingLeft: "20px", paddingRight: "20px", paddingTop: "47px", paddingBottom: "40px", gap: "24px" }}
+          style={{ paddingLeft: "20px", paddingRight: "20px", paddingTop: "30px", paddingBottom: "40px", gap: "32px" }}
         >
           {/* Heading */}
           <div className="flex items-center justify-between w-full">
@@ -99,28 +152,37 @@ export default function ContactInformationPage() {
             <Pencil size={20} className="text-[#5e5757]" />
           </div>
 
-          {/* Phone Numbers */}
-          <div className="flex flex-col gap-[16px] w-full">
+          {/* ── Phone Numbers ── */}
+          <div className="flex flex-col gap-[20px] w-full">
             {phones.map((phone) => (
-              <div key={phone.id} className="flex flex-col gap-[10px] w-full">
-                {/* Label */}
-                <span style={{ ...fontSwitzer, fontSize: "12px", fontWeight: 500, color: "#767676", letterSpacing: "0.12px" }}>
+              <div key={phone.id} className="flex flex-col gap-[12px] w-full">
+                <span style={{ ...fontSwitzer, fontSize: "16px", fontWeight: 500, color: "#5e5757", letterSpacing: "0.16px" }}>
                   PHONE NUMBER
                 </span>
 
-                {/* Input row */}
-                <div className="flex items-center w-full gap-[10px]" style={{ borderBottom: "1px solid #d9d9d9", paddingBottom: "10px" }}>
-                  {/* Country code */}
-                  <div className="flex items-center gap-[4px] shrink-0">
-                    <span style={{ fontSize: "18px" }}>🇧🇩</span>
-                    <span style={{ ...fontSwitzer, fontSize: "14px", color: "#000", letterSpacing: "0.14px" }}>+880</span>
-                    <ChevronDown size={14} className="text-[#5e5757]" />
+                {/* Input row with BD flag */}
+                <div
+                  className="flex items-center w-full justify-between"
+                  style={{ borderBottom: "1px solid #d9d9d9", paddingBottom: "10px" }}
+                >
+                  <div className="flex items-center gap-[3px] shrink-0">
+                    <div className="flex items-center gap-[8px]">
+                      {/* Bangladesh flag */}
+                      <div
+                        className="relative shrink-0 overflow-hidden"
+                        style={{ width: "30px", height: "20px", border: "0.5px solid #eee" }}
+                      >
+                        <Image src="/images/bd-flag.png" alt="BD" fill style={{ objectFit: "cover" }} />
+                      </div>
+                      <span style={{ ...fontSwitzer, fontSize: "16px", color: "#5e5757" }}>+880</span>
+                    </div>
+                    <ChevronDown size={16} className="text-[#5e5757]" />
                   </div>
                   <input
                     value={phone.number}
                     onChange={(e) => updatePhone(phone.id, "number", e.target.value)}
                     placeholder="Enter your number"
-                    style={{ ...fontSwitzer, fontSize: "16px", color: "#000", border: "none", outline: "none", background: "transparent", flex: 1 }}
+                    style={{ ...fontSwitzer, fontSize: "16px", color: "#000", border: "none", outline: "none", background: "transparent", flex: 1, marginLeft: "8px" }}
                   />
                   {phones.length > 1 && (
                     <button onClick={() => setPhones((prev) => prev.filter((p) => p.id !== phone.id))}>
@@ -129,43 +191,22 @@ export default function ContactInformationPage() {
                   )}
                 </div>
 
-                {/* Verified badge */}
-                <div
-                  className="flex items-center justify-center self-start rounded-[6px]"
-                  style={{ backgroundColor: "#e8f5e9", paddingLeft: "10px", paddingRight: "10px", paddingTop: "3px", paddingBottom: "3px" }}
-                >
-                  <span style={{ ...fontSwitzer, fontSize: "12px", fontWeight: 500, color: "#2e7d32", letterSpacing: "0.12px" }}>
-                    Verified
-                  </span>
-                </div>
+                <VerifiedBadge />
 
-                {/* OTP only checkbox */}
-                <div className="flex items-center gap-[8px]">
-                  <span style={{ ...fontSwitzer, fontSize: "12px", color: "#5e5757", letterSpacing: "0.12px" }}>
-                    Tick to use this number only for OTP purposes
-                  </span>
-                  <button
-                    onClick={() => updatePhone(phone.id, "otpOnly", !phone.otpOnly)}
-                    className="flex items-center justify-center rounded-[4px] shrink-0"
-                    style={{
-                      width: "18px", height: "18px",
-                      border: phone.otpOnly ? "none" : "2px solid #d9d9d9",
-                      backgroundColor: phone.otpOnly ? "#025fc9" : "#fff",
-                    }}
-                  >
-                    {phone.otpOnly && <span style={{ color: "#fff", fontSize: "11px" }}>✓</span>}
-                  </button>
-                </div>
+                <OtpCheckbox
+                  checked={phone.otpOnly}
+                  onToggle={() => updatePhone(phone.id, "otpOnly", !phone.otpOnly)}
+                  label="Tick to use this number only for OTP purposes"
+                />
               </div>
             ))}
 
-            {/* Add another number */}
             <button
               onClick={() => setPhones((prev) => [...prev, { id: Date.now(), number: "", otpOnly: false }])}
-              className="flex items-center gap-[6px]"
+              className="flex items-center gap-[8px]"
             >
-              <Plus size={18} className="text-[#025fc9]" />
-              <span style={{ ...fontSwitzer, fontSize: "14px", fontWeight: 500, color: "#025fc9", letterSpacing: "0.14px" }}>
+              <Plus size={20} className="text-[#025fc9]" />
+              <span style={{ ...fontSwitzer, fontSize: "16px", fontWeight: 500, color: "#025fc9", letterSpacing: "0.16px" }}>
                 Add another number
               </span>
             </button>
@@ -174,15 +215,18 @@ export default function ContactInformationPage() {
           {/* Divider */}
           <div style={{ height: "1px", backgroundColor: "#f0f0f0" }} />
 
-          {/* Email Addresses */}
-          <div className="flex flex-col gap-[16px] w-full">
+          {/* ── Email Addresses ── */}
+          <div className="flex flex-col gap-[20px] w-full">
             {emails.map((email) => (
-              <div key={email.id} className="flex flex-col gap-[10px] w-full">
-                <span style={{ ...fontSwitzer, fontSize: "12px", fontWeight: 500, color: "#767676", letterSpacing: "0.12px" }}>
+              <div key={email.id} className="flex flex-col gap-[12px] w-full">
+                <span style={{ ...fontSwitzer, fontSize: "16px", fontWeight: 500, color: "#5e5757", letterSpacing: "0.16px" }}>
                   EMAIL ADDRESS
                 </span>
 
-                <div className="flex items-center w-full gap-[10px]" style={{ borderBottom: "1px solid #d9d9d9", paddingBottom: "10px" }}>
+                <div
+                  className="flex items-center w-full gap-[10px]"
+                  style={{ borderBottom: "1px solid #d9d9d9", paddingBottom: "10px" }}
+                >
                   <input
                     value={email.email}
                     onChange={(e) => updateEmail(email.id, "email", e.target.value)}
@@ -196,43 +240,22 @@ export default function ContactInformationPage() {
                   )}
                 </div>
 
-                {/* Verified badge */}
-                <div
-                  className="flex items-center justify-center self-start rounded-[6px]"
-                  style={{ backgroundColor: "#e8f5e9", paddingLeft: "10px", paddingRight: "10px", paddingTop: "3px", paddingBottom: "3px" }}
-                >
-                  <span style={{ ...fontSwitzer, fontSize: "12px", fontWeight: 500, color: "#2e7d32", letterSpacing: "0.12px" }}>
-                    Verified
-                  </span>
-                </div>
+                <VerifiedBadge />
 
-                {/* OTP only checkbox */}
-                <div className="flex items-center gap-[8px]">
-                  <span style={{ ...fontSwitzer, fontSize: "12px", color: "#5e5757", letterSpacing: "0.12px" }}>
-                    Tick to use this email only for OTP purposes
-                  </span>
-                  <button
-                    onClick={() => updateEmail(email.id, "otpOnly", !email.otpOnly)}
-                    className="flex items-center justify-center rounded-[4px] shrink-0"
-                    style={{
-                      width: "18px", height: "18px",
-                      border: email.otpOnly ? "none" : "2px solid #d9d9d9",
-                      backgroundColor: email.otpOnly ? "#025fc9" : "#fff",
-                    }}
-                  >
-                    {email.otpOnly && <span style={{ color: "#fff", fontSize: "11px" }}>✓</span>}
-                  </button>
-                </div>
+                <OtpCheckbox
+                  checked={email.otpOnly}
+                  onToggle={() => updateEmail(email.id, "otpOnly", !email.otpOnly)}
+                  label="Tick to use this email only for OTP purposes"
+                />
               </div>
             ))}
 
-            {/* Add another email */}
             <button
               onClick={() => setEmails((prev) => [...prev, { id: Date.now(), email: "", otpOnly: false }])}
-              className="flex items-center gap-[6px]"
+              className="flex items-center gap-[8px]"
             >
-              <Plus size={18} className="text-[#025fc9]" />
-              <span style={{ ...fontSwitzer, fontSize: "14px", fontWeight: 500, color: "#025fc9", letterSpacing: "0.14px" }}>
+              <Plus size={20} className="text-[#025fc9]" />
+              <span style={{ ...fontSwitzer, fontSize: "16px", fontWeight: 500, color: "#025fc9", letterSpacing: "0.16px" }}>
                 Add another email
               </span>
             </button>
@@ -241,14 +264,17 @@ export default function ContactInformationPage() {
           {/* Divider */}
           <div style={{ height: "1px", backgroundColor: "#f0f0f0" }} />
 
-          {/* Social Media / Website Links */}
-          <div className="flex flex-col gap-[16px] w-full">
+          {/* ── Social Media / Website Links ── */}
+          <div className="flex flex-col gap-[20px] w-full">
             {links.map((link) => (
               <div key={link.id} className="flex flex-col gap-[10px] w-full">
-                <span style={{ ...fontSwitzer, fontSize: "12px", fontWeight: 500, color: "#767676", letterSpacing: "0.12px" }}>
+                <span style={{ ...fontSwitzer, fontSize: "16px", fontWeight: 500, color: "#5e5757", letterSpacing: "0.16px" }}>
                   SOCIAL MEDIA / WEBSITE LINK
                 </span>
-                <div className="flex items-center w-full gap-[10px]" style={{ borderBottom: "1px solid #d9d9d9", paddingBottom: "10px" }}>
+                <div
+                  className="flex items-center w-full gap-[10px]"
+                  style={{ borderBottom: "1px solid #d9d9d9", paddingBottom: "10px" }}
+                >
                   <input
                     value={link.link}
                     onChange={(e) => updateLink(link.id, e.target.value)}
@@ -264,19 +290,18 @@ export default function ContactInformationPage() {
               </div>
             ))}
 
-            {/* Add another link */}
             <button
               onClick={() => setLinks((prev) => [...prev, { id: Date.now(), link: "" }])}
-              className="flex items-center gap-[6px]"
+              className="flex items-center gap-[8px]"
             >
-              <Plus size={18} className="text-[#025fc9]" />
-              <span style={{ ...fontSwitzer, fontSize: "14px", fontWeight: 500, color: "#025fc9", letterSpacing: "0.14px" }}>
+              <Plus size={20} className="text-[#025fc9]" />
+              <span style={{ ...fontSwitzer, fontSize: "16px", fontWeight: 500, color: "#025fc9", letterSpacing: "0.16px" }}>
                 Add another link
               </span>
             </button>
           </div>
 
-          {/* Save button */}
+          {/* Save */}
           <button
             onClick={() => router.back()}
             className="flex items-center justify-center w-full rounded-[12px]"

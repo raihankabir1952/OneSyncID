@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { fontSwitzer } from "@/lib/styles";
 import { Menu, Bell, Mail, Search, Info, Pencil, ChevronDown, Plus } from "lucide-react";
+import Sidebar from "@/components/Sidebar";
 
 const GENDERS = ["Male", "Female", "Other"];
 const BLOOD_GROUPS = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
@@ -59,6 +60,9 @@ function SelectField({ label, value, placeholder, options, onChange }: SelectFie
 export default function PersonalInformationPage() {
   const router = useRouter();
 
+  // ── Sidebar state ──
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   const [form, setForm] = useState({
     firstMiddleNames: "",
     lastName: "",
@@ -76,7 +80,6 @@ export default function PersonalInformationPage() {
   const update = (key: keyof typeof form, val: string | boolean) =>
     setForm((prev) => ({ ...prev, [key]: val }));
 
-  // Calculate age from DOB
   const calcAge = (dob: string) => {
     if (!dob) return "";
     const birth = new Date(dob);
@@ -89,42 +92,55 @@ export default function PersonalInformationPage() {
     <div className="min-h-screen bg-gray-100 flex justify-center">
       <div className="w-full max-w-[393px] bg-white min-h-screen flex flex-col">
 
-        {/* Nav */}
-        <div
-          className="flex items-center justify-between bg-white shrink-0"
-          style={{ paddingLeft: "20px", paddingRight: "20px", height: "54px" }}
-        >
-          <div className="flex items-center" style={{ gap: "20px" }}>
-            <button className="w-6 h-6 flex items-center justify-center" aria-label="Menu">
-              <Menu size={24} className="text-black" />
-            </button>
-            <Image src="/images/Vector.png" alt="OneSyncID" width={116} height={20} style={{ objectFit: "contain" }} />
-          </div>
-          <div className="flex items-center" style={{ gap: "20px" }}>
-            <button className="w-6 h-6 flex items-center justify-center" aria-label="Notifications">
-              <Bell size={24} className="text-black" />
-            </button>
-            <button className="w-6 h-6 flex items-center justify-center" aria-label="Messages">
-              <Mail size={24} className="text-black" />
-            </button>
-          </div>
-        </div>
+        {/* ── Sidebar ── */}
+        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-        {/* Search Bar */}
-        <div className="bg-white shrink-0" style={{ paddingLeft: "20px", paddingRight: "20px", paddingTop: "3px" }}>
+        {/* ── Sticky Header (Nav + Search) ── */}
+        <div className="sticky top-0 z-10 bg-white">
+
+          {/* Nav */}
           <div
-            className="flex items-center w-full"
-            style={{ height: "44px", border: "1px solid #9fbfe4", borderRadius: "28px", paddingLeft: "20px", gap: "10px" }}
+            className="flex items-center justify-between"
+            style={{ paddingLeft: "20px", paddingRight: "20px", height: "54px" }}
           >
-            <Search size={20} className="text-[#5e5757] shrink-0" />
-            <span style={{ ...fontSwitzer, fontSize: "16px", color: "#5e5757", letterSpacing: "0.5px" }}>Search</span>
+            <div className="flex items-center" style={{ gap: "20px" }}>
+              <button
+                className="w-6 h-6 flex items-center justify-center"
+                aria-label="Menu"
+                onClick={() => setSidebarOpen(true)}
+              >
+                <Menu size={24} className="text-black" />
+              </button>
+              <Image src="/images/Vector.png" alt="OneSyncID" width={116} height={20} style={{ objectFit: "contain" }} />
+            </div>
+            <div className="flex items-center" style={{ gap: "20px" }}>
+              <button className="w-6 h-6 flex items-center justify-center" aria-label="Notifications">
+                <Bell size={24} className="text-black" />
+              </button>
+              <button className="w-6 h-6 flex items-center justify-center" aria-label="Messages">
+                <Mail size={24} className="text-black" />
+              </button>
+            </div>
           </div>
-        </div>
 
-        {/* Body */}
+          {/* Search Bar */}
+          <div style={{ paddingLeft: "20px", paddingRight: "20px", paddingTop: "3px", paddingBottom: "10px" }}>
+            <div
+              className="flex items-center w-full"
+              style={{ height: "44px", border: "1px solid #9fbfe4", borderRadius: "28px", paddingLeft: "20px", gap: "10px" }}
+            >
+              <Search size={20} className="text-[#5e5757] shrink-0" />
+              <span style={{ ...fontSwitzer, fontSize: "16px", color: "#5e5757", letterSpacing: "0.5px" }}>Search</span>
+            </div>
+          </div>
+
+        </div>
+        {/* ── End Sticky Header ── */}
+
+        {/* ── Scrollable Body ── */}
         <div
           className="bg-white flex flex-col overflow-y-auto"
-          style={{ paddingLeft: "20px", paddingRight: "20px", paddingTop: "47px", paddingBottom: "40px" }}
+          style={{ paddingLeft: "20px", paddingRight: "20px", paddingTop: "30px", paddingBottom: "40px" }}
         >
           {/* Heading */}
           <div className="flex items-center justify-between w-full" style={{ marginBottom: "20px" }}>
@@ -137,7 +153,7 @@ export default function PersonalInformationPage() {
             <Pencil size={20} className="text-[#5e5757]" />
           </div>
 
-          {/* Form fields */}
+          {/* Form Fields */}
           <Field label="FIRST AND MIDDLE NAMES">
             <input
               value={form.firstMiddleNames}
@@ -162,14 +178,13 @@ export default function PersonalInformationPage() {
                 type="date"
                 value={form.dob}
                 onChange={(e) => update("dob", e.target.value)}
-                placeholder="mm/dd/yyyy"
                 style={{ ...fontSwitzer, fontSize: "16px", color: form.dob ? "#000" : "#a09898", letterSpacing: "0.16px", border: "none", outline: "none", background: "transparent", flex: 1 }}
               />
             </div>
           </Field>
 
           <Field label="AGE">
-            <span style={{ ...fontSwitzer, fontSize: "16px", color: form.dob ? "#000" : "#a09898", letterSpacing: "0.16px" }}>
+            <span style={{ ...fontSwitzer, fontSize: "16px", color: form.dob ? "#000" : "#a09898", letterSpacing: "0.16px", opacity: form.dob ? 1 : 0.5 }}>
               {form.dob ? calcAge(form.dob) : "Calculated from Date of Birth"}
             </span>
           </Field>
@@ -177,14 +192,12 @@ export default function PersonalInformationPage() {
           <SelectField label="GENDER" value={form.gender} placeholder="Select gender" options={GENDERS} onChange={(v) => update("gender", v)} />
           <SelectField label="BLOOD GROUP" value={form.bloodGroup} placeholder="Select blood group" options={BLOOD_GROUPS} onChange={(v) => update("bloodGroup", v)} />
           <SelectField label="COUNTRY" value={form.country} placeholder="Select country" options={["Bangladesh", "India", "USA", "UK"]} onChange={(v) => update("country", v)} />
-
-          {/* Citizenship Type */}
           <SelectField label="CITIZENSHIP TYPE" value={form.citizenshipType} placeholder="Select citizenship type" options={CITIZENSHIP_TYPES} onChange={(v) => update("citizenshipType", v)} />
 
           {/* Add another country */}
-          <button className="flex items-center gap-[6px] py-[12px]">
+          <button className="flex items-center gap-[8px] py-[12px]">
             <Plus size={18} className="text-[#025fc9]" />
-            <span style={{ ...fontSwitzer, fontSize: "14px", fontWeight: 500, color: "#025fc9", letterSpacing: "0.14px" }}>
+            <span style={{ ...fontSwitzer, fontSize: "16px", fontWeight: 500, color: "#025fc9", letterSpacing: "0.16px" }}>
               Add another country
             </span>
           </button>
@@ -199,7 +212,7 @@ export default function PersonalInformationPage() {
               <span style={{ ...fontSwitzer, fontSize: "12px", fontWeight: 500, color: "#767676", letterSpacing: "0.12px" }}>
                 DISABILITIES
               </span>
-              <span style={{ ...fontSwitzer, fontSize: "12px", color: "#a09898", letterSpacing: "0.12px" }}>
+              <span style={{ ...fontSwitzer, fontSize: "16px", color: "#a09898", letterSpacing: "0.16px" }}>
                 Confidential · Optional
               </span>
             </div>
@@ -225,7 +238,7 @@ export default function PersonalInformationPage() {
             </button>
           </div>
 
-          {/* Save button */}
+          {/* Save Button */}
           <button
             onClick={() => router.push("/address")}
             className="flex items-center justify-center w-full rounded-[12px]"

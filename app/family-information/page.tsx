@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { fontSwitzer } from "@/lib/styles";
 import { Menu, Bell, Mail, Search, Info, Pencil, ChevronDown, Plus, Users, RefreshCw, X } from "lucide-react";
+import Sidebar from "@/components/Sidebar";
 
 type TagStatus = "untagged" | "manual" | "tagged" | "pending" | "failed";
 
@@ -69,7 +70,6 @@ function TagCard({
   if (member.status === "tagged") {
     return (
       <div className="flex flex-col gap-[0px] w-full">
-        {/* Tagged chip */}
         <div
           className="flex items-center gap-[8px] rounded-[20px] self-start mb-[16px]"
           style={{ backgroundColor: "#e8f5e9", border: "1px solid #c8e6c9", paddingLeft: "10px", paddingRight: "10px", paddingTop: "4px", paddingBottom: "4px" }}
@@ -82,8 +82,6 @@ function TagCard({
           </span>
           <span style={{ color: "#2e7d32", fontSize: "14px" }}>✓</span>
         </div>
-
-        {/* Fields */}
         {[
           { label: "FATHER'S FIRST AND MIDDLE NAMES", key: "firstName", placeholder: "Father's first and middle names", value: member.firstName || "" },
           { label: "LAST NAME", key: "lastName", placeholder: "Father's last name", value: member.lastName || "" },
@@ -175,6 +173,9 @@ function TagCard({
 export default function FamilyInformationPage() {
   const router = useRouter();
 
+  // ── Sidebar state ──
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   const [members, setMembers] = useState<FamilyMember[]>([
     { id: "father", label: "FATHER'S DETAILS", status: "untagged" },
     { id: "mother", label: "MOTHER'S DETAILS", status: "untagged" },
@@ -198,7 +199,6 @@ export default function FamilyInformationPage() {
   };
 
   const handleTag = (id: string) => {
-    // Simulate tagging — in real app this opens a search/modal
     updateStatus(id, "pending", { taggedUsername: "onesync_user_" + id });
   };
 
@@ -208,42 +208,55 @@ export default function FamilyInformationPage() {
     <div className="min-h-screen bg-gray-100 flex justify-center">
       <div className="w-full max-w-[393px] bg-white min-h-screen flex flex-col">
 
-        {/* Nav */}
-        <div
-          className="flex items-center justify-between bg-white shrink-0"
-          style={{ paddingLeft: "20px", paddingRight: "20px", height: "54px" }}
-        >
-          <div className="flex items-center" style={{ gap: "20px" }}>
-            <button className="w-6 h-6 flex items-center justify-center" aria-label="Menu">
-              <Menu size={24} className="text-black" />
-            </button>
-            <Image src="/images/Vector.png" alt="OneSyncID" width={116} height={20} style={{ objectFit: "contain" }} />
-          </div>
-          <div className="flex items-center" style={{ gap: "20px" }}>
-            <button className="w-6 h-6 flex items-center justify-center" aria-label="Notifications">
-              <Bell size={24} className="text-black" />
-            </button>
-            <button className="w-6 h-6 flex items-center justify-center" aria-label="Messages">
-              <Mail size={24} className="text-black" />
-            </button>
-          </div>
-        </div>
+        {/* ── Sidebar ── */}
+        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-        {/* Search Bar */}
-        <div className="bg-white shrink-0" style={{ paddingLeft: "20px", paddingRight: "20px", paddingTop: "3px" }}>
+        {/* ── Sticky Header (Nav + Search) ── */}
+        <div className="sticky top-0 z-10 bg-white">
+
+          {/* Nav */}
           <div
-            className="flex items-center w-full"
-            style={{ height: "44px", border: "1px solid #9fbfe4", borderRadius: "28px", paddingLeft: "20px", gap: "10px" }}
+            className="flex items-center justify-between"
+            style={{ paddingLeft: "20px", paddingRight: "20px", height: "54px" }}
           >
-            <Search size={20} className="text-[#5e5757] shrink-0" />
-            <span style={{ ...fontSwitzer, fontSize: "16px", color: "#5e5757", letterSpacing: "0.5px" }}>Search</span>
+            <div className="flex items-center" style={{ gap: "20px" }}>
+              <button
+                className="w-6 h-6 flex items-center justify-center"
+                aria-label="Menu"
+                onClick={() => setSidebarOpen(true)}
+              >
+                <Menu size={24} className="text-black" />
+              </button>
+              <Image src="/images/Vector.png" alt="OneSyncID" width={116} height={20} style={{ objectFit: "contain" }} />
+            </div>
+            <div className="flex items-center" style={{ gap: "20px" }}>
+              <button className="w-6 h-6 flex items-center justify-center" aria-label="Notifications">
+                <Bell size={24} className="text-black" />
+              </button>
+              <button className="w-6 h-6 flex items-center justify-center" aria-label="Messages">
+                <Mail size={24} className="text-black" />
+              </button>
+            </div>
           </div>
-        </div>
 
-        {/* Body */}
+          {/* Search Bar */}
+          <div style={{ paddingLeft: "20px", paddingRight: "20px", paddingTop: "3px", paddingBottom: "10px" }}>
+            <div
+              className="flex items-center w-full"
+              style={{ height: "44px", border: "1px solid #9fbfe4", borderRadius: "28px", paddingLeft: "20px", gap: "10px" }}
+            >
+              <Search size={20} className="text-[#5e5757] shrink-0" />
+              <span style={{ ...fontSwitzer, fontSize: "16px", color: "#5e5757", letterSpacing: "0.5px" }}>Search</span>
+            </div>
+          </div>
+
+        </div>
+        {/* ── End Sticky Header ── */}
+
+        {/* ── Scrollable Body ── */}
         <div
           className="bg-white flex flex-col overflow-y-auto"
-          style={{ paddingLeft: "20px", paddingRight: "20px", paddingTop: "47px", paddingBottom: "40px", gap: "24px" }}
+          style={{ paddingLeft: "20px", paddingRight: "20px", paddingTop: "30px", paddingBottom: "40px", gap: "24px" }}
         >
           {/* Heading */}
           <div className="flex items-center justify-between w-full">
@@ -275,7 +288,6 @@ export default function FamilyInformationPage() {
                   </button>
                 )}
               </div>
-
               <TagCard
                 member={member}
                 onTag={() => handleTag(member.id)}
@@ -316,7 +328,7 @@ export default function FamilyInformationPage() {
             </span>
           </button>
 
-          {/* Save button */}
+          {/* Save */}
           <button
             onClick={() => router.push("/")}
             className="flex items-center justify-center w-full rounded-[12px]"

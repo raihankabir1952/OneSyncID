@@ -6,18 +6,18 @@ import { useRouter, usePathname } from "next/navigation";
 import { fontSwitzer } from "@/lib/styles";
 import {
   Shield,
-  Settings,
-  User,
+  Settings2,
+  CircleUser,
   FileText,
   GraduationCap,
   Briefcase,
   Landmark,
-  Users,
   Activity,
   ChevronDown,
   Plus,
   LogOut,
   Globe,
+  BadgeCheck,
 } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -26,18 +26,24 @@ interface SidebarProps {
   onClose: () => void;
 }
 
-// ─── Menu Items ───────────────────────────────────────────────────────────────
-const MY_ACCOUNT_ITEMS = [
-  { icon: Shield,        label: "Quick Verify",             href: "/quick-verify"             },
-  { icon: Settings,      label: "Quick Setup",              href: "/upload-file"              },
-  { icon: User,          label: "Profile Overview",         href: "/personal-information"     },
-  { icon: FileText,      label: "Identification Documents", href: "/identification-documents" },
-  { icon: GraduationCap, label: "Education Information",    href: "/education-information"    },
-  { icon: Briefcase,     label: "Work Experience",          href: "/work-experience"          },
-  { icon: Landmark,      label: "Banking Information",      href: "/banking-information"      },
-  { icon: Users,         label: "Guardian Information",     href: "/guardian-information"     },
-  { icon: Users,         label: "Relatives",                href: "/relatives"                },
-  { icon: Activity,      label: "Activity",                 href: "/activity"                 },
+// ─── My Account Items
+// icon: lucide component অথবা SVG path string
+// ─────────────────────────────────────────────────────────────────────────────
+const MY_ACCOUNT_ITEMS: {
+  icon: React.ElementType | string;
+  label: string;
+  href: string;
+}[] = [
+  { icon: Shield,                    label: "Quick Verify",             href: "/quick-verify"             },
+  { icon: Settings2,                 label: "Quick Setup",              href: "/upload-file"              },
+  { icon: CircleUser,                label: "Profile Overview",         href: "/personal-information"     },
+  { icon: FileText,                  label: "Identification Documents", href: "/identification-documents" },
+  { icon: GraduationCap,             label: "Education Information",    href: "/education-information"    },
+  { icon: Briefcase,                 label: "Work Experience",          href: "/work-experience"          },
+  { icon: Landmark,                  label: "Banking Information",      href: "/banking-information"      },
+  { icon: "/icons/guardian.svg",     label: "Guardian Information",     href: "/guardian-information"     },
+  { icon: "/icons/relatives.svg",    label: "Relatives",                href: "/relatives"                },
+  { icon: Activity,                  label: "Activity",                 href: "/activity"                 },
 ];
 
 // ─── Accordion ────────────────────────────────────────────────────────────────
@@ -53,7 +59,7 @@ function AccordionSection({
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
-    <div className="w-full border-b border-[#d9d9d9] py-[12px]">
+    <div className="w-full py-[12px]">
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="w-full flex items-center justify-between"
@@ -71,20 +77,21 @@ function AccordionSection({
         className="overflow-hidden transition-all duration-300"
         style={{ maxHeight: isOpen ? "1000px" : "0px", opacity: isOpen ? 1 : 0 }}
       >
-        <div className="pt-[10px] flex flex-col gap-[2px]">{children}</div>
+        <div className="pt-[8px] flex flex-col">{children}</div>
       </div>
     </div>
   );
 }
 
 // ─── Menu Item ────────────────────────────────────────────────────────────────
+// icon string হলে → <img>, না হলে → lucide component
 function MenuItem({
-  icon: Icon,
+  icon,
   label,
   href,
   onClick,
 }: {
-  icon: React.ElementType;
+  icon: React.ElementType | string;
   label: string;
   href: string;
   onClick?: () => void;
@@ -96,11 +103,31 @@ function MenuItem({
     <Link
       href={href}
       onClick={onClick}
-      className={`flex items-center gap-[13px] px-[8px] py-[10px] rounded-[8px] transition-colors ${
-        isActive ? "bg-[rgba(2,95,201,0.08)]" : "hover:bg-gray-50"
+      className={`flex items-center gap-[13px] py-[10px] rounded-[8px] transition-colors ${
+        isActive ? "bg-[rgba(2,95,201,0.08)]" : ""
       }`}
     >
-      <Icon size={24} className={isActive ? "text-[#025fc9]" : "text-[#333]"} />
+      {/* SVG file */}
+      {typeof icon === "string" ? (
+        <img
+          src={icon}
+          alt=""
+          className="shrink-0 size-[24px]"
+          style={{ opacity: isActive ? 1 : 0.8 }}
+        />
+      ) : (
+        /* Lucide icon */
+        (() => {
+          const Icon = icon as React.ElementType;
+          return (
+            <Icon
+              size={24}
+              className={isActive ? "text-[#025fc9]" : "text-[#333]"}
+              strokeWidth={1.5}
+            />
+          );
+        })()
+      )}
       <span
         style={fontSwitzer}
         className={`text-[16px] font-medium ${isActive ? "text-[#025fc9]" : "text-[#333]"}`}
@@ -112,18 +139,15 @@ function MenuItem({
 }
 
 // ─── Main Sidebar ─────────────────────────────────────────────────────────────
-// fixed position — main screen এর উপরে overlay হয়ে আসে, Uber style
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const router = useRouter();
 
-  // ESC key
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
     if (isOpen) document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, [isOpen, onClose]);
 
-  // Body scroll lock
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
@@ -131,7 +155,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
 
   return (
     <>
-      {/* ── Dim Overlay (sidebar এর পেছনে) ── */}
+      {/* ── Dim Overlay ── */}
       <div
         onClick={onClose}
         className="fixed inset-0 z-40 transition-all duration-300"
@@ -142,72 +166,104 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         }}
       />
 
-      {/* ── Sidebar Panel (fixed, slide in from left) ── */}
+      {/* ── Sidebar Panel ── */}
       <div
-        className="fixed top-0 left-0 z-50 h-full bg-white shadow-2xl transition-transform duration-300 ease-in-out"
+        className="fixed top-0 left-0 z-50 h-full bg-white shadow-2xl transition-transform duration-300 ease-in-out overflow-hidden"
         style={{
           width: "300px",
           transform: isOpen ? "translateX(0)" : "translateX(-100%)",
         }}
       >
-        {/* Scrollable content */}
-        <div className="h-full overflow-y-auto px-[24px] pt-[60px] pb-[30px]">
+        <div className="h-full overflow-y-auto overflow-x-hidden px-[30px] pb-[30px]">
 
           {/* ── Profile Header ── */}
-          <div className="flex items-start justify-between pb-[20px] border-b border-[#d9d9d9]">
+          <div
+            className="flex items-start justify-between border-b border-[#d9d9d9]"
+            style={{ paddingTop: "70px", paddingBottom: "20px" }}
+          >
             <div className="flex gap-[10px] items-start">
-              <div className="w-[40px] h-[40px] rounded-full bg-[#d9d9d9] flex items-center justify-center shrink-0">
-                <User size={20} className="text-[#5e5757]" />
+              <div className="relative shrink-0 size-[20px] rounded-full bg-[#d9d9d9] flex items-center justify-center">
+                <CircleUser size={18} className="text-[#5e5757]" />
               </div>
-              <div className="flex flex-col gap-[4px]">
+              <div className="flex flex-col gap-[5px]">
                 <div className="flex items-center gap-[5px]">
-                  <span style={fontSwitzer} className="text-[16px] font-semibold text-black whitespace-nowrap">
+                  <span
+                    className="text-[16px] font-semibold text-black whitespace-nowrap"
+                    style={{ fontFamily: "SF Pro Text, sans-serif" }}
+                  >
                     John Doe
                   </span>
-                  <span className="text-[#025fc9] text-[14px]">✔</span>
+                  <BadgeCheck size={16} className="text-[#025fc9]" fill="#025fc9" strokeWidth={2} color="white" />
                 </div>
-                <span style={fontSwitzer} className="text-[12px] text-[#5e5757] whitespace-nowrap">
+                <span className="text-[12px] text-[#5e5757]" style={{ fontFamily: "SF Pro Text, sans-serif" }}>
                   onesync_john_doe
                 </span>
               </div>
             </div>
-            <div className="bg-[#d9d9d9] px-[8px] py-[5px] rounded-[10px] ml-[8px] shrink-0">
-              <span style={fontSwitzer} className="text-[12px] font-medium text-black">Personal</span>
+            <div className="bg-[#d9d9d9] px-[8px] py-[5px] rounded-[10px] shrink-0">
+              <span className="text-[12px] font-medium text-black" style={{ fontFamily: "SF Pro Text, sans-serif" }}>
+                Personal
+              </span>
             </div>
           </div>
 
           {/* ── My Account ── */}
           <AccordionSection title="My Account" defaultOpen={true}>
             {MY_ACCOUNT_ITEMS.map((item) => (
-              <MenuItem key={item.href} icon={item.icon} label={item.label} href={item.href} onClick={onClose} />
+              <MenuItem
+                key={item.href}
+                icon={item.icon}
+                label={item.label}
+                href={item.href}
+                onClick={onClose}
+              />
             ))}
           </AccordionSection>
 
           {/* ── Connected Apps ── */}
           <AccordionSection title="Connected Apps" defaultOpen={false}>
-            <div className="py-[8px]">
-              <p style={fontSwitzer} className="text-[12px] text-[#5e5757] mb-[6px]">Recently Used</p>
-              <p style={fontSwitzer} className="text-[14px] text-[#333]">No apps connected yet</p>
+            <div className="py-[10px] flex flex-col gap-[20px]">
+              <div className="flex flex-col gap-[8px]">
+                <p className="text-[12px] text-[#5e5757]" style={{ fontFamily: "SF Pro Text, sans-serif" }}>
+                  Recently Used
+                </p>
+                <p className="text-[14px] text-[#333]" style={fontSwitzer}>
+                  No apps connected yet
+                </p>
+              </div>
             </div>
           </AccordionSection>
 
           {/* ── Manage Profiles ── */}
           <AccordionSection title="Manage Profiles" defaultOpen={false}>
-            <div className="py-[8px]">
-              <p style={fontSwitzer} className="text-[12px] text-[#5e5757] mb-[8px]">Recently Visited</p>
-              <div className="flex items-center justify-between">
-                <div className="flex gap-[8px] items-center">
-                  <div className="w-[20px] h-[20px] rounded-full bg-[#d9d9d9]" />
-                  <div>
-                    <div className="flex items-center gap-[4px]">
-                      <span style={fontSwitzer} className="text-[14px] font-semibold text-black">John Doe</span>
-                      <span className="text-[#025fc9] text-[12px]">✔</span>
+            <div className="py-[10px] flex flex-col gap-[8px]">
+              <p className="text-[12px] text-[#5e5757]" style={{ fontFamily: "SF Pro Text, sans-serif" }}>
+                Recently Visited
+              </p>
+              <div className="flex items-start justify-between w-full">
+                <div className="flex gap-[10px] items-start">
+                  <div className="relative shrink-0 size-[20px] rounded-full bg-[#d9d9d9] flex items-center justify-center">
+                    <CircleUser size={18} className="text-[#5e5757]" />
+                  </div>
+                  <div className="flex flex-col gap-[5px]">
+                    <div className="flex items-center gap-[5px]">
+                      <span
+                        className="text-[16px] font-semibold text-black whitespace-nowrap"
+                        style={{ fontFamily: "SF Pro Text, sans-serif" }}
+                      >
+                        John Doe
+                      </span>
+                      <BadgeCheck size={16} className="text-[#025fc9]" fill="#025fc9" strokeWidth={2} color="white" />
                     </div>
-                    <p style={fontSwitzer} className="text-[11px] text-[#5e5757]">onesync_john_doe</p>
+                    <span className="text-[12px] text-[#5e5757]" style={{ fontFamily: "SF Pro Text, sans-serif" }}>
+                      onesync_john_doe
+                    </span>
                   </div>
                 </div>
-                <div className="bg-[#d9d9d9] px-[8px] py-[4px] rounded-[10px]">
-                  <span style={fontSwitzer} className="text-[11px] font-medium text-black">Personal</span>
+                <div className="bg-[#d9d9d9] px-[8px] py-[5px] rounded-[10px] shrink-0">
+                  <span className="text-[12px] font-medium text-black" style={{ fontFamily: "SF Pro Text, sans-serif" }}>
+                    Personal
+                  </span>
                 </div>
               </div>
             </div>
@@ -216,27 +272,38 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
           {/* ── Add Account ── */}
           <button
             onClick={() => { onClose(); router.push("/create-account"); }}
-            className="w-full flex items-center gap-[10px] py-[12px] px-[8px] hover:bg-gray-50 rounded-[8px] transition-colors"
+            className="w-full flex items-center gap-[10px] py-[12px]"
           >
-            <Plus size={24} className="text-[#333]" />
-            <span style={fontSwitzer} className="text-[16px] font-semibold text-[#333]">Add Account</span>
+            <Plus size={24} className="text-[#333]" strokeWidth={1.5} />
+            <span className="text-[16px] font-semibold text-[#333]" style={{ fontFamily: "SF Pro Text, sans-serif" }}>
+              Add Account
+            </span>
           </button>
 
           {/* ── Logout ── */}
           <button
             onClick={() => { onClose(); router.push("/sign-in"); }}
-            className="w-full flex items-center gap-[10px] py-[12px] px-[8px] hover:bg-gray-50 rounded-[8px] transition-colors"
+            className="w-full flex items-center gap-[10px] py-[12px]"
           >
-            <LogOut size={24} className="text-[#333]" />
-            <span style={fontSwitzer} className="text-[16px] font-semibold text-[#333]">Logout</span>
+            <LogOut size={24} className="text-[#333]" strokeWidth={1.5} />
+            <span className="text-[16px] font-semibold text-[#333]" style={{ fontFamily: "SF Pro Text, sans-serif" }}>
+              Logout
+            </span>
           </button>
 
           {/* ── Language ── */}
-          <div className="flex items-center justify-between pt-[30px] pb-[10px]">
-            <span style={fontSwitzer} className="text-[14px] font-medium text-[#5e5757]">Select language</span>
-            <div className="flex items-center gap-[4px]">
-              <span style={fontSwitzer} className="text-[14px] font-medium text-[#5e5757]">English</span>
-              <Globe size={18} className="text-[#5e5757]" />
+          <div
+            className="flex items-center justify-between"
+            style={{ paddingTop: "40px", paddingBottom: "30px" }}
+          >
+            <span style={{ ...fontSwitzer, fontSize: "16px", color: "#5e5757", letterSpacing: "0.16px" }}>
+              Select language
+            </span>
+            <div className="flex items-center gap-[3px]">
+              <span style={{ ...fontSwitzer, fontSize: "16px", color: "#5e5757", letterSpacing: "0.16px" }}>
+                English
+              </span>
+              <Globe size={24} className="text-[#5e5757]" strokeWidth={1.5} />
             </div>
           </div>
 
