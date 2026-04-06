@@ -157,7 +157,9 @@ export default function PersonalFormPage() {
             <div className="flex flex-col gap-[10px]">
               <p style={fontSwitzer} className="text-[12px] text-[#333]">
                 By signing in, you agree to our{" "}
-                <span className="text-[#025fc9]">Terms</span>{" "}
+                <Link href="/verification/terms-and-conditions" className="text-[#025fc9]">
+                  Terms
+                </Link>{" "}
                 and{" "}
                 <span className="text-[#025fc9]">Privacy Policy</span>
               </p>

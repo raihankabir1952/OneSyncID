@@ -13,6 +13,7 @@ interface VerificationItem {
   title: string;
   description: string;
   status: StatusType;
+  href?: string;
 }
 
 function StatusBadge({ status }: { status: StatusType }) {
@@ -66,6 +67,7 @@ const VERIFICATION_ITEMS: VerificationItem[] = [
     title: "Terms & Conditions",
     description: "Acceptance of the service's terms and rules.",
     status: "Accepted",
+    href: "/verification/terms-and-conditions",
   },
   {
     id: "privacy",
@@ -133,7 +135,8 @@ export default function VerificationPage() {
             <div
               key={item.id}
               className="flex flex-col gap-[12px] w-full rounded-[12px] p-[16px]"
-              style={{ border: "1px solid #d9d9d9" }}
+              style={{ border: "1px solid #d9d9d9", cursor: item.href ? "pointer" : "default" }}
+              onClick={() => item.href && router.push(item.href)}
             >
               <div className="flex items-start gap-[12px]">
                 <div

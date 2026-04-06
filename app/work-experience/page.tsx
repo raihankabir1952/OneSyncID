@@ -5,6 +5,7 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { fontSwitzer } from "@/lib/styles";
 import { Menu, Bell, Mail, Search, Info, ChevronDown, Plus, Users } from "lucide-react";
+import Sidebar from "@/components/Sidebar";
 
 const BADGES = ["Leadership", "People-oriented", "Collaborator", "Independent", "Skilled"] as const;
 type Badge = typeof BADGES[number];
@@ -69,6 +70,9 @@ export default function WorkExperiencePage() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // ── Sidebar state ──
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   const [entries, setEntries] = useState<WorkEntry[]>([
     {
       id: 1,
@@ -92,7 +96,7 @@ export default function WorkExperiencePage() {
 
   const toggleBadge = (entryId: number, badge: Badge, current: Badge[]) => {
     const has = current.includes(badge);
-    if (!has && current.length >= 3) return; // max 3 badges
+    if (!has && current.length >= 3) return;
     const updated = has ? current.filter((b) => b !== badge) : [...current, badge];
     updateEntry(entryId, "selectedBadges", updated);
   };
@@ -112,13 +116,21 @@ export default function WorkExperiencePage() {
     <div className="min-h-screen bg-gray-100 flex justify-center">
       <div className="w-full max-w-[393px] bg-white min-h-screen flex flex-col">
 
-        {/* Nav */}
+        {/* ── Sidebar: fixed overlay, main screen এর উপরে ── */}
+        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+
+        {/* ── Nav ── */}
         <div
           className="flex items-center justify-between bg-white shrink-0"
           style={{ paddingLeft: "20px", paddingRight: "20px", height: "54px" }}
         >
           <div className="flex items-center" style={{ gap: "20px" }}>
-            <button className="w-6 h-6 flex items-center justify-center" aria-label="Menu">
+            {/* Hamburger */}
+            <button
+              className="w-6 h-6 flex items-center justify-center"
+              aria-label="Menu"
+              onClick={() => setSidebarOpen(true)}
+            >
               <Menu size={24} className="text-black" />
             </button>
             <Image src="/images/Vector.png" alt="OneSyncID" width={116} height={20} style={{ objectFit: "contain" }} />
@@ -133,7 +145,7 @@ export default function WorkExperiencePage() {
           </div>
         </div>
 
-        {/* Search Bar */}
+        {/* ── Search Bar ── */}
         <div className="bg-white shrink-0" style={{ paddingLeft: "20px", paddingRight: "20px", paddingTop: "3px" }}>
           <div
             className="flex items-center w-full"
@@ -144,7 +156,7 @@ export default function WorkExperiencePage() {
           </div>
         </div>
 
-        {/* Body */}
+        {/* ── Body ── */}
         <div
           className="bg-white flex flex-col overflow-y-auto"
           style={{ paddingLeft: "20px", paddingRight: "20px", paddingTop: "47px", paddingBottom: "40px", gap: "4px" }}
@@ -160,7 +172,7 @@ export default function WorkExperiencePage() {
           {entries.map((entry) => (
             <div key={entry.id} className="flex flex-col w-full" style={{ marginBottom: "24px" }}>
 
-              {/* Company Name with Tag */}
+              {/* Company Name */}
               <div className="flex flex-col gap-[6px] py-[14px]" style={{ borderBottom: "1px solid #d9d9d9" }}>
                 <div className="flex items-center justify-between w-full">
                   <span style={{ ...fontSwitzer, fontSize: "12px", fontWeight: 500, color: "#767676", letterSpacing: "0.12px" }}>
@@ -197,7 +209,7 @@ export default function WorkExperiencePage() {
                 />
               </div>
 
-              {/* Employment End Date + Currently Working */}
+              {/* Employment End Date */}
               <div className="flex flex-col gap-[6px] py-[14px]" style={{ borderBottom: "1px solid #d9d9d9" }}>
                 <div className="flex items-center justify-between w-full">
                   <span style={{ ...fontSwitzer, fontSize: "12px", fontWeight: 500, color: "#767676", letterSpacing: "0.12px" }}>
@@ -237,13 +249,11 @@ export default function WorkExperiencePage() {
               <SelectField label="WORK TYPE" placeholder="Select work type" options={["Full-time", "Part-time", "Remote", "Hybrid", "Freelance"]} />
               <SelectField label="CONTRACT TYPE" placeholder="Select contract type" options={["Permanent", "Contractual", "Internship", "Temporary"]} />
 
-              {/* Add another education */}
               <button
                 onClick={() => setEntries((prev) => [...prev, {
                   id: Date.now(), companyName: "", role: "", companyWebsite: "",
                   enrollmentStartDate: "", employmentEndDate: "", currentlyWorking: false,
-                  aboutRole: "", selectedBadges: [], howDidYouHear: "",
-                  showOnProfile: false, proofFiles: [],
+                  aboutRole: "", selectedBadges: [], howDidYouHear: "", showOnProfile: false, proofFiles: [],
                 }])}
                 className="flex items-center gap-[6px] py-[12px]"
               >
@@ -255,9 +265,7 @@ export default function WorkExperiencePage() {
 
               {/* About Your Role */}
               <div className="flex flex-col gap-[6px] py-[14px]" style={{ borderBottom: "1px solid #d9d9d9" }}>
-                <span style={{ ...fontSwitzer, fontSize: "14px", fontWeight: 500, color: "#000", letterSpacing: "0.14px" }}>
-                  About Your Role
-                </span>
+                <span style={{ ...fontSwitzer, fontSize: "14px", fontWeight: 500, color: "#000", letterSpacing: "0.14px" }}>About Your Role</span>
                 <textarea
                   value={entry.aboutRole}
                   onChange={(e) => updateEntry(entry.id, "aboutRole", e.target.value)}
@@ -267,12 +275,9 @@ export default function WorkExperiencePage() {
                 />
               </div>
 
-              {/* Attach file */}
               <button className="flex items-center gap-[6px] py-[12px]">
                 <Plus size={18} className="text-[#025fc9]" />
-                <span style={{ ...fontSwitzer, fontSize: "14px", fontWeight: 500, color: "#025fc9", letterSpacing: "0.14px" }}>
-                  Attach file
-                </span>
+                <span style={{ ...fontSwitzer, fontSize: "14px", fontWeight: 500, color: "#025fc9", letterSpacing: "0.14px" }}>Attach file</span>
               </button>
               <p style={{ ...fontSwitzer, fontSize: "12px", color: "#a09898", letterSpacing: "0.12px", marginBottom: "12px" }}>
                 Add images, screenshots, slides, or other media that highlight your work or achievements.
@@ -280,9 +285,7 @@ export default function WorkExperiencePage() {
 
               {/* Badges */}
               <div className="flex flex-col gap-[8px] py-[14px]" style={{ borderBottom: "1px solid #d9d9d9" }}>
-                <span style={{ ...fontSwitzer, fontSize: "14px", fontWeight: 500, color: "#000", letterSpacing: "0.14px" }}>
-                  Badges
-                </span>
+                <span style={{ ...fontSwitzer, fontSize: "14px", fontWeight: 500, color: "#000", letterSpacing: "0.14px" }}>Badges</span>
                 <p style={{ ...fontSwitzer, fontSize: "12px", color: "#a09898", letterSpacing: "0.12px" }}>
                   Select up to 3 badges that best describe your work style.
                 </p>
@@ -327,8 +330,6 @@ export default function WorkExperiencePage() {
                   </select>
                   <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5e5757] pointer-events-none" />
                 </div>
-
-                {/* Show on profile checkbox */}
                 <div className="flex items-center gap-[8px]">
                   <button
                     onClick={() => updateEntry(entry.id, "showOnProfile", !entry.showOnProfile)}
@@ -347,7 +348,7 @@ export default function WorkExperiencePage() {
                 </div>
               </div>
 
-              {/* Educational Document */}
+              {/* Document Upload */}
               <div className="flex flex-col gap-[10px] w-full py-[14px]">
                 <span style={{ ...fontSwitzer, fontSize: "14px", fontWeight: 500, color: "#000", letterSpacing: "0.14px" }}>
                   Educational Document
@@ -355,74 +356,48 @@ export default function WorkExperiencePage() {
                 <p style={{ ...fontSwitzer, fontSize: "12px", color: "#a09898", letterSpacing: "0.12px" }}>
                   Attach a valid education document such as a certificate or transcript.
                 </p>
-
                 {entry.proofFiles.length === 0 && (
                   <div
                     className="flex flex-col items-center justify-center w-full rounded-[12px] gap-[12px]"
                     style={{ border: "2px dashed #d9d9d9", padding: "24px", minHeight: "160px" }}
                   >
-                    <div
-                      className="flex items-center justify-center rounded-full"
-                      style={{ width: "48px", height: "48px", backgroundColor: "#e8f0fb" }}
-                    >
+                    <div className="flex items-center justify-center rounded-full" style={{ width: "48px", height: "48px", backgroundColor: "#e8f0fb" }}>
                       <span style={{ fontSize: "22px" }}>📄</span>
                     </div>
-                    <p style={{ ...fontSwitzer, fontSize: "14px", color: "#5e5757", textAlign: "center" }}>
-                      Drag & drop your file here
-                    </p>
-                    <p style={{ ...fontSwitzer, fontSize: "12px", color: "#a09898", textAlign: "center" }}>
-                      Accepted Formats: PDF, JPG, PNG · (Max 5 MB per file)
-                    </p>
+                    <p style={{ ...fontSwitzer, fontSize: "14px", color: "#5e5757", textAlign: "center" }}>Drag & drop your file here</p>
+                    <p style={{ ...fontSwitzer, fontSize: "12px", color: "#a09898", textAlign: "center" }}>Accepted Formats: PDF, JPG, PNG · (Max 5 MB per file)</p>
                     <p style={{ ...fontSwitzer, fontSize: "12px", color: "#a09898" }}>or</p>
                     <button
                       onClick={() => fileInputRef.current?.click()}
                       className="flex items-center justify-center rounded-[8px]"
                       style={{ height: "36px", paddingLeft: "20px", paddingRight: "20px", backgroundColor: "#025fc9" }}
                     >
-                      <span style={{ ...fontSwitzer, fontSize: "14px", fontWeight: 500, color: "#fff" }}>
-                        Browse files
-                      </span>
+                      <span style={{ ...fontSwitzer, fontSize: "14px", fontWeight: 500, color: "#fff" }}>Browse files</span>
                     </button>
                   </div>
                 )}
-
                 {entry.proofFiles.map((file) => (
                   <div key={file.id} className="flex items-center p-[12px] rounded-[8px]" style={{ border: "1px solid #d9d9d9" }}>
                     <span style={{ ...fontSwitzer, fontSize: "14px", color: "#000" }}>{file.filename}</span>
                   </div>
                 ))}
-
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".pdf,.jpg,.jpeg,.png"
-                  className="hidden"
-                  onChange={(e) => handleFileSelect(entry.id, e)}
-                />
-
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  className="flex items-center gap-[6px]"
-                >
+                <input ref={fileInputRef} type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={(e) => handleFileSelect(entry.id, e)} />
+                <button onClick={() => fileInputRef.current?.click()} className="flex items-center gap-[6px]">
                   <Plus size={18} className="text-[#025fc9]" />
-                  <span style={{ ...fontSwitzer, fontSize: "14px", fontWeight: 500, color: "#025fc9", letterSpacing: "0.14px" }}>
-                    Upload another
-                  </span>
+                  <span style={{ ...fontSwitzer, fontSize: "14px", fontWeight: 500, color: "#025fc9", letterSpacing: "0.14px" }}>Upload another</span>
                 </button>
               </div>
 
             </div>
           ))}
 
-          {/* Save button */}
+          {/* Save */}
           <button
             onClick={() => router.back()}
             className="flex items-center justify-center w-full rounded-[12px]"
             style={{ height: "44px", backgroundColor: "#025fc9", marginTop: "8px" }}
           >
-            <span style={{ ...fontSwitzer, fontSize: "16px", fontWeight: 500, color: "#fff", letterSpacing: "0.16px" }}>
-              Save
-            </span>
+            <span style={{ ...fontSwitzer, fontSize: "16px", fontWeight: 500, color: "#fff", letterSpacing: "0.16px" }}>Save</span>
           </button>
 
         </div>
