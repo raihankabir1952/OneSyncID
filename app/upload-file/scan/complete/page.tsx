@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { fontSwitzer } from "@/lib/styles";
 import { PlusCircle } from "lucide-react";
@@ -14,7 +15,12 @@ export default function ScanCompletePage() {
         {/* Body */}
         <div
           className="flex flex-col"
-          style={{ paddingLeft: "20px", paddingRight: "20px", paddingTop: "60px", gap: "24px" }}
+          style={{
+            paddingLeft: "20px",
+            paddingRight: "20px",
+            paddingTop: "60px",
+            gap: "24px",
+          }}
         >
           {/* Title */}
           <h1
@@ -33,11 +39,19 @@ export default function ScanCompletePage() {
           {/* Scanned page thumbnail */}
           <div className="flex flex-col" style={{ gap: "12px" }}>
             <div
-              className="rounded-[12px] overflow-hidden bg-[#e8e8e8] relative"
+              className="rounded-[12px] overflow-hidden relative"
               style={{ width: "140px", height: "100px" }}
             >
-              {/* Placeholder thumbnail */}
-              <div className="w-full h-full bg-[#c8c8c8] flex items-end justify-center">
+              {/* Image added */}
+              <div className="relative w-full h-full">
+                <Image
+                  src="/images/driver-license-sample.png"
+                  alt="Scanned document"
+                  fill
+                  className="object-cover"
+                />
+
+                {/* Page label overlay */}
                 <span
                   style={{
                     ...fontSwitzer,
@@ -47,6 +61,9 @@ export default function ScanCompletePage() {
                     width: "100%",
                     textAlign: "center",
                     padding: "4px",
+                    position: "absolute",
+                    bottom: "0",
+                    left: "0",
                   }}
                 >
                   Page 1
@@ -57,6 +74,7 @@ export default function ScanCompletePage() {
             {/* Add another page */}
             <button className="flex items-center gap-[6px]">
               <PlusCircle size={20} className="text-[#025fc9]" />
+
               <span
                 style={{
                   ...fontSwitzer,
@@ -75,7 +93,11 @@ export default function ScanCompletePage() {
           <button
             onClick={() => router.push("/upload-file/processing")}
             className="flex items-center justify-center w-full rounded-[12px]"
-            style={{ height: "44px", backgroundColor: "#025fc9", marginTop: "12px" }}
+            style={{
+              height: "44px",
+              backgroundColor: "#025fc9",
+              marginTop: "12px",
+            }}
           >
             <span
               style={{

@@ -34,7 +34,7 @@ const MY_ACCOUNT_ITEMS: {
   label: string;
   href: string;
 }[] = [
-  { icon: Shield,                    label: "Quick Verify",             href: "/quick-verify"             },
+  { icon: Shield,                    label: "Quick Verify",             href: "/upload-file/quick-verify"             },
   { icon: Settings2,                 label: "Quick Setup",              href: "/upload-file"              },
   { icon: CircleUser,                label: "Profile Overview",         href: "/personal-information"     },
   { icon: FileText,                  label: "Identification Documents", href: "/identification-documents" },

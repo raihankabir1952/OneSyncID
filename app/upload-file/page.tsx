@@ -158,7 +158,7 @@ export default function UploadFilePage() {
               {/* Upload document */}
               <button
                 type="button"
-                onClick={() => router.push("/upload-file/quick-verify")}
+                onClick={() => router.push("/upload-file/preview")}
                 className="flex items-center justify-center w-full"
                 style={{
                   height: "44px",
