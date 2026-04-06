@@ -20,33 +20,28 @@ import {
   BadgeCheck,
 } from "lucide-react";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-// ─── My Account Items
-// icon: lucide component অথবা SVG path string
-// ─────────────────────────────────────────────────────────────────────────────
 const MY_ACCOUNT_ITEMS: {
   icon: React.ElementType | string;
   label: string;
   href: string;
 }[] = [
-  { icon: Shield,                    label: "Quick Verify",             href: "/upload-file/quick-verify"             },
-  { icon: Settings2,                 label: "Quick Setup",              href: "/upload-file"              },
-  { icon: CircleUser,                label: "Profile Overview",         href: "/personal-information"     },
-  { icon: FileText,                  label: "Identification Documents", href: "/identification-documents" },
-  { icon: GraduationCap,             label: "Education Information",    href: "/education-information"    },
-  { icon: Briefcase,                 label: "Work Experience",          href: "/work-experience"          },
-  { icon: Landmark,                  label: "Banking Information",      href: "/banking-information"      },
-  { icon: "/icons/guardian.svg",     label: "Guardian Information",     href: "/guardian-information"     },
-  { icon: "/icons/relatives.svg",    label: "Relatives",                href: "/relatives"                },
-  { icon: Activity,                  label: "Activity",                 href: "/activity"                 },
+  { icon: Shield, label: "Quick Verify", href: "/upload-file/quick-verify" },
+  { icon: Settings2, label: "Quick Setup", href: "/upload-file" },
+  { icon: CircleUser, label: "Profile Overview", href: "/personal-information" },
+  { icon: FileText, label: "Identification Documents", href: "/identification-documents" },
+  { icon: GraduationCap, label: "Education Information", href: "/education-information" },
+  { icon: Briefcase, label: "Work Experience", href: "/work-experience" },
+  { icon: Landmark, label: "Banking Information", href: "/banking-information" },
+  { icon: "/icons/guardian.svg", label: "Guardian Information", href: "/guardian-information" },
+  { icon: "/icons/relatives.svg", label: "Relatives", href: "/relatives" },
+  { icon: Activity, label: "Activity", href: "/activity" },
 ];
 
-// ─── Accordion ────────────────────────────────────────────────────────────────
 function AccordionSection({
   title,
   children,
@@ -61,21 +56,30 @@ function AccordionSection({
   return (
     <div className="w-full py-[12px]">
       <button
+        type="button"
         onClick={() => setIsOpen(!isOpen)}
         className="w-full flex items-center justify-between"
       >
-        <span style={fontSwitzer} className="text-[16px] font-semibold text-black tracking-[0.16px]">
+        <span
+          style={fontSwitzer}
+          className="text-[16px] font-semibold text-black tracking-[0.16px]"
+        >
           {title}
         </span>
+
         <ChevronDown
           size={24}
           className="text-black transition-transform duration-300"
           style={{ transform: isOpen ? "rotate(180deg)" : "rotate(0deg)" }}
         />
       </button>
+
       <div
         className="overflow-hidden transition-all duration-300"
-        style={{ maxHeight: isOpen ? "1000px" : "0px", opacity: isOpen ? 1 : 0 }}
+        style={{
+          maxHeight: isOpen ? "1000px" : "0px",
+          opacity: isOpen ? 1 : 0,
+        }}
       >
         <div className="pt-[8px] flex flex-col">{children}</div>
       </div>
@@ -83,8 +87,6 @@ function AccordionSection({
   );
 }
 
-// ─── Menu Item ────────────────────────────────────────────────────────────────
-// icon string হলে → <img>, না হলে → lucide component
 function MenuItem({
   icon,
   label,
@@ -107,7 +109,6 @@ function MenuItem({
         isActive ? "bg-[rgba(2,95,201,0.08)]" : ""
       }`}
     >
-      {/* SVG file */}
       {typeof icon === "string" ? (
         <img
           src={icon}
@@ -116,7 +117,6 @@ function MenuItem({
           style={{ opacity: isActive ? 1 : 0.8 }}
         />
       ) : (
-        /* Lucide icon */
         (() => {
           const Icon = icon as React.ElementType;
           return (
@@ -128,9 +128,12 @@ function MenuItem({
           );
         })()
       )}
+
       <span
         style={fontSwitzer}
-        className={`text-[16px] font-medium ${isActive ? "text-[#025fc9]" : "text-[#333]"}`}
+        className={`text-[16px] font-medium ${
+          isActive ? "text-[#025fc9]" : "text-[#333]"
+        }`}
       >
         {label}
       </span>
@@ -138,24 +141,29 @@ function MenuItem({
   );
 }
 
-// ─── Main Sidebar ─────────────────────────────────────────────────────────────
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const router = useRouter();
+  const pathname = usePathname();
+  const isProfileActive = pathname === "/profile";
 
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+
     if (isOpen) document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, [isOpen, onClose]);
 
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [isOpen]);
 
   return (
     <>
-      {/* ── Dim Overlay ── */}
       <div
         onClick={onClose}
         className="fixed inset-0 z-40 transition-all duration-300"
@@ -166,7 +174,6 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         }}
       />
 
-      {/* ── Sidebar Panel ── */}
       <div
         className="fixed top-0 left-0 z-50 h-full bg-white shadow-2xl transition-transform duration-300 ease-in-out overflow-hidden"
         style={{
@@ -175,39 +182,68 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         }}
       >
         <div className="h-full overflow-y-auto overflow-x-hidden px-[30px] pb-[30px]">
-
-          {/* ── Profile Header ── */}
-          <div
-            className="flex items-start justify-between border-b border-[#d9d9d9]"
+          {/* Profile Header */}
+          <button
+            type="button"
+            onClick={() => {
+              onClose();
+              router.push("/profile");
+            }}
+            className={`flex items-start justify-between border-b border-[#d9d9d9] w-full text-left rounded-[10px] transition-colors ${
+              isProfileActive ? "bg-[rgba(2,95,201,0.08)]" : ""
+            }`}
             style={{ paddingTop: "70px", paddingBottom: "20px" }}
           >
             <div className="flex gap-[10px] items-start">
               <div className="relative shrink-0 size-[20px] rounded-full bg-[#d9d9d9] flex items-center justify-center">
-                <CircleUser size={18} className="text-[#5e5757]" />
+                <CircleUser
+                  size={18}
+                  className={isProfileActive ? "text-[#025fc9]" : "text-[#5e5757]"}
+                />
               </div>
+
               <div className="flex flex-col gap-[5px]">
                 <div className="flex items-center gap-[5px]">
                   <span
-                    className="text-[16px] font-semibold text-black whitespace-nowrap"
+                    className={`text-[16px] font-semibold whitespace-nowrap ${
+                      isProfileActive ? "text-[#025fc9]" : "text-black"
+                    }`}
                     style={{ fontFamily: "SF Pro Text, sans-serif" }}
                   >
                     John Doe
                   </span>
-                  <BadgeCheck size={16} className="text-[#025fc9]" fill="#025fc9" strokeWidth={2} color="white" />
+
+                  <BadgeCheck
+                    size={16}
+                    className="text-[#025fc9]"
+                    fill="#025fc9"
+                    strokeWidth={2}
+                    color="white"
+                  />
                 </div>
-                <span className="text-[12px] text-[#5e5757]" style={{ fontFamily: "SF Pro Text, sans-serif" }}>
+
+                <span
+                  className={`text-[12px] ${
+                    isProfileActive ? "text-[#025fc9]" : "text-[#5e5757]"
+                  }`}
+                  style={{ fontFamily: "SF Pro Text, sans-serif" }}
+                >
                   onesync_john_doe
                 </span>
               </div>
             </div>
+
             <div className="bg-[#d9d9d9] px-[8px] py-[5px] rounded-[10px] shrink-0">
-              <span className="text-[12px] font-medium text-black" style={{ fontFamily: "SF Pro Text, sans-serif" }}>
+              <span
+                className="text-[12px] font-medium text-black"
+                style={{ fontFamily: "SF Pro Text, sans-serif" }}
+              >
                 Personal
               </span>
             </div>
-          </div>
+          </button>
 
-          {/* ── My Account ── */}
+          {/* My Account */}
           <AccordionSection title="My Account" defaultOpen={true}>
             {MY_ACCOUNT_ITEMS.map((item) => (
               <MenuItem
@@ -220,11 +256,14 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             ))}
           </AccordionSection>
 
-          {/* ── Connected Apps ── */}
+          {/* Connected Apps */}
           <AccordionSection title="Connected Apps" defaultOpen={false}>
             <div className="py-[10px] flex flex-col gap-[20px]">
               <div className="flex flex-col gap-[8px]">
-                <p className="text-[12px] text-[#5e5757]" style={{ fontFamily: "SF Pro Text, sans-serif" }}>
+                <p
+                  className="text-[12px] text-[#5e5757]"
+                  style={{ fontFamily: "SF Pro Text, sans-serif" }}
+                >
                   Recently Used
                 </p>
                 <p className="text-[14px] text-[#333]" style={fontSwitzer}>
@@ -234,17 +273,29 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             </div>
           </AccordionSection>
 
-          {/* ── Manage Profiles ── */}
+          {/* Manage Profiles */}
           <AccordionSection title="Manage Profiles" defaultOpen={false}>
             <div className="py-[10px] flex flex-col gap-[8px]">
-              <p className="text-[12px] text-[#5e5757]" style={{ fontFamily: "SF Pro Text, sans-serif" }}>
+              <p
+                className="text-[12px] text-[#5e5757]"
+                style={{ fontFamily: "SF Pro Text, sans-serif" }}
+              >
                 Recently Visited
               </p>
-              <div className="flex items-start justify-between w-full">
+
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  router.push("/profile");
+                }}
+                className="flex items-start justify-between w-full text-left"
+              >
                 <div className="flex gap-[10px] items-start">
                   <div className="relative shrink-0 size-[20px] rounded-full bg-[#d9d9d9] flex items-center justify-center">
                     <CircleUser size={18} className="text-[#5e5757]" />
                   </div>
+
                   <div className="flex flex-col gap-[5px]">
                     <div className="flex items-center gap-[5px]">
                       <span
@@ -253,60 +304,102 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                       >
                         John Doe
                       </span>
-                      <BadgeCheck size={16} className="text-[#025fc9]" fill="#025fc9" strokeWidth={2} color="white" />
+                      <BadgeCheck
+                        size={16}
+                        className="text-[#025fc9]"
+                        fill="#025fc9"
+                        strokeWidth={2}
+                        color="white"
+                      />
                     </div>
-                    <span className="text-[12px] text-[#5e5757]" style={{ fontFamily: "SF Pro Text, sans-serif" }}>
+
+                    <span
+                      className="text-[12px] text-[#5e5757]"
+                      style={{ fontFamily: "SF Pro Text, sans-serif" }}
+                    >
                       onesync_john_doe
                     </span>
                   </div>
                 </div>
+
                 <div className="bg-[#d9d9d9] px-[8px] py-[5px] rounded-[10px] shrink-0">
-                  <span className="text-[12px] font-medium text-black" style={{ fontFamily: "SF Pro Text, sans-serif" }}>
+                  <span
+                    className="text-[12px] font-medium text-black"
+                    style={{ fontFamily: "SF Pro Text, sans-serif" }}
+                  >
                     Personal
                   </span>
                 </div>
-              </div>
+              </button>
             </div>
           </AccordionSection>
 
-          {/* ── Add Account ── */}
+          {/* Add Account */}
           <button
-            onClick={() => { onClose(); router.push("/create-account"); }}
+            type="button"
+            onClick={() => {
+              onClose();
+              router.push("/create-account");
+            }}
             className="w-full flex items-center gap-[10px] py-[12px]"
           >
             <Plus size={24} className="text-[#333]" strokeWidth={1.5} />
-            <span className="text-[16px] font-semibold text-[#333]" style={{ fontFamily: "SF Pro Text, sans-serif" }}>
+            <span
+              className="text-[16px] font-semibold text-[#333]"
+              style={{ fontFamily: "SF Pro Text, sans-serif" }}
+            >
               Add Account
             </span>
           </button>
 
-          {/* ── Logout ── */}
+          {/* Logout */}
           <button
-            onClick={() => { onClose(); router.push("/sign-in"); }}
+            type="button"
+            onClick={() => {
+              onClose();
+              router.push("/sign-in");
+            }}
             className="w-full flex items-center gap-[10px] py-[12px]"
           >
             <LogOut size={24} className="text-[#333]" strokeWidth={1.5} />
-            <span className="text-[16px] font-semibold text-[#333]" style={{ fontFamily: "SF Pro Text, sans-serif" }}>
+            <span
+              className="text-[16px] font-semibold text-[#333]"
+              style={{ fontFamily: "SF Pro Text, sans-serif" }}
+            >
               Logout
             </span>
           </button>
 
-          {/* ── Language ── */}
+          {/* Language */}
           <div
             className="flex items-center justify-between"
             style={{ paddingTop: "40px", paddingBottom: "30px" }}
           >
-            <span style={{ ...fontSwitzer, fontSize: "16px", color: "#5e5757", letterSpacing: "0.16px" }}>
+            <span
+              style={{
+                ...fontSwitzer,
+                fontSize: "16px",
+                color: "#5e5757",
+                letterSpacing: "0.16px",
+              }}
+            >
               Select language
             </span>
+
             <div className="flex items-center gap-[3px]">
-              <span style={{ ...fontSwitzer, fontSize: "16px", color: "#5e5757", letterSpacing: "0.16px" }}>
+              <span
+                style={{
+                  ...fontSwitzer,
+                  fontSize: "16px",
+                  color: "#5e5757",
+                  letterSpacing: "0.16px",
+                }}
+              >
                 English
               </span>
               <Globe size={24} className="text-[#5e5757]" strokeWidth={1.5} />
             </div>
           </div>
-
         </div>
       </div>
     </>
