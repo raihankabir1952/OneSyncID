@@ -175,7 +175,6 @@ export default function CardPage() {
       <div className="w-full max-w-[393px] bg-white min-h-screen flex flex-col">
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-        {/* Sticky top section */}
         <div className="sticky top-0 z-10">
           <div
             style={{
@@ -186,7 +185,6 @@ export default function CardPage() {
               paddingBottom: "16px",
             }}
           >
-            {/* Header */}
             <div className="flex items-center justify-between mb-[18px]">
               <button
                 type="button"
@@ -220,15 +218,11 @@ export default function CardPage() {
                 </div>
               </div>
 
-              <button
-                type="button"
-                className="w-6 h-6 flex items-center justify-center"
-              >
+              <button type="button" className="w-6 h-6 flex items-center justify-center">
                 <Bell size={20} className="text-white" />
               </button>
             </div>
 
-            {/* Profile card */}
             <div
               className="rounded-[16px] relative overflow-hidden"
               style={{
@@ -315,17 +309,15 @@ export default function CardPage() {
           </div>
         </div>
 
-        {/* Content */}
         <div
           className="flex-1 overflow-y-auto"
           style={{
             paddingLeft: "16px",
             paddingRight: "16px",
             paddingTop: "16px",
-            paddingBottom: "16px",
+            paddingBottom: "80px",
           }}
         >
-          {/* Share */}
           <div className="mb-[12px]">
             <span
               style={{
@@ -345,7 +337,6 @@ export default function CardPage() {
             ))}
           </div>
 
-          {/* Card Stats */}
           <div className="mb-[12px]">
             <span
               style={{
@@ -366,15 +357,15 @@ export default function CardPage() {
           </div>
         </div>
 
-        {/* Bottom nav */}
         <div
-          className="w-full flex items-center justify-between bg-white"
+          className="sticky bottom-0 z-10 w-full flex items-center justify-between bg-white"
           style={{
             borderTop: "1px solid #d9d9d9",
             paddingTop: "8px",
             paddingBottom: "10px",
             paddingLeft: "10px",
             paddingRight: "10px",
+            boxShadow: "0 -2px 10px rgba(0,0,0,0.04)",
           }}
         >
           <BottomNavItem

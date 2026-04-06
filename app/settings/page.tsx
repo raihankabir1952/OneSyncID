@@ -105,7 +105,12 @@ function SectionCard({
       style={{ border: "1px solid #d9d9d9", backgroundColor: "#fff" }}
     >
       {items.map((item, index) => (
-        <div key={item.id} style={{ borderBottom: index !== items.length - 1 ? "1px solid #d9d9d9" : "none" }}>
+        <div
+          key={item.id}
+          style={{
+            borderBottom: index !== items.length - 1 ? "1px solid #d9d9d9" : "none",
+          }}
+        >
           <SettingRow title={item.title} icon={item.icon} />
         </div>
       ))}
@@ -159,10 +164,9 @@ export default function SettingsPage() {
             paddingLeft: "16px",
             paddingRight: "16px",
             paddingTop: "56px",
-            paddingBottom: "16px",
+            paddingBottom: "80px",
           }}
         >
-          {/* Privacy & Data */}
           <div className="mb-[12px]">
             <span
               style={{
@@ -180,7 +184,6 @@ export default function SettingsPage() {
             <SectionCard items={privacyItems} />
           </div>
 
-          {/* Security */}
           <div className="mb-[12px]">
             <span
               style={{
@@ -198,7 +201,6 @@ export default function SettingsPage() {
             <SectionCard items={securityItems} />
           </div>
 
-          {/* App */}
           <div className="mb-[12px]">
             <span
               style={{
@@ -217,15 +219,15 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        {/* Bottom nav */}
         <div
-          className="w-full flex items-center justify-between bg-white"
+          className="sticky bottom-0 z-10 w-full flex items-center justify-between bg-white"
           style={{
             borderTop: "1px solid #d9d9d9",
             paddingTop: "8px",
             paddingBottom: "10px",
             paddingLeft: "10px",
             paddingRight: "10px",
+            boxShadow: "0 -2px 10px rgba(0,0,0,0.04)",
           }}
         >
           <BottomNavItem

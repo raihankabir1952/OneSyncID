@@ -187,6 +187,7 @@ export default function SSOPage() {
                       ...fontSwitzer,
                       fontSize: "15px",
                       color: "#fff",
+                      letterSpacing: "0.15px",
                     }}
                   >
                     Search
@@ -205,8 +206,19 @@ export default function SSOPage() {
                 backgroundColor: "#f6f6f6",
                 padding: "16px",
                 minHeight: "150px",
+                boxShadow: "0 2px 10px rgba(0,0,0,0.06)",
               }}
             >
+              <div className="absolute inset-0 flex items-center justify-center opacity-[0.12] pointer-events-none">
+                <Image
+                  src="/images/onesyncid-watermark.png"
+                  alt="Watermark"
+                  width={230}
+                  height={230}
+                  className="object-contain"
+                />
+              </div>
+
               <div className="relative z-10 flex items-start justify-between">
                 <div className="flex items-start gap-[12px]">
                   <div className="relative w-[56px] h-[56px] rounded-full overflow-hidden shrink-0">
@@ -271,7 +283,7 @@ export default function SSOPage() {
             paddingLeft: "16px",
             paddingRight: "16px",
             paddingTop: "14px",
-            paddingBottom: "16px",
+            paddingBottom: "80px",
           }}
         >
           <div className="mb-[12px]">
@@ -301,13 +313,14 @@ export default function SSOPage() {
         </div>
 
         <div
-          className="w-full flex items-center justify-between bg-white"
+          className="sticky bottom-0 z-10 w-full flex items-center justify-between bg-white"
           style={{
             borderTop: "1px solid #d9d9d9",
             paddingTop: "8px",
             paddingBottom: "10px",
             paddingLeft: "10px",
             paddingRight: "10px",
+            boxShadow: "0 -2px 10px rgba(0,0,0,0.04)",
           }}
         >
           <BottomNavItem
