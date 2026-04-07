@@ -4,100 +4,408 @@ import Image from "next/image";
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { fontSwitzer } from "@/lib/styles";
-import { Menu, Bell, Mail, Search, Info, ChevronDown, Plus, Users } from "lucide-react";
+import { Menu, Bell, Mail, Search, Info, ChevronDown, Plus, Users, Calendar, Trash2 } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
 
-const BADGES = ["Leadership", "People-oriented", "Collaborator", "Independent", "Skilled"] as const;
-type Badge = typeof BADGES[number];
+// ── Badge definitions — images from /public/images/ ───────────────────────────
+const BADGES = [
+  { name: "Leadership",      image: "/images/Leadership.png" },
+  { name: "People-oriented", image: "/images/People-oriented.png" },
+  { name: "Collaborator",    image: "/images/Collaborator.png" },
+  { name: "Independent",     image: "/images/Independent.png" },
+  { name: "Skilled",         image: "/images/Skilled.png" },
+] as const;
+type BadgeName = typeof BADGES[number]["name"];
 
-const HEAR_OPTIONS = ["LinkedIn", "Job Portal", "Referral", "Direct Apply", "Other"];
+const HEAR_OPTIONS = ["LinkedIn", "Job Portal", "Referral", "Company Website", "Direct Apply", "Other"];
 
-function SelectField({ label, placeholder, options }: { label: string; placeholder: string; options: string[] }) {
-  const [value, setValue] = useState("");
+// ── Shared styles (same as EducationInformationPage) ─────────────────────────
+const labelStyle: React.CSSProperties = {
+  ...fontSwitzer, fontSize: "16px", fontWeight: 500, color: "#5e5757",
+  letterSpacing: "0.16px", lineHeight: "21px",
+};
+const inputStyle: React.CSSProperties = {
+  ...fontSwitzer, fontSize: "16px", color: "#000", border: "none",
+  outline: "none", background: "transparent", width: "100%", letterSpacing: "0.16px",
+};
+const fieldBorder: React.CSSProperties = {
+  borderBottom: "1px solid #d9d9d9", paddingTop: "10px", paddingBottom: "10px",
+};
+
+// ── Reusable field components ─────────────────────────────────────────────────
+function SelectField({ label, placeholder, options, value, onChange }: {
+  label: string; placeholder: string; options: string[];
+  value: string; onChange: (v: string) => void;
+}) {
   return (
-    <div className="flex flex-col gap-[6px] py-[14px]" style={{ borderBottom: "1px solid #d9d9d9" }}>
-      <span style={{ ...fontSwitzer, fontSize: "12px", fontWeight: 500, color: "#767676", letterSpacing: "0.12px" }}>
-        {label}
-      </span>
-      <div className="relative w-full">
+    <div className="flex flex-col gap-[10px] w-full">
+      <span style={labelStyle}>{label}</span>
+      <div className="flex items-center justify-between" style={fieldBorder}>
         <select
           value={value}
-          onChange={(e) => setValue(e.target.value)}
-          className="w-full appearance-none bg-transparent pr-6"
-          style={{ ...fontSwitzer, fontSize: "16px", color: value ? "#000" : "#a09898", border: "none", outline: "none" }}
+          onChange={(e) => onChange(e.target.value)}
+          className="flex-1 appearance-none bg-transparent"
+          style={{ ...fontSwitzer, fontSize: "16px", color: value ? "#000" : "#a09898", border: "none", outline: "none", letterSpacing: "0.16px" }}
         >
           <option value="" disabled>{placeholder}</option>
           {options.map((o) => <option key={o} value={o}>{o}</option>)}
         </select>
-        <ChevronDown size={16} className="absolute right-0 top-1/2 -translate-y-1/2 text-[#5e5757] pointer-events-none" />
+        <ChevronDown size={18} className="text-[#5e5757] shrink-0 pointer-events-none" />
       </div>
     </div>
   );
 }
 
-function TextField({ label, placeholder, value, onChange }: { label: string; placeholder: string; value: string; onChange: (v: string) => void }) {
+function TextField({ label, placeholder, value, onChange }: {
+  label: string; placeholder: string; value: string; onChange: (v: string) => void;
+}) {
   return (
-    <div className="flex flex-col gap-[6px] py-[14px]" style={{ borderBottom: "1px solid #d9d9d9" }}>
-      <span style={{ ...fontSwitzer, fontSize: "12px", fontWeight: 500, color: "#767676", letterSpacing: "0.12px" }}>
-        {label}
-      </span>
-      <input
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        style={{ ...fontSwitzer, fontSize: "16px", color: "#000", border: "none", outline: "none", background: "transparent", width: "100%" }}
-      />
+    <div className="flex flex-col gap-[10px] w-full">
+      <span style={labelStyle}>{label}</span>
+      <div style={fieldBorder}>
+        <input value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} style={inputStyle} />
+      </div>
     </div>
   );
 }
 
+function DateField({ label, placeholder, value, onChange, disabled, rightSlot }: {
+  label: string; placeholder: string; value: string; onChange: (v: string) => void;
+  disabled?: boolean; rightSlot?: React.ReactNode;
+}) {
+  return (
+    <div className="flex flex-col gap-[10px] w-full">
+      <div className="flex items-center justify-between">
+        <span style={labelStyle}>{label}</span>
+        {rightSlot}
+      </div>
+      <div className="flex items-center justify-between" style={{ ...fieldBorder, opacity: disabled ? 0.5 : 1 }}>
+        <input
+          type="number" min="1950" max="2099"
+          value={value} onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder} disabled={disabled}
+          style={{ ...inputStyle, color: value ? "#000" : "#a09898" }}
+        />
+        <Calendar size={18} className="text-[#5e5757] shrink-0" />
+      </div>
+    </div>
+  );
+}
+
+// ── Document Upload (same pattern as EducationInformationPage) ────────────────
+function DocumentUpload({ files, fileInputRef, onFileSelect }: {
+  files: { id: number; filename: string }[];
+  fileInputRef: React.RefObject<HTMLInputElement | null>;
+  onFileSelect: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}) {
+  return (
+    <div className="flex flex-col gap-[30px] w-full">
+      <div className="flex flex-col gap-[10px] w-full">
+        <p style={{ ...fontSwitzer, fontSize: "16px", fontWeight: 600, color: "#333", letterSpacing: "0.16px" }}>
+          Educational Document
+        </p>
+        <p style={{ ...fontSwitzer, fontSize: "12px", color: "#5e5757", letterSpacing: "0.12px" }}>
+          Attach a valid education document such as a certificate or transcript.
+        </p>
+      </div>
+      <div className="flex flex-col gap-[10px] w-full">
+        {files.length === 0 && (
+          <div
+            className="flex flex-col gap-[20px] items-center py-[30px] rounded-[12px] w-full"
+            style={{ border: "1px dashed #002d94", backgroundColor: "rgba(2,95,201,0.02)" }}
+          >
+            <svg width="50" height="50" viewBox="0 0 50 50" fill="none">
+              <rect x="8" y="4" width="28" height="36" rx="3" fill="#e8f0fb" stroke="#025fc9" strokeWidth="1.5" />
+              <rect x="14" y="12" width="16" height="2" rx="1" fill="#025fc9" />
+              <rect x="14" y="18" width="16" height="2" rx="1" fill="#025fc9" />
+              <rect x="14" y="24" width="10" height="2" rx="1" fill="#025fc9" />
+              <circle cx="36" cy="36" r="10" fill="#025fc9" />
+              <path d="M31 36l3 3 6-6" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            <div className="flex flex-col gap-[8px] items-center w-full">
+              <p style={{ ...fontSwitzer, fontSize: "16px", fontWeight: 500, color: "#333", textAlign: "center", letterSpacing: "0.16px" }}>
+                Drag & drop your file here
+              </p>
+              <p style={{ ...fontSwitzer, fontSize: "12px", color: "#5e5757", textAlign: "center", letterSpacing: "0.12px" }}>
+                Accepted Formats: PDF, JPG, PNG (Max 5 MB per file)
+              </p>
+              <p style={{ ...fontSwitzer, fontSize: "16px", fontWeight: 500, color: "#333", textAlign: "center" }}>or</p>
+            </div>
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="flex items-center justify-center rounded-[10px]"
+              style={{ height: "40px", paddingLeft: "20px", paddingRight: "20px", backgroundColor: "#025fc9", minWidth: "111px" }}
+            >
+              <span style={{ ...fontSwitzer, fontSize: "16px", fontWeight: 500, color: "#fff", letterSpacing: "0.16px" }}>
+                Browse files
+              </span>
+            </button>
+          </div>
+        )}
+        {files.map((file) => (
+          <div key={file.id} className="flex items-center px-[12px] py-[10px] rounded-[8px]" style={{ border: "1px solid #d9d9d9" }}>
+            <span style={{ ...fontSwitzer, fontSize: "14px", color: "#000" }}>{file.filename}</span>
+          </div>
+        ))}
+        <input ref={fileInputRef} type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={onFileSelect} />
+        <button onClick={() => fileInputRef.current?.click()} className="flex items-center gap-[8px]">
+          <Plus size={18} className="text-[#025fc9]" />
+          <span style={{ ...fontSwitzer, fontSize: "16px", fontWeight: 500, color: "#025fc9", letterSpacing: "0.16px" }}>
+            Upload another
+          </span>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ── Work Entry interface ───────────────────────────────────────────────────────
 interface WorkEntry {
   id: number;
   companyName: string;
   role: string;
   companyWebsite: string;
-  enrollmentStartDate: string;
-  employmentEndDate: string;
+  country: string;
+  division: string;
+  startDate: string;
+  endDate: string;
   currentlyWorking: boolean;
+  workType: string;
+  contractType: string;
   aboutRole: string;
-  selectedBadges: Badge[];
+  selectedBadges: BadgeName[];
   howDidYouHear: string;
   showOnProfile: boolean;
   proofFiles: { id: number; filename: string }[];
 }
 
+function newEntry(): WorkEntry {
+  return {
+    id: Date.now(),
+    companyName: "", role: "", companyWebsite: "",
+    country: "", division: "",
+    startDate: "", endDate: "", currentlyWorking: false,
+    workType: "", contractType: "",
+    aboutRole: "",
+    selectedBadges: [],
+    howDidYouHear: "", showOnProfile: false,
+    proofFiles: [],
+  };
+}
+
+// ── Entry Form ────────────────────────────────────────────────────────────────
+function EntryForm({ entry, isFirst, onUpdate, onDelete, fileInputRef, onFileSelect }: {
+  entry: WorkEntry;
+  isFirst: boolean;
+  onUpdate: (key: keyof WorkEntry, val: string | boolean | BadgeName[]) => void;
+  onDelete: () => void;
+  fileInputRef: React.RefObject<HTMLInputElement | null>;
+  onFileSelect: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}) {
+  const toggleBadge = (badge: BadgeName) => {
+    const has = entry.selectedBadges.includes(badge);
+    if (!has && entry.selectedBadges.length >= 3) return;
+    onUpdate("selectedBadges", has
+      ? entry.selectedBadges.filter((b) => b !== badge)
+      : [...entry.selectedBadges, badge]
+    );
+  };
+
+  return (
+    <div className="flex flex-col gap-[20px] w-full" style={!isFirst ? { borderTop: "1px solid #d9d9d9", paddingTop: "20px" } : {}}>
+
+      {/* Delete button — only non-first entries */}
+      {!isFirst && (
+        <div className="flex justify-end w-full">
+          <button onClick={onDelete} aria-label="Delete">
+            <Trash2 size={22} className="text-[#e53935]" />
+          </button>
+        </div>
+      )}
+
+      {/* Company Name */}
+      <div className="flex flex-col gap-[10px] w-full">
+        <div className="flex items-center justify-between w-full">
+          <span style={labelStyle}>COMPANY NAME</span>
+          <button className="flex items-center gap-[8px]">
+            <Users size={14} className="text-[#025fc9]" />
+            <span style={{ ...fontSwitzer, fontSize: "14px", fontWeight: 500, color: "#025fc9", letterSpacing: "0.8px" }}>
+              Tag OneSyncID
+            </span>
+          </button>
+        </div>
+        <div style={fieldBorder}>
+          <input
+            value={entry.companyName}
+            onChange={(e) => onUpdate("companyName", e.target.value)}
+            placeholder="Your institution name"
+            style={inputStyle}
+          />
+        </div>
+      </div>
+
+      <TextField label="ROLE" placeholder="Your role or designation"
+        value={entry.role} onChange={(v) => onUpdate("role", v)} />
+
+      <TextField label="COMPANY WEBSITE" placeholder="Enter company website address"
+        value={entry.companyWebsite} onChange={(v) => onUpdate("companyWebsite", v)} />
+
+      <SelectField label="COUNTRY" placeholder="Select country"
+        options={["Bangladesh", "India", "USA", "UK", "Canada", "Australia"]}
+        value={entry.country} onChange={(v) => onUpdate("country", v)} />
+
+      <SelectField label="DIVISION" placeholder="Select division"
+        options={["Dhaka", "Chittagong", "Rajshahi", "Khulna", "Barisal", "Sylhet"]}
+        value={entry.division} onChange={(v) => onUpdate("division", v)} />
+
+      <DateField label="ENROLLMENT START DATE" placeholder="Select enrollment year"
+        value={entry.startDate} onChange={(v) => onUpdate("startDate", v)} />
+
+      <DateField
+        label="EMPLOYMENT END DATE" placeholder="Select graduation year"
+        value={entry.endDate} onChange={(v) => onUpdate("endDate", v)}
+        disabled={entry.currentlyWorking}
+        rightSlot={
+          <div className="flex items-center gap-[8px]">
+            <span style={{ ...fontSwitzer, fontSize: "12px", color: "#5e5757", letterSpacing: "0.12px" }}>
+              Currently working here
+            </span>
+            <button
+              onClick={() => onUpdate("currentlyWorking", !entry.currentlyWorking)}
+              style={{
+                width: "12px", height: "12px", flexShrink: 0, borderRadius: "2px",
+                border: entry.currentlyWorking ? "none" : "1px solid #5e5757",
+                backgroundColor: entry.currentlyWorking ? "#025fc9" : "#fff",
+              }}
+            />
+          </div>
+        }
+      />
+
+      <SelectField label="WORK TYPE" placeholder="Select work type"
+        options={["Full-time", "Part-time", "Remote", "Hybrid", "Freelance"]}
+        value={entry.workType} onChange={(v) => onUpdate("workType", v)} />
+
+      <SelectField label="CONTRACT TYPE" placeholder="Select contract type"
+        options={["Permanent", "Contractual", "Internship", "Temporary"]}
+        value={entry.contractType} onChange={(v) => onUpdate("contractType", v)} />
+
+      {/* About Your Role */}
+      <div className="flex flex-col gap-[10px] w-full">
+        <span style={{ ...fontSwitzer, fontSize: "16px", fontWeight: 600, color: "#000", letterSpacing: "0.16px" }}>
+          About Your Role
+        </span>
+        <div style={fieldBorder}>
+          <textarea
+            value={entry.aboutRole}
+            onChange={(e) => onUpdate("aboutRole", e.target.value)}
+            placeholder="Outline your duties, achievements, and impact..."
+            rows={3}
+            style={{ ...inputStyle, resize: "none", color: entry.aboutRole ? "#000" : "#5e5757" }}
+          />
+        </div>
+      </div>
+
+      {/* Attach file */}
+      <div className="flex flex-col gap-[8px]">
+        <button className="flex items-center gap-[8px]">
+          <Plus size={18} className="text-[#025fc9]" />
+          <span style={{ ...fontSwitzer, fontSize: "16px", fontWeight: 500, color: "#025fc9", letterSpacing: "0.16px" }}>
+            Attach file
+          </span>
+        </button>
+        <p style={{ ...fontSwitzer, fontSize: "12px", color: "#5e5757", letterSpacing: "0.12px" }}>
+          Add images, screenshots, slides, or other media that highlight your work or achievements.
+        </p>
+      </div>
+
+      {/* Badges */}
+      <div className="flex flex-col gap-[10px] w-full">
+        <div className="flex flex-col gap-[4px]">
+          <span style={{ ...fontSwitzer, fontSize: "16px", fontWeight: 600, color: "#000", letterSpacing: "0.16px" }}>
+            Badges
+          </span>
+          <p style={{ ...fontSwitzer, fontSize: "12px", color: "#5e5757", letterSpacing: "0.12px" }}>
+            Select up to 3 badges that best describe your work style.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-[10px]">
+          {BADGES.map(({ name, image }) => {
+            const selected = entry.selectedBadges.includes(name);
+            return (
+              <button
+                key={name}
+                onClick={() => toggleBadge(name)}
+                className="flex items-center gap-[5px] rounded-[15px]"
+                style={{
+                  paddingLeft: "10px", paddingRight: "10px", paddingTop: "5px", paddingBottom: "5px",
+                  border: selected ? "2px solid #4396f5" : "1px solid #d9d9d9",
+                  backgroundColor: "#fff",
+                }}
+              >
+                <div className="relative shrink-0" style={{ width: "16px", height: "16px" }}>
+                  <Image src={image} alt={name} fill className="object-contain" />
+                </div>
+                <span style={{ ...fontSwitzer, fontSize: "14px", fontWeight: 500, color: "#000", letterSpacing: "0.14px", whiteSpace: "nowrap" }}>
+                  {name}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* How did you hear */}
+      <div className="flex flex-col gap-[10px] w-full">
+        <span style={{ ...fontSwitzer, fontSize: "16px", color: "#333", letterSpacing: "0.16px" }}>
+          How did you hear about this position?
+        </span>
+        <div className="flex items-center gap-[8px] relative" style={{ border: "1px solid #a09898", borderRadius: "12px", height: "40px", paddingLeft: "16px", paddingRight: "12px" }}>
+          <select
+            value={entry.howDidYouHear}
+            onChange={(e) => onUpdate("howDidYouHear", e.target.value)}
+            className="flex-1 appearance-none bg-transparent"
+            style={{ ...fontSwitzer, fontSize: "16px", color: entry.howDidYouHear ? "#333" : "#333", border: "none", outline: "none", letterSpacing: "0.16px" }}
+          >
+            <option value="" disabled>Select an option</option>
+            {HEAR_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
+          </select>
+          <ChevronDown size={20} className="text-[#333] shrink-0 pointer-events-none" />
+        </div>
+        {/* Show on profile checkbox */}
+        <div className="flex items-center gap-[8px]">
+          <span style={{ ...fontSwitzer, fontSize: "14px", color: "#5e5757", letterSpacing: "0.14px" }}>
+            Show this on my profile
+          </span>
+          <button
+            onClick={() => onUpdate("showOnProfile", !entry.showOnProfile)}
+            style={{
+              width: "14px", height: "14px", flexShrink: 0, borderRadius: "2px",
+              border: entry.showOnProfile ? "none" : "1px solid #5e5757",
+              backgroundColor: entry.showOnProfile ? "#025fc9" : "#fff",
+            }}
+          />
+        </div>
+      </div>
+
+      {/* Document upload */}
+      <DocumentUpload files={entry.proofFiles} fileInputRef={fileInputRef} onFileSelect={onFileSelect} />
+    </div>
+  );
+}
+
+// ── Main Page ─────────────────────────────────────────────────────────────────
 export default function WorkExperiencePage() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [entries, setEntries] = useState<WorkEntry[]>([newEntry()]);
 
-  const [entries, setEntries] = useState<WorkEntry[]>([
-    {
-      id: 1,
-      companyName: "",
-      role: "",
-      companyWebsite: "",
-      enrollmentStartDate: "",
-      employmentEndDate: "",
-      currentlyWorking: false,
-      aboutRole: "",
-      selectedBadges: ["Leadership", "People-oriented"],
-      howDidYouHear: "",
-      showOnProfile: false,
-      proofFiles: [],
-    },
-  ]);
-
-  const updateEntry = (id: number, key: keyof WorkEntry, val: string | boolean | Badge[]) => {
+  const updateEntry = (id: number, key: keyof WorkEntry, val: string | boolean | BadgeName[]) =>
     setEntries((prev) => prev.map((e) => e.id === id ? { ...e, [key]: val } : e));
-  };
 
-  const toggleBadge = (entryId: number, badge: Badge, current: Badge[]) => {
-    const has = current.includes(badge);
-    if (!has && current.length >= 3) return;
-    const updated = has ? current.filter((b) => b !== badge) : [...current, badge];
-    updateEntry(entryId, "selectedBadges", updated);
-  };
+  const deleteEntry = (id: number) =>
+    setEntries((prev) => prev.filter((e) => e.id !== id));
 
   const handleFileSelect = (entryId: number, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -113,29 +421,18 @@ export default function WorkExperiencePage() {
   return (
     <div className="min-h-screen bg-gray-100 flex justify-center">
       <div className="w-full max-w-[393px] bg-white min-h-screen flex flex-col">
-
-        {/* ── Sidebar ── */}
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-        {/* ── Sticky Header (Nav + Search) ── */}
+        {/* ── Sticky Header ── */}
         <div className="sticky top-0 z-10 bg-white">
-
-          {/* Nav */}
-          <div
-            className="flex items-center justify-between"
-            style={{ paddingLeft: "20px", paddingRight: "20px", height: "54px" }}
-          >
-            <div className="flex items-center" style={{ gap: "20px" }}>
-              <button
-                className="w-6 h-6 flex items-center justify-center"
-                aria-label="Menu"
-                onClick={() => setSidebarOpen(true)}
-              >
+          <div className="flex items-center justify-between px-[20px]" style={{ height: "54px" }}>
+            <div className="flex items-center gap-[20px]">
+              <button className="w-6 h-6 flex items-center justify-center" aria-label="Menu" onClick={() => setSidebarOpen(true)}>
                 <Menu size={24} className="text-black" />
               </button>
-              <Image src="/images/Vector.png" alt="OneSyncID" width={116} height={20} style={{ objectFit: "contain" }} />
+              <Image src="/images/Vector.png" alt="OneSyncID" width={116} height={20} className="object-contain" />
             </div>
-            <div className="flex items-center" style={{ gap: "20px" }}>
+            <div className="flex items-center gap-[20px]">
               <button className="w-6 h-6 flex items-center justify-center" aria-label="Notifications">
                 <Bell size={24} className="text-black" />
               </button>
@@ -144,264 +441,64 @@ export default function WorkExperiencePage() {
               </button>
             </div>
           </div>
-
-          {/* Search Bar */}
-          <div style={{ paddingLeft: "20px", paddingRight: "20px", paddingTop: "3px", paddingBottom: "10px" }}>
-            <div
-              className="flex items-center w-full"
-              style={{ height: "44px", border: "1px solid #9fbfe4", borderRadius: "28px", paddingLeft: "20px", gap: "10px" }}
-            >
+          <div className="px-[20px] pb-[10px] pt-[3px]">
+            <div className="flex items-center w-full" style={{ height: "44px", border: "1px solid #9fbfe4", borderRadius: "28px", paddingLeft: "20px", gap: "10px" }}>
               <Search size={20} className="text-[#5e5757] shrink-0" />
               <span style={{ ...fontSwitzer, fontSize: "16px", color: "#5e5757", letterSpacing: "0.5px" }}>Search</span>
             </div>
           </div>
-
         </div>
-        {/* ── End Sticky Header ── */}
 
         {/* ── Scrollable Body ── */}
-        <div
-          className="bg-white flex flex-col flex-1 overflow-y-auto"
-          style={{ paddingLeft: "20px", paddingRight: "20px", paddingTop: "30px", paddingBottom: "40px", gap: "4px" }}
-        >
+        <div className="flex flex-col overflow-y-auto px-[20px] pt-[20px] pb-[40px] gap-[20px]">
+
           {/* Heading */}
-          <div className="flex items-center gap-[5px]" style={{ marginBottom: "20px" }}>
-            <span style={{ ...fontSwitzer, fontSize: "20px", fontWeight: 600, color: "#000", letterSpacing: "0.8px", lineHeight: "32px" }}>
+          <div className="flex items-center gap-[5px]">
+            <span style={{ ...fontSwitzer, fontSize: "24px", fontWeight: 600, color: "#000", letterSpacing: "0.8px", lineHeight: "32px" }}>
               Work Experience
             </span>
             <Info size={16} className="text-[#025fc9]" />
           </div>
 
-          {entries.map((entry) => (
-            <div key={entry.id} className="flex flex-col w-full" style={{ marginBottom: "24px" }}>
+          {/* Add another experience */}
+          <button onClick={() => setEntries((prev) => [...prev, newEntry()])} className="flex items-center gap-[8px]">
+            <Plus size={18} className="text-[#025fc9]" />
+            <span style={{ ...fontSwitzer, fontSize: "16px", fontWeight: 500, color: "#025fc9", letterSpacing: "0.16px" }}>
+              Add another experience
+            </span>
+          </button>
 
-              {/* Company Name */}
-              <div className="flex flex-col gap-[6px] py-[14px]" style={{ borderBottom: "1px solid #d9d9d9" }}>
-                <div className="flex items-center justify-between w-full">
-                  <span style={{ ...fontSwitzer, fontSize: "12px", fontWeight: 500, color: "#767676", letterSpacing: "0.12px" }}>
-                    COMPANY NAME
-                  </span>
-                  <button className="flex items-center gap-[4px]">
-                    <Users size={14} className="text-[#025fc9]" />
-                    <span style={{ ...fontSwitzer, fontSize: "12px", color: "#025fc9", letterSpacing: "0.12px" }}>Tag OneSyncID</span>
-                  </button>
-                </div>
-                <input
-                  value={entry.companyName}
-                  onChange={(e) => updateEntry(entry.id, "companyName", e.target.value)}
-                  placeholder="Your institution name"
-                  style={{ ...fontSwitzer, fontSize: "16px", color: "#000", border: "none", outline: "none", background: "transparent", width: "100%" }}
-                />
-              </div>
-
-              <TextField label="ROLE" placeholder="Your role or designation" value={entry.role} onChange={(v) => updateEntry(entry.id, "role", v)} />
-              <TextField label="COMPANY WEBSITE" placeholder="Enter company website address" value={entry.companyWebsite} onChange={(v) => updateEntry(entry.id, "companyWebsite", v)} />
-              <SelectField label="COUNTRY" placeholder="Select country" options={["Bangladesh", "India", "USA", "UK"]} />
-              <SelectField label="DIVISION" placeholder="Select division" options={["Dhaka", "Chittagong", "Rajshahi", "Khulna"]} />
-
-              {/* Enrollment Start Date */}
-              <div className="flex flex-col gap-[6px] py-[14px]" style={{ borderBottom: "1px solid #d9d9d9" }}>
-                <span style={{ ...fontSwitzer, fontSize: "12px", fontWeight: 500, color: "#767676", letterSpacing: "0.12px" }}>
-                  ENROLLMENT START DATE
-                </span>
-                <input
-                  type="date"
-                  value={entry.enrollmentStartDate}
-                  onChange={(e) => updateEntry(entry.id, "enrollmentStartDate", e.target.value)}
-                  style={{ ...fontSwitzer, fontSize: "16px", color: entry.enrollmentStartDate ? "#000" : "#a09898", border: "none", outline: "none", background: "transparent", width: "100%" }}
-                />
-              </div>
-
-              {/* Employment End Date */}
-              <div className="flex flex-col gap-[6px] py-[14px]" style={{ borderBottom: "1px solid #d9d9d9" }}>
-                <div className="flex items-center justify-between w-full">
-                  <span style={{ ...fontSwitzer, fontSize: "12px", fontWeight: 500, color: "#767676", letterSpacing: "0.12px" }}>
-                    EMPLOYMENT END DATE
-                  </span>
-                  <div className="flex items-center gap-[6px]">
-                    <span style={{ ...fontSwitzer, fontSize: "12px", color: "#5e5757", letterSpacing: "0.12px" }}>
-                      Currently working here
-                    </span>
-                    <button
-                      onClick={() => updateEntry(entry.id, "currentlyWorking", !entry.currentlyWorking)}
-                      className="flex items-center justify-center rounded-[4px] shrink-0"
-                      style={{
-                        width: "18px", height: "18px",
-                        border: entry.currentlyWorking ? "none" : "2px solid #d9d9d9",
-                        backgroundColor: entry.currentlyWorking ? "#025fc9" : "#fff",
-                      }}
-                    >
-                      {entry.currentlyWorking && <span style={{ color: "#fff", fontSize: "11px" }}>✓</span>}
-                    </button>
-                  </div>
-                </div>
-                <input
-                  type="date"
-                  value={entry.employmentEndDate}
-                  onChange={(e) => updateEntry(entry.id, "employmentEndDate", e.target.value)}
-                  disabled={entry.currentlyWorking}
-                  style={{
-                    ...fontSwitzer, fontSize: "16px",
-                    color: entry.currentlyWorking ? "#a09898" : (entry.employmentEndDate ? "#000" : "#a09898"),
-                    border: "none", outline: "none", background: "transparent", width: "100%",
-                    opacity: entry.currentlyWorking ? 0.5 : 1,
-                  }}
-                />
-              </div>
-
-              <SelectField label="WORK TYPE" placeholder="Select work type" options={["Full-time", "Part-time", "Remote", "Hybrid", "Freelance"]} />
-              <SelectField label="CONTRACT TYPE" placeholder="Select contract type" options={["Permanent", "Contractual", "Internship", "Temporary"]} />
-
-              <button
-                onClick={() => setEntries((prev) => [...prev, {
-                  id: Date.now(), companyName: "", role: "", companyWebsite: "",
-                  enrollmentStartDate: "", employmentEndDate: "", currentlyWorking: false,
-                  aboutRole: "", selectedBadges: [], howDidYouHear: "", showOnProfile: false, proofFiles: [],
-                }])}
-                className="flex items-center gap-[6px] py-[12px]"
-              >
-                <Plus size={18} className="text-[#025fc9]" />
-                <span style={{ ...fontSwitzer, fontSize: "14px", fontWeight: 500, color: "#025fc9", letterSpacing: "0.14px" }}>
-                  Add another education
-                </span>
-              </button>
-
-              {/* About Your Role */}
-              <div className="flex flex-col gap-[6px] py-[14px]" style={{ borderBottom: "1px solid #d9d9d9" }}>
-                <span style={{ ...fontSwitzer, fontSize: "14px", fontWeight: 500, color: "#000", letterSpacing: "0.14px" }}>About Your Role</span>
-                <textarea
-                  value={entry.aboutRole}
-                  onChange={(e) => updateEntry(entry.id, "aboutRole", e.target.value)}
-                  placeholder="Outline your duties, achievements, and impact..."
-                  rows={3}
-                  style={{ ...fontSwitzer, fontSize: "16px", color: "#000", border: "none", outline: "none", background: "transparent", width: "100%", resize: "none" }}
-                />
-              </div>
-
-              <button className="flex items-center gap-[6px] py-[12px]">
-                <Plus size={18} className="text-[#025fc9]" />
-                <span style={{ ...fontSwitzer, fontSize: "14px", fontWeight: 500, color: "#025fc9", letterSpacing: "0.14px" }}>Attach file</span>
-              </button>
-              <p style={{ ...fontSwitzer, fontSize: "12px", color: "#a09898", letterSpacing: "0.12px", marginBottom: "12px" }}>
-                Add images, screenshots, slides, or other media that highlight your work or achievements.
-              </p>
-
-              {/* Badges */}
-              <div className="flex flex-col gap-[8px] py-[14px]" style={{ borderBottom: "1px solid #d9d9d9" }}>
-                <span style={{ ...fontSwitzer, fontSize: "14px", fontWeight: 500, color: "#000", letterSpacing: "0.14px" }}>Badges</span>
-                <p style={{ ...fontSwitzer, fontSize: "12px", color: "#a09898", letterSpacing: "0.12px" }}>
-                  Select up to 3 badges that best describe your work style.
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {BADGES.map((badge) => (
-                    <button
-                      key={badge}
-                      onClick={() => toggleBadge(entry.id, badge, entry.selectedBadges)}
-                      className="flex items-center justify-center rounded-[8px] gap-[4px]"
-                      style={{
-                        paddingLeft: "10px", paddingRight: "10px", paddingTop: "4px", paddingBottom: "4px",
-                        border: entry.selectedBadges.includes(badge) ? "1px solid #025fc9" : "1px solid #d9d9d9",
-                        backgroundColor: entry.selectedBadges.includes(badge) ? "rgba(2,95,201,0.08)" : "#fff",
-                      }}
-                    >
-                      <span style={{
-                        ...fontSwitzer, fontSize: "13px", fontWeight: 500,
-                        color: entry.selectedBadges.includes(badge) ? "#025fc9" : "#5e5757",
-                        letterSpacing: "0.13px", whiteSpace: "nowrap",
-                      }}>
-                        {badge}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* How did you hear */}
-              <div className="flex flex-col gap-[8px] py-[14px]" style={{ borderBottom: "1px solid #d9d9d9" }}>
-                <span style={{ ...fontSwitzer, fontSize: "14px", fontWeight: 500, color: "#000", letterSpacing: "0.14px" }}>
-                  How did you hear about this position?
-                </span>
-                <div className="relative w-full">
-                  <select
-                    value={entry.howDidYouHear}
-                    onChange={(e) => updateEntry(entry.id, "howDidYouHear", e.target.value)}
-                    className="w-full appearance-none bg-transparent pr-6"
-                    style={{ ...fontSwitzer, fontSize: "16px", color: entry.howDidYouHear ? "#000" : "#a09898", border: "1px solid #d9d9d9", borderRadius: "8px", padding: "8px 12px", outline: "none" }}
-                  >
-                    <option value="" disabled>Select an option</option>
-                    {HEAR_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
-                  </select>
-                  <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5e5757] pointer-events-none" />
-                </div>
-                <div className="flex items-center gap-[8px]">
-                  <button
-                    onClick={() => updateEntry(entry.id, "showOnProfile", !entry.showOnProfile)}
-                    className="flex items-center justify-center rounded-[4px] shrink-0"
-                    style={{
-                      width: "18px", height: "18px",
-                      border: entry.showOnProfile ? "none" : "2px solid #d9d9d9",
-                      backgroundColor: entry.showOnProfile ? "#025fc9" : "#fff",
-                    }}
-                  >
-                    {entry.showOnProfile && <span style={{ color: "#fff", fontSize: "11px" }}>✓</span>}
-                  </button>
-                  <span style={{ ...fontSwitzer, fontSize: "12px", color: "#5e5757", letterSpacing: "0.12px" }}>
-                    Show this on my profile
-                  </span>
-                </div>
-              </div>
-
-              {/* Document Upload */}
-              <div className="flex flex-col gap-[10px] w-full py-[14px]">
-                <span style={{ ...fontSwitzer, fontSize: "14px", fontWeight: 500, color: "#000", letterSpacing: "0.14px" }}>
-                  Educational Document
-                </span>
-                <p style={{ ...fontSwitzer, fontSize: "12px", color: "#a09898", letterSpacing: "0.12px" }}>
-                  Attach a valid education document such as a certificate or transcript.
-                </p>
-                {entry.proofFiles.length === 0 && (
-                  <div
-                    className="flex flex-col items-center justify-center w-full rounded-[12px] gap-[12px]"
-                    style={{ border: "2px dashed #d9d9d9", padding: "24px", minHeight: "160px" }}
-                  >
-                    <div className="flex items-center justify-center rounded-full" style={{ width: "48px", height: "48px", backgroundColor: "#e8f0fb" }}>
-                      <span style={{ fontSize: "22px" }}>📄</span>
-                    </div>
-                    <p style={{ ...fontSwitzer, fontSize: "14px", color: "#5e5757", textAlign: "center" }}>Drag & drop your file here</p>
-                    <p style={{ ...fontSwitzer, fontSize: "12px", color: "#a09898", textAlign: "center" }}>Accepted Formats: PDF, JPG, PNG · (Max 5 MB per file)</p>
-                    <p style={{ ...fontSwitzer, fontSize: "12px", color: "#a09898" }}>or</p>
-                    <button
-                      onClick={() => fileInputRef.current?.click()}
-                      className="flex items-center justify-center rounded-[8px]"
-                      style={{ height: "36px", paddingLeft: "20px", paddingRight: "20px", backgroundColor: "#025fc9" }}
-                    >
-                      <span style={{ ...fontSwitzer, fontSize: "14px", fontWeight: 500, color: "#fff" }}>Browse files</span>
-                    </button>
-                  </div>
-                )}
-                {entry.proofFiles.map((file) => (
-                  <div key={file.id} className="flex items-center p-[12px] rounded-[8px]" style={{ border: "1px solid #d9d9d9" }}>
-                    <span style={{ ...fontSwitzer, fontSize: "14px", color: "#000" }}>{file.filename}</span>
-                  </div>
-                ))}
-                <input ref={fileInputRef} type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={(e) => handleFileSelect(entry.id, e)} />
-                <button onClick={() => fileInputRef.current?.click()} className="flex items-center gap-[6px]">
-                  <Plus size={18} className="text-[#025fc9]" />
-                  <span style={{ ...fontSwitzer, fontSize: "14px", fontWeight: 500, color: "#025fc9", letterSpacing: "0.14px" }}>Upload another</span>
-                </button>
-              </div>
-
-            </div>
+          {/* Entries */}
+          {entries.map((entry, idx) => (
+            <EntryForm
+              key={entry.id}
+              entry={entry}
+              isFirst={idx === 0}
+              onUpdate={(key, val) => updateEntry(entry.id, key, val)}
+              onDelete={() => deleteEntry(entry.id)}
+              fileInputRef={fileInputRef}
+              onFileSelect={(e) => handleFileSelect(entry.id, e)}
+            />
           ))}
 
-          {/* Save */}
-          <button
-            onClick={() => router.back()}
-            className="flex items-center justify-center w-full rounded-[12px]"
-            style={{ height: "44px", backgroundColor: "#025fc9", marginTop: "8px" }}
-          >
-            <span style={{ ...fontSwitzer, fontSize: "16px", fontWeight: 500, color: "#fff", letterSpacing: "0.16px" }}>Save</span>
-          </button>
+          {/* Cancel + Save buttons */}
+          <div className="flex items-center justify-end gap-[20px] w-full pt-[10px]">
+            <button
+              onClick={() => router.back()}
+              className="flex items-center justify-center rounded-[8px]"
+              style={{ height: "44px", paddingLeft: "10px", paddingRight: "10px", border: "1px solid #5e5757", minWidth: "90px" }}
+            >
+              <span style={{ ...fontSwitzer, fontSize: "16px", fontWeight: 500, color: "#5e5757", letterSpacing: "0.16px" }}>Cancel</span>
+            </button>
+            <button
+              className="flex items-center justify-center rounded-[8px]"
+              style={{ height: "44px", paddingLeft: "10px", paddingRight: "10px", backgroundColor: "#025fc9" }}
+            >
+              <span style={{ ...fontSwitzer, fontSize: "16px", fontWeight: 500, color: "#fff", letterSpacing: "0.16px", whiteSpace: "nowrap" }}>
+                Save Changes
+              </span>
+            </button>
+          </div>
 
         </div>
       </div>

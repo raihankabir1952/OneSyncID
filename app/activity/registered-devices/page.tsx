@@ -1,10 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { fontSwitzer } from "@/lib/styles";
-import { Menu, Bell, Mail, Search, ArrowLeft, ChevronDown, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, ChevronDown, Eye, EyeOff, Smartphone } from "lucide-react";
 
 const DEVICE_TYPES = ["Laptop", "Desktop", "Mobile", "Tablet"];
 
@@ -16,182 +15,202 @@ interface RegisteredDevice {
   isCurrent: boolean;
 }
 
+const labelStyle: React.CSSProperties = {
+  ...fontSwitzer, fontSize: "16px", fontWeight: 500,
+  color: "#5e5757", letterSpacing: "0.16px", lineHeight: "21px",
+};
+const fieldBorder: React.CSSProperties = {
+  borderBottom: "1px solid #d9d9d9", paddingTop: "10px", paddingBottom: "10px",
+};
+
 export default function RegisteredDevicesPage() {
   const router = useRouter();
   const [deviceType, setDeviceType] = useState("Laptop");
   const [imei, setImei] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showImei, setShowImei] = useState(false);
 
-  const [devices] = useState<RegisteredDevice[]>([
+  const [devices, setDevices] = useState<RegisteredDevice[]>([
     { id: 1, type: "iPhone 12", imei: "12349987657898", lastActive: "Active Now", isCurrent: true },
-    { id: 2, type: "iPhone 12", imei: "12349987657898", lastActive: "1 day ago", isCurrent: false },
+    { id: 2, type: "iPhone 12", imei: "12349987657898", lastActive: "1 day ago",  isCurrent: false },
   ]);
 
+  const removeDevice = (id: number) =>
+    setDevices((prev) => prev.filter((d) => d.id !== id));
+
   return (
-    <div className="min-h-screen bg-gray-100 flex justify-center">
-      <div className="w-full max-w-[393px] bg-white min-h-screen flex flex-col">
+    <div className="min-h-screen bg-white flex justify-center">
+      <div className="w-full max-w-[393px] min-h-screen bg-white flex flex-col px-[20px] pt-[20px] pb-[40px] gap-[30px]">
 
-        {/* Nav */}
-        <div
-          className="flex items-center justify-between bg-white shrink-0"
-          style={{ paddingLeft: "20px", paddingRight: "20px", height: "54px" }}
-        >
-          <div className="flex items-center" style={{ gap: "20px" }}>
-            <button className="w-6 h-6 flex items-center justify-center" aria-label="Menu">
-              <Menu size={24} className="text-black" />
-            </button>
-            <Image src="/images/Vector.png" alt="OneSyncID" width={116} height={20} style={{ objectFit: "contain" }} />
-          </div>
-          <div className="flex items-center" style={{ gap: "20px" }}>
-            <button className="w-6 h-6 flex items-center justify-center" aria-label="Notifications">
-              <Bell size={24} className="text-black" />
-            </button>
-            <button className="w-6 h-6 flex items-center justify-center" aria-label="Messages">
-              <Mail size={24} className="text-black" />
-            </button>
-          </div>
+        {/* Back + Title */}
+        <div className="flex items-center gap-[10px] pt-[20px]">
+          <button type="button" onClick={() => router.back()} aria-label="Back">
+            <ArrowLeft size={24} className="text-[#333]" />
+          </button>
+          <span style={{ ...fontSwitzer, fontSize: "14px", color: "#333", letterSpacing: "0.14px" }}>
+            Registered Devices
+          </span>
         </div>
 
-        {/* Search Bar */}
-        <div className="bg-white shrink-0" style={{ paddingLeft: "20px", paddingRight: "20px", paddingTop: "3px" }}>
-          <div
-            className="flex items-center w-full"
-            style={{ height: "44px", border: "1px solid #9fbfe4", borderRadius: "28px", paddingLeft: "20px", gap: "10px" }}
-          >
-            <Search size={20} className="text-[#5e5757] shrink-0" />
-            <span style={{ ...fontSwitzer, fontSize: "16px", color: "#5e5757", letterSpacing: "0.5px" }}>Search</span>
-          </div>
-        </div>
-
-        {/* Body */}
-        <div
-          className="bg-white flex flex-col overflow-y-auto"
-          style={{ paddingLeft: "20px", paddingRight: "20px", paddingTop: "30px", paddingBottom: "40px", gap: "20px" }}
-        >
-          {/* Back + Title */}
-          <div className="flex items-center gap-[12px]">
-            <button onClick={() => router.back()}>
-              <ArrowLeft size={22} className="text-black" />
-            </button>
-            <span style={{ ...fontSwitzer, fontSize: "18px", fontWeight: 600, color: "#000", letterSpacing: "0.8px" }}>
-              Registered Devices
-            </span>
-          </div>
+        {/* Form */}
+        <div className="flex flex-col gap-[20px] w-full">
 
           {/* Device Type */}
-          <div className="flex flex-col gap-[8px] w-full">
-            <span style={{ ...fontSwitzer, fontSize: "14px", fontWeight: 500, color: "#000", letterSpacing: "0.14px" }}>
-              Device Type <span style={{ color: "#f04438" }}>*</span>
-            </span>
-            <div className="relative" style={{ width: "120px" }}>
+          <div className="flex flex-col gap-[12px] w-full">
+            <p style={{ ...fontSwitzer, fontSize: "16px", color: "#000", letterSpacing: "0.16px" }}>
+              Device Type <span style={{ color: "#fa1212" }}>*</span>
+            </p>
+            <div
+              className="flex items-center gap-[10px] relative"
+              style={{ border: "1px solid #d9d9d9", borderRadius: "12px", height: "44px", paddingLeft: "16px", paddingRight: "16px", width: "fit-content" }}
+            >
               <select
                 value={deviceType}
                 onChange={(e) => setDeviceType(e.target.value)}
-                className="appearance-none bg-white pl-3 pr-8 py-2 rounded-[8px]"
-                style={{ ...fontSwitzer, fontSize: "14px", color: "#000", border: "1px solid #d9d9d9", outline: "none", width: "100%" }}
+                className="appearance-none bg-transparent"
+                style={{ ...fontSwitzer, fontSize: "16px", color: "#000", letterSpacing: "0.16px", border: "none", outline: "none", paddingRight: "24px" }}
               >
                 {DEVICE_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
               </select>
-              <ChevronDown size={14} className="absolute right-2 top-1/2 -translate-y-1/2 text-[#5e5757] pointer-events-none" />
+              <ChevronDown size={20} className="text-[#333] shrink-0 pointer-events-none absolute right-[12px]" />
             </div>
           </div>
 
           {/* IMEI / Serial */}
-          <div className="flex flex-col gap-[6px] w-full" style={{ borderBottom: "1px solid #d9d9d9", paddingBottom: "12px" }}>
-            <span style={{ ...fontSwitzer, fontSize: "12px", fontWeight: 500, color: "#767676", letterSpacing: "0.12px" }}>
-              IMEI /SERIAL
-            </span>
-            <div className="flex items-center w-full gap-[8px]">
+          <div className="flex flex-col gap-[10px] w-full">
+            <span style={labelStyle}>IMEI /SERIAL</span>
+            <div className="flex items-center justify-between" style={fieldBorder}>
               <input
+                type={showImei ? "text" : "password"}
                 value={imei}
                 onChange={(e) => setImei(e.target.value)}
                 placeholder="Enter IMEI or serial number"
-                style={{ ...fontSwitzer, fontSize: "16px", color: "#000", border: "none", outline: "none", background: "transparent", flex: 1 }}
+                style={{
+                  ...fontSwitzer, fontSize: "16px",
+                  color: imei ? "#000" : "#a09898",
+                  border: "none", outline: "none", background: "transparent",
+                  flex: 1, letterSpacing: "0.16px",
+                }}
               />
-              <Eye size={20} className="text-[#5e5757]" />
+              <button type="button" onClick={() => setShowImei(!showImei)} className="shrink-0 ml-[8px]">
+                {showImei ? <EyeOff size={20} className="text-[#5e5757]" /> : <Eye size={20} className="text-[#5e5757]" />}
+              </button>
             </div>
           </div>
 
           {/* Password */}
-          <div className="flex flex-col gap-[6px] w-full" style={{ borderBottom: "1px solid #d9d9d9", paddingBottom: "12px" }}>
-            <span style={{ ...fontSwitzer, fontSize: "12px", fontWeight: 500, color: "#767676", letterSpacing: "0.12px" }}>
-              PASSWORD
-            </span>
-            <div className="flex items-center w-full gap-[8px]">
+          <div className="flex flex-col gap-[10px] w-full">
+            <span style={labelStyle}>PASSWORD</span>
+            <div className="flex items-center justify-between" style={fieldBorder}>
               <input
                 type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter password to continue"
-                style={{ ...fontSwitzer, fontSize: "16px", color: "#000", border: "none", outline: "none", background: "transparent", flex: 1 }}
+                style={{
+                  ...fontSwitzer, fontSize: "16px",
+                  color: password ? "#000" : "#a09898",
+                  border: "none", outline: "none", background: "transparent",
+                  flex: 1, letterSpacing: "0.16px",
+                }}
               />
-              <button onClick={() => setShowPassword(!showPassword)}>
+              <button type="button" onClick={() => setShowPassword(!showPassword)} className="shrink-0 ml-[8px]">
                 {showPassword ? <EyeOff size={20} className="text-[#5e5757]" /> : <Eye size={20} className="text-[#5e5757]" />}
               </button>
             </div>
           </div>
 
-          {/* Buttons */}
+          {/* Cancel + Register Device */}
           <div className="flex items-center gap-[12px]">
             <button
+              type="button"
               onClick={() => router.back()}
               className="flex items-center justify-center rounded-[8px]"
-              style={{ height: "44px", paddingLeft: "20px", paddingRight: "20px", border: "1px solid #d9d9d9" }}
+              style={{ height: "44px", width: "90px", border: "1px solid #5e5757" }}
             >
-              <span style={{ ...fontSwitzer, fontSize: "16px", color: "#5e5757", letterSpacing: "0.16px" }}>Cancel</span>
+              <span style={{ ...fontSwitzer, fontSize: "16px", fontWeight: 500, color: "#5e5757", letterSpacing: "0.16px" }}>
+                Cancel
+              </span>
             </button>
             <button
+              type="button"
               className="flex items-center justify-center rounded-[8px]"
-              style={{ height: "44px", paddingLeft: "24px", paddingRight: "24px", backgroundColor: "#025fc9" }}
+              style={{ height: "44px", paddingLeft: "10px", paddingRight: "10px", backgroundColor: "#025fc9" }}
             >
-              <span style={{ ...fontSwitzer, fontSize: "16px", fontWeight: 500, color: "#fff", letterSpacing: "0.16px" }}>Register Device</span>
+              <span style={{ ...fontSwitzer, fontSize: "16px", fontWeight: 500, color: "#fff", letterSpacing: "0.16px", whiteSpace: "nowrap" }}>
+                Register Device
+              </span>
             </button>
           </div>
+        </div>
 
-          {/* Divider */}
-          <div style={{ height: "1px", backgroundColor: "#f0f0f0" }} />
-
-          {/* Device list */}
-          <div className="flex flex-col gap-[16px] w-full">
-            {devices.map((device) => (
-              <div key={device.id} className="flex flex-col gap-[4px] w-full" style={{ borderBottom: "1px solid #f0f0f0", paddingBottom: "16px" }}>
-                <div className="flex items-center justify-between w-full">
-                  <span style={{ ...fontSwitzer, fontSize: "14px", color: "#5e5757", letterSpacing: "0.14px" }}>
-                    Device Type: 📱 {device.type}
+        {/* Device list */}
+        <div className="flex flex-col w-full gap-[10px]">
+          {devices.map((device, idx) => (
+            <div
+              key={device.id}
+              className="flex items-start justify-between w-full"
+              style={{
+                borderBottom: idx < devices.length - 1 ? "1px solid #d9d9d9" : "none",
+                paddingTop: "10px",
+                paddingBottom: "10px",
+              }}
+            >
+              {/* Left: details */}
+              <div className="flex flex-col gap-[8px] flex-1 min-w-0">
+                {/* Device Type */}
+                <div className="flex gap-[4px] items-center">
+                  <span style={{ ...fontSwitzer, fontSize: "14px", color: "#333", letterSpacing: "0.14px", whiteSpace: "nowrap" }}>
+                    Device Type:
                   </span>
-                  {device.isCurrent && (
-                    <div
-                      className="flex items-center justify-center rounded-[6px]"
-                      style={{ backgroundColor: "#e8f0fb", paddingLeft: "10px", paddingRight: "10px", paddingTop: "3px", paddingBottom: "3px" }}
-                    >
-                      <span style={{ ...fontSwitzer, fontSize: "12px", fontWeight: 500, color: "#025fc9", letterSpacing: "0.12px" }}>
-                        Current Device
-                      </span>
-                    </div>
-                  )}
-                  {!device.isCurrent && (
-                    <button>
-                      <span style={{ ...fontSwitzer, fontSize: "14px", fontWeight: 500, color: "#f04438", letterSpacing: "0.14px" }}>
-                        Remove
-                      </span>
-                    </button>
-                  )}
+                  <div className="flex gap-[5px] items-center">
+                    <Smartphone size={13} className="text-[#333] shrink-0" />
+                    <span style={{ ...fontSwitzer, fontSize: "14px", fontWeight: 500, color: "#000", lineHeight: "1.3" }}>
+                      {device.type}
+                    </span>
+                  </div>
                 </div>
-                <span style={{ ...fontSwitzer, fontSize: "14px", color: "#000", fontWeight: 500, letterSpacing: "0.14px" }}>
-                  IMEI / Serial: {device.imei}
-                </span>
-                <span style={{ ...fontSwitzer, fontSize: "14px", color: "#5e5757", letterSpacing: "0.14px" }}>
+                {/* IMEI */}
+                <p style={{ ...fontSwitzer, fontSize: "14px", color: "#333", letterSpacing: "0.14px" }}>
+                  IMEI / Serial:{" "}
+                  <span style={{ fontWeight: 500, color: "#000" }}>{device.imei}</span>
+                </p>
+                {/* Last Active */}
+                <p style={{ ...fontSwitzer, fontSize: "14px", color: "#333", letterSpacing: "0.14px" }}>
                   Last Active:{" "}
-                  <span style={{ color: device.lastActive === "Active Now" ? "#2e7d32" : "#000", fontWeight: 500 }}>
+                  <span style={{
+                    fontWeight: 500,
+                    color: device.lastActive === "Active Now" ? "#0c8f3f" : "#000",
+                  }}>
                     {device.lastActive}
                   </span>
-                </span>
+                </p>
               </div>
-            ))}
-          </div>
 
+              {/* Right: badge or remove */}
+              <div className="shrink-0 ml-[12px]">
+                {device.isCurrent ? (
+                  <div
+                    className="flex items-center justify-center rounded-[12px]"
+                    style={{ backgroundColor: "rgba(2,95,201,0.1)", paddingLeft: "10px", paddingRight: "10px", paddingTop: "3px", paddingBottom: "3px" }}
+                  >
+                    <span style={{ ...fontSwitzer, fontSize: "12px", fontWeight: 500, color: "#025fc9", lineHeight: "1.3", whiteSpace: "nowrap" }}>
+                      Current Device
+                    </span>
+                  </div>
+                ) : (
+                  <button type="button" onClick={() => removeDevice(device.id)}>
+                    <span style={{ ...fontSwitzer, fontSize: "14px", color: "#fa1212", lineHeight: "1.3", whiteSpace: "nowrap" }}>
+                      Remove
+                    </span>
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
         </div>
+
       </div>
     </div>
   );
