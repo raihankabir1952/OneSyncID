@@ -4,11 +4,11 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { fontSwitzer } from "@/lib/styles";
+import Sidebar from "@/components/Sidebar";
 import {
   Menu,
   Search,
   Bell,
-  BriefcaseBusiness,
   QrCode,
   ShieldCheck,
   CreditCard,
@@ -16,25 +16,25 @@ import {
   Settings,
   BadgeCheck,
   CalendarDays,
+  Briefcase,
+  Activity,
+  IdCard,
+  FileUp,
+  Phone,
+  Mail,
+  GraduationCap,
+  MapPin,
+  Users,
+  FileText,
+  CheckCircle,
+  MoreHorizontal,
 } from "lucide-react";
-import Sidebar from "@/components/Sidebar";
 
+// ── Data ──────────────────────────────────────────────────────────────────────
 const organizations = [
-  {
-    id: 1,
-    name: "City Bank",
-    logo: "/images/city-bank-logo.png",
-  },
-  {
-    id: 2,
-    name: "BUET",
-    logo: "/images/buet-logo.png",
-  },
-  {
-    id: 3,
-    name: "Pubali Bank",
-    logo: "/images/pubali-bank-logo.png",
-  },
+  { id: 1, name: "City Bank",   logo: "/images/city-bank-logo.png" },
+  { id: 2, name: "BUET",        logo: "/images/buet-logo.png" },
+  { id: 3, name: "Pubali Bank", logo: "/images/pubali-bank-logo.png" },
 ];
 
 const activities = [
@@ -42,148 +42,388 @@ const activities = [
     id: 1,
     title: "Brac Bank accessed your account",
     time: "2 hours ago",
-    icon: <ShieldCheck size={18} className="text-[#025fc9]" />,
+    icon: <Activity size={20} className="text-[#025fc9]" />,
   },
   {
     id: 2,
     title: "Logged into BUET portal",
     time: "2 hours ago",
-    icon: <BriefcaseBusiness size={18} className="text-[#025fc9]" />,
+    icon: <Briefcase size={20} className="text-[#025fc9]" />,
   },
   {
     id: 3,
     title: "Card shared with Rafiq Ahmed",
     time: "2 hours ago",
-    icon: <CreditCard size={18} className="text-[#025fc9]" />,
+    icon: <CreditCard size={20} className="text-[#025fc9]" />,
   },
 ];
 
-function OrganizationRow({
-  name,
-  logo,
-}: {
-  name: string;
-  logo: string;
-}) {
+const documents = [
+  { id: 1, name: "HSC Certificate", date: "17 Nov 2025", uploader: "Sam Williams" },
+  { id: 2, name: "SSC Certificate", date: "17 Nov 2025", uploader: "Sam Williams" },
+  { id: 3, name: "JSC Certificate", date: "17 Nov 2025", uploader: "Sam Williams" },
+];
+
+// ── Sub-components ────────────────────────────────────────────────────────────
+function TopNav({ onMenuOpen }: { onMenuOpen: () => void }) {
   return (
-    <div
-      className="flex items-center justify-between rounded-[12px] px-[14px] py-[14px]"
-      style={{ border: "1px solid #d9d9d9", backgroundColor: "#fff" }}
-    >
-      <div className="flex items-center gap-[12px] min-w-0">
-        <div className="relative w-[22px] h-[22px] shrink-0">
-          <Image src={logo} alt={name} fill className="object-contain" />
+    <div className="flex gap-[10px] items-center px-[20px] py-[16px] w-full">
+      <button
+        type="button"
+        onClick={onMenuOpen}
+        className="w-[40px] h-[40px] flex items-center justify-center shrink-0"
+        aria-label="Menu"
+      >
+        <Menu size={22} className="text-white" />
+      </button>
+      <div className="flex flex-1 items-center gap-[10px] border border-white rounded-[20px] px-[16px] py-[8px] overflow-hidden">
+        <Search size={18} className="text-white shrink-0" />
+        <span className="text-white text-[15px] leading-[24px] tracking-[0.5px]" style={{ ...fontSwitzer }}>
+          Search
+        </span>
+      </div>
+      <button type="button" className="w-[40px] h-[40px] flex items-center justify-center shrink-0" aria-label="Notifications">
+        <Bell size={20} className="text-white" />
+      </button>
+    </div>
+  );
+}
+
+// ── Overview content ──────────────────────────────────────────────────────────
+function OverviewContent() {
+  return (
+    <div className="flex flex-col gap-[24px] pt-[4px]">
+      {/* Phone */}
+      <div className="flex gap-[10px] items-start">
+        <Phone size={18} className="text-white shrink-0 mt-[3px]" />
+        <div className="flex flex-col gap-[4px]">
+          <p className="text-white text-[15px]" style={{ ...fontSwitzer, fontWeight: 600 }}>Phone</p>
+          <p className="text-white text-[15px] opacity-90" style={{ ...fontSwitzer, fontWeight: 400 }}>+880 1726 776412</p>
+        </div>
+      </div>
+      {/* Email */}
+      <div className="flex gap-[10px] items-start">
+        <Mail size={18} className="text-white shrink-0 mt-[3px]" />
+        <div className="flex flex-col gap-[4px]">
+          <p className="text-white text-[15px]" style={{ ...fontSwitzer, fontWeight: 600 }}>Email</p>
+          <p className="text-white text-[15px] opacity-90" style={{ ...fontSwitzer, fontWeight: 400 }}>johndoe@mail.com</p>
+        </div>
+      </div>
+      {/* Work Experience */}
+      <div className="flex gap-[10px] items-start">
+        <Briefcase size={18} className="text-white shrink-0 mt-[3px]" />
+        <div className="flex flex-col gap-[4px]">
+          <p className="text-white text-[15px]" style={{ ...fontSwitzer, fontWeight: 600 }}>Work Experience</p>
+          <div className="flex flex-col gap-[6px] pt-[6px]">
+            <p className="text-white text-[15px]" style={{ ...fontSwitzer, fontWeight: 500 }}>MNC Limited</p>
+            <p className="text-white text-[15px] opacity-90" style={{ ...fontSwitzer, fontWeight: 400 }}>Manager</p>
+            <p className="text-white text-[15px] opacity-90" style={{ ...fontSwitzer, fontWeight: 400 }}>10 Oct 2025 - Present</p>
+            <div className="flex gap-[6px] items-center">
+              <p className="text-white text-[15px] opacity-90" style={{ ...fontSwitzer, fontWeight: 400 }}>Hired via</p>
+              <Image src="/images/next.png" alt="Applying Next" width={90} height={16} className="object-contain" />
+            </div>
+          </div>
+        </div>
+      </div>
+      {/* Education */}
+      <div className="flex gap-[10px] items-start">
+        <GraduationCap size={18} className="text-white shrink-0 mt-[3px]" />
+        <div className="flex flex-col gap-[4px]">
+          <p className="text-white text-[15px]" style={{ ...fontSwitzer, fontWeight: 600 }}>Education</p>
+          <div className="flex flex-col gap-[16px] pt-[6px]">
+            <div className="flex flex-col gap-[3px]">
+              <p className="text-white text-[15px] opacity-90" style={{ ...fontSwitzer, fontWeight: 400 }}>HSC (2019)</p>
+              <p className="text-white text-[15px] opacity-90" style={{ ...fontSwitzer, fontWeight: 400 }}>Result - 5.00</p>
+            </div>
+            <div className="flex flex-col gap-[3px]">
+              <p className="text-white text-[15px] opacity-90" style={{ ...fontSwitzer, fontWeight: 400 }}>SSC (2017)</p>
+              <p className="text-white text-[15px] opacity-90" style={{ ...fontSwitzer, fontWeight: 400 }}>Result - 5.00</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      {/* Family */}
+      <div className="flex gap-[10px] items-start">
+        <Users size={18} className="text-white shrink-0 mt-[3px]" />
+        <div className="flex flex-col gap-[4px]">
+          <p className="text-white text-[15px]" style={{ ...fontSwitzer, fontWeight: 600 }}>Family & Relationships</p>
+          <div className="flex flex-col gap-[16px] pt-[6px]">
+            <div className="flex gap-[8px] items-center">
+              <div className="w-[24px] h-[24px] rounded-full overflow-hidden shrink-0">
+                <Image src="/images/profile-avatar.png" alt="" width={24} height={24} className="object-cover" />
+              </div>
+              <div className="flex flex-col gap-[2px]">
+                <p className="text-white text-[15px]" style={{ ...fontSwitzer, fontWeight: 500 }}>Newaz Ahmed</p>
+                <p className="text-white text-[13px] opacity-80" style={{ ...fontSwitzer, fontWeight: 400 }}>Father</p>
+              </div>
+            </div>
+            <div className="flex gap-[8px] items-center">
+              <div className="w-[24px] h-[24px] rounded-full overflow-hidden shrink-0">
+                <Image src="/images/profile-avatar.png" alt="" width={24} height={24} className="object-cover" />
+              </div>
+              <div className="flex flex-col gap-[2px]">
+                <p className="text-white text-[15px]" style={{ ...fontSwitzer, fontWeight: 500 }}>Razia Khatun</p>
+                <p className="text-white text-[13px] opacity-80" style={{ ...fontSwitzer, fontWeight: 400 }}>Mother</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {/* Location */}
+      <div className="flex gap-[10px] items-start">
+        <MapPin size={18} className="text-white shrink-0 mt-[3px]" />
+        <div className="flex flex-col gap-[4px]">
+          <p className="text-white text-[15px]" style={{ ...fontSwitzer, fontWeight: 600 }}>From</p>
+          <p className="text-white text-[15px] opacity-90" style={{ ...fontSwitzer, fontWeight: 400 }}>Gazipur, Dhaka, Bangladesh</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Documents content ─────────────────────────────────────────────────────────
+function DocumentsContent() {
+  return (
+    <div className="flex flex-col gap-[20px] pt-[4px]">
+      {documents.map((doc) => (
+        <div key={doc.id} className="flex items-start justify-between w-full">
+          <div className="flex gap-[10px] items-start flex-1 min-w-0">
+            <FileText size={16} className="text-white shrink-0 mt-[4px]" />
+            <div className="flex flex-col gap-[10px] flex-1 min-w-0">
+              <div className="flex gap-[8px] items-center flex-wrap">
+                <p className="text-white text-[16px] underline" style={{ ...fontSwitzer, fontWeight: 500 }}>
+                  {doc.name}
+                </p>
+                <p className="text-white text-[13px] opacity-80" style={{ ...fontSwitzer, fontWeight: 400 }}>
+                  {doc.date}
+                </p>
+              </div>
+              <div className="flex flex-col gap-[4px]">
+                <p className="text-white text-[13px] opacity-80" style={{ ...fontSwitzer, fontWeight: 500 }}>
+                  Uploaded by
+                </p>
+                <div className="flex gap-[6px] items-center">
+                  <div className="w-[20px] h-[20px] rounded-full overflow-hidden shrink-0">
+                    <Image src="/images/profile-avatar.png" alt="" width={20} height={20} className="object-cover" />
+                  </div>
+                  <p className="text-white text-[14px]" style={{ ...fontSwitzer, fontWeight: 400 }}>
+                    {doc.uploader}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="flex gap-[6px] items-center shrink-0 ml-[8px]">
+            <CheckCircle size={20} className="text-white opacity-90" />
+            <MoreHorizontal size={18} className="text-white opacity-70" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ── Profile Card with flip + expandable back ──────────────────────────────────
+function ProfileCard() {
+  const [isFlipped, setIsFlipped] = useState(false);
+  const [activeTab, setActiveTab] = useState<"overview" | "documents">("overview");
+
+  const handleTabClick = (tab: "overview" | "documents") => {
+    setActiveTab(tab);
+  };
+
+  return (
+    <div style={{ width: "353px", perspective: "1200px", flexShrink: 0 }}>
+      <div
+        style={{
+          position: "relative",
+          width: "100%",
+          height: "170px",
+          transformStyle: "preserve-3d",
+          transition: "transform 0.5s ease",
+          transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
+        }}
+      >
+        {/* ── FRONT SIDE ── */}
+        <div
+          style={{
+            backfaceVisibility: "hidden",
+            WebkitBackfaceVisibility: "hidden",
+            border: "4px solid rgba(185,185,185,0.05)",
+            backdropFilter: "blur(5px)",
+            backgroundColor: "#f8f8f8",
+            boxShadow: "inset 0px 2px 4px 0px rgba(185,185,185,0.1)",
+            borderRadius: "12px",
+            padding: "20px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            overflow: "hidden",
+            height: "170px",
+          }}
+        >
+          {/* Watermark */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
+            <Image src="/images/onesyncid-watermark.png" alt="" width={220} height={38} className="object-contain opacity-[0.82]" />
+          </div>
+
+          {/* Left */}
+          <div className="relative z-10 flex flex-col gap-[10px] items-start">
+            <div className="relative w-[60px] h-[60px]">
+              <Image src="/images/profile-avatar.png" alt="Profile" fill className="rounded-full object-cover" />
+              <div className="absolute bottom-0 right-0 bg-white rounded-full p-[2px] w-[20px] h-[20px] flex items-center justify-center">
+                <ShieldCheck size={13} className="text-[#025fc9]" />
+              </div>
+            </div>
+            <div className="flex flex-col gap-[3px]">
+              <div className="flex gap-[5px] items-center">
+                <p className="text-black text-[20px] leading-[30px] tracking-[0.2px] whitespace-nowrap" style={{ ...fontSwitzer, fontWeight: 700 }}>
+                  John Doe
+                </p>
+                <BadgeCheck size={20} className="text-[#025fc9]" fill="#025fc9" color="white" strokeWidth={2} />
+              </div>
+              <p className="text-[#025fc9] text-[12px] whitespace-nowrap" style={{ ...fontSwitzer, fontWeight: 500 }}>
+                onesync_john_doe
+              </p>
+            </div>
+            <div className="flex gap-[4px] items-center">
+              <CalendarDays size={14} className="text-[#025fc9]" />
+              <p className="text-[#025fc9] text-[14px] tracking-[0.14px] whitespace-nowrap" style={{ ...fontSwitzer, fontWeight: 500 }}>
+                Joined on: 02 Nov 2025
+              </p>
+            </div>
+          </div>
+
+          {/* Right: flip + QR */}
+          <div className="relative z-10 flex flex-col items-center justify-between self-stretch">
+            <button type="button" aria-label="Flip card" onClick={() => { setIsFlipped(true); setActiveTab("overview"); }}>
+              <Image src="/images/flip.png" alt="Flip" width={28} height={28} className="object-contain" />
+            </button>
+            <button type="button" aria-label="QR Code">
+              <QrCode size={26} className="text-[#025fc9]" />
+            </button>
+          </div>
         </div>
 
-        <span
+        {/* ── BACK SIDE ── */}
+        <div
           style={{
-            ...fontSwitzer,
-            fontSize: "16px",
-            fontWeight: 500,
-            color: "#111",
-            letterSpacing: "0.16px",
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "170px",
+            backfaceVisibility: "hidden",
+            WebkitBackfaceVisibility: "hidden",
+            transform: "rotateY(180deg)",
+            border: "4px solid rgba(185,185,185,0.05)",
+            backdropFilter: "blur(5px)",
+            backgroundColor: "#025fc9",
+            boxShadow: "inset 0px 2px 4px 0px rgba(185,185,185,0.1)",
+            borderRadius: "12px",
+            padding: "14px 16px",
+            display: "flex",
+            flexDirection: "column",
+            gap: "12px",
+            boxSizing: "border-box",
           }}
         >
-          {name}
-        </span>
-      </div>
+          {/* Tab buttons row */}
+          <div className="flex items-center justify-between w-full shrink-0">
+            <div className="flex gap-[6px] items-center">
+              <button
+                type="button"
+                onClick={() => handleTabClick("overview")}
+                className="flex gap-[6px] items-center px-[12px] py-[5px] rounded-[10px] transition-all"
+                style={{
+                  border: activeTab === "overview" ? "2px solid rgba(255,255,255,0.3)" : "2px solid transparent",
+                  backgroundColor: activeTab === "overview" ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.08)",
+                }}
+              >
+                <IdCard size={15} className="text-white" />
+                <span className="text-white text-[13px] whitespace-nowrap" style={{ ...fontSwitzer, fontWeight: 500 }}>
+                  Overview
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleTabClick("documents")}
+                className="flex gap-[6px] items-center px-[12px] py-[5px] rounded-[10px] transition-all"
+                style={{
+                  border: activeTab === "documents" ? "2px solid rgba(255,255,255,0.3)" : "2px solid transparent",
+                  backgroundColor: activeTab === "documents" ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.08)",
+                }}
+              >
+                <FileUp size={15} className="text-white" />
+                <span className="text-white text-[13px] whitespace-nowrap" style={{ ...fontSwitzer, fontWeight: 500 }}>
+                  Documents Uploaded
+                </span>
+              </button>
+            </div>
+            {/* Flip back */}
+            <button
+              type="button"
+              aria-label="Flip back"
+              onClick={() => { setIsFlipped(false); setActiveTab("overview"); }}
+              className="shrink-0"
+            >
+              <Image src="/images/flip.png" alt="Flip back" width={26} height={26} className="object-contain opacity-80" />
+            </button>
+          </div>
 
-      <span
-        style={{
-          ...fontSwitzer,
-          fontSize: "14px",
-          color: "#24a148",
-          letterSpacing: "0.14px",
-        }}
-      >
-        Active
-      </span>
+          {/* Scrollable content inside card */}
+          <div className="overflow-y-auto flex-1" style={{ scrollbarWidth: "none" }}>
+            {activeTab === "overview" ? <OverviewContent /> : <DocumentsContent />}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
 
-function ActivityRow({
-  title,
-  time,
-  icon,
-}: {
-  title: string;
-  time: string;
-  icon: React.ReactNode;
-}) {
+// ── Other components ──────────────────────────────────────────────────────────
+function OrganizationRow({ name, logo }: { name: string; logo: string }) {
   return (
-    <div className="flex items-start gap-[10px]">
-      <div
-        className="w-[32px] h-[32px] rounded-[8px] flex items-center justify-center shrink-0"
-        style={{ backgroundColor: "#eaf2ff" }}
-      >
+    <div className="flex items-center justify-between rounded-[12px] px-[20px] py-[16px] w-full bg-white" style={{ border: "1px solid #d9d9d9" }}>
+      <div className="flex items-center gap-[8px] min-w-0">
+        <div className="relative w-[20px] h-[20px] shrink-0 rounded-[4px] overflow-hidden bg-white">
+          <Image src={logo} alt={name} fill className="object-contain" />
+        </div>
+        <span className="text-black text-[16px] whitespace-nowrap" style={{ ...fontSwitzer, fontWeight: 500 }}>{name}</span>
+      </div>
+      <span className="text-[#22943a] text-[14px] whitespace-nowrap" style={{ ...fontSwitzer, fontWeight: 400 }}>Active</span>
+    </div>
+  );
+}
+
+function ActivityRow({ title, time, icon }: { title: string; time: string; icon: React.ReactNode }) {
+  return (
+    <div className="flex gap-[8px] items-center w-full">
+      <div className="flex items-center justify-center shrink-0 w-[40px] h-[40px] rounded-[8px]" style={{ backgroundColor: "rgba(2,95,201,0.1)" }}>
         {icon}
       </div>
-
-      <div className="flex flex-col gap-[2px]">
-        <span
-          style={{
-            ...fontSwitzer,
-            fontSize: "15px",
-            fontWeight: 500,
-            color: "#111",
-            letterSpacing: "0.15px",
-            lineHeight: "20px",
-          }}
-        >
-          {title}
-        </span>
-
-        <span
-          style={{
-            ...fontSwitzer,
-            fontSize: "13px",
-            color: "#767676",
-            letterSpacing: "0.13px",
-            lineHeight: "18px",
-          }}
-        >
-          {time}
-        </span>
+      <div className="flex flex-col gap-[3px] flex-1 min-w-0">
+        <p className="text-black text-[16px] leading-[normal]" style={{ ...fontSwitzer, fontWeight: 500 }}>{title}</p>
+        <p className="text-[#5e5757] text-[14px] leading-[normal]" style={{ ...fontSwitzer, fontWeight: 400 }}>{time}</p>
       </div>
     </div>
   );
 }
 
-function BottomNavItem({
-  label,
-  icon,
-  active = false,
-  onClick,
-}: {
-  label: string;
-  icon: React.ReactNode;
-  active?: boolean;
-  onClick?: () => void;
+function BottomNavItem({ label, icon, active = false, onClick }: {
+  label: string; icon: React.ReactNode; active?: boolean; onClick?: () => void;
 }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="flex flex-col items-center justify-center gap-[4px] flex-1"
-    >
+    <button type="button" onClick={onClick} className="flex flex-col items-center justify-center gap-[2px] flex-1">
       <div className={active ? "text-[#025fc9]" : "text-[#5e5757]"}>{icon}</div>
-      <span
-        style={{
-          ...fontSwitzer,
-          fontSize: "12px",
-          fontWeight: active ? 500 : 400,
-          color: active ? "#025fc9" : "#5e5757",
-          letterSpacing: "0.12px",
-          lineHeight: "16px",
-        }}
-      >
+      <span className="text-[12px] tracking-[0.5px] whitespace-nowrap" style={{ ...fontSwitzer, fontWeight: active ? 500 : 400, color: active ? "#025fc9" : "#5e5757" }}>
         {label}
       </span>
     </button>
   );
 }
 
+// ── Main Page ─────────────────────────────────────────────────────────────────
 export default function ProfileDashboardPage() {
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -193,260 +433,45 @@ export default function ProfileDashboardPage() {
       <div className="w-full max-w-[393px] bg-white min-h-screen flex flex-col">
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-        {/* Sticky top section */}
+        {/* ── Sticky Blue Header ── */}
         <div className="sticky top-0 z-10">
-          <div
-            style={{
-              backgroundColor: "#0637a6",
-              paddingLeft: "16px",
-              paddingRight: "16px",
-              paddingTop: "48px",
-              paddingBottom: "16px",
-            }}
-          >
-            {/* Header */}
-            <div className="flex items-center justify-between mb-[18px]">
-              <button
-                type="button"
-                className="w-6 h-6 flex items-center justify-center"
-                onClick={() => setSidebarOpen(true)}
-                aria-label="Menu"
-              >
-                <Menu size={22} className="text-white" />
-              </button>
+          <div className="flex flex-col items-center pb-[20px]" style={{ backgroundColor: "#002d94" }}>
+            <TopNav onMenuOpen={() => setSidebarOpen(true)} />
+            <ProfileCard />
+          </div>
+        </div>
 
-              <div className="flex-1 flex justify-center px-[10px]">
-                <div
-                  className="flex items-center rounded-[28px] w-full max-w-[200px]"
-                  style={{
-                    height: "36px",
-                    border: "1px solid rgba(255,255,255,0.95)",
-                    paddingLeft: "14px",
-                    gap: "8px",
-                  }}
-                >
-                  <Search size={18} className="text-white shrink-0" />
-                  <span
-                    style={{
-                      ...fontSwitzer,
-                      fontSize: "15px",
-                      color: "#fff",
-                      letterSpacing: "0.15px",
-                    }}
-                  >
-                    Search
-                  </span>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                className="w-6 h-6 flex items-center justify-center"
-                aria-label="Notifications"
-              >
-                <Bell size={20} className="text-white" />
+        {/* ── Scrollable Content ── */}
+        <div className="flex-1 overflow-y-auto flex flex-col gap-[20px] pb-[20px]">
+          <div className="flex flex-col gap-[20px] px-[20px] pt-[20px]">
+            <div className="flex items-center justify-between">
+              <span className="text-[#333] text-[16px]" style={{ ...fontSwitzer, fontWeight: 500 }}>Connected Organizations</span>
+              <button type="button">
+                <span className="text-[#025fc9] text-[14px]" style={{ ...fontSwitzer, fontWeight: 400 }}>See All</span>
               </button>
             </div>
-
-            {/* Profile card */}
-            <div
-              className="rounded-[16px] relative overflow-hidden"
-              style={{
-                backgroundColor: "#f7f7f7",
-                padding: "16px",
-                minHeight: "150px",
-                boxShadow: "0 2px 10px rgba(0,0,0,0.06)",
-              }}
-            >
-              {/* Watermark */}
-              <div className="absolute inset-0 flex items-center justify-center opacity-[0.12] pointer-events-none">
-                <Image
-                  src="/images/onesyncid-watermark.png"
-                  alt="Watermark"
-                  width={230}
-                  height={230}
-                  className="object-contain"
-                />
-              </div>
-
-              <div className="relative z-10 flex items-start justify-between">
-                <div className="flex items-start gap-[12px]">
-                  <div className="relative w-[56px] h-[56px] rounded-full overflow-hidden shrink-0">
-                    <Image
-                      src="/images/profile-avatar.png"
-                      alt="Profile"
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-
-                  <div className="flex flex-col gap-[4px] pt-[4px]">
-                    <div className="flex items-center gap-[6px]">
-                      <span
-                        style={{
-                          ...fontSwitzer,
-                          fontSize: "18px",
-                          fontWeight: 600,
-                          color: "#111",
-                          letterSpacing: "0.18px",
-                        }}
-                      >
-                        John Doe
-                      </span>
-                      <BadgeCheck
-                        size={16}
-                        className="text-[#025fc9]"
-                        fill="#025fc9"
-                        strokeWidth={2}
-                        color="white"
-                      />
-                    </div>
-
-                    <span
-                      style={{
-                        ...fontSwitzer,
-                        fontSize: "14px",
-                        color: "#025fc9",
-                        letterSpacing: "0.14px",
-                      }}
-                    >
-                      onesync_john_doe
-                    </span>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  className="w-8 h-8 flex items-center justify-center"
-                  aria-label="Work"
-                >
-                  <BriefcaseBusiness size={22} className="text-[#025fc9]" />
-                </button>
-              </div>
-
-              <div className="relative z-10 flex items-end justify-between mt-[24px]">
-                <div className="flex items-center gap-[6px]">
-                  <CalendarDays size={14} className="text-[#025fc9]" />
-                  <span
-                    style={{
-                      ...fontSwitzer,
-                      fontSize: "14px",
-                      color: "#025fc9",
-                      letterSpacing: "0.14px",
-                    }}
-                  >
-                    Joined on: 02 Nov 2025
-                  </span>
-                </div>
-
-                <QrCode size={22} className="text-[#025fc9]" />
-              </div>
+            <div className="flex flex-col gap-[10px]">
+              {organizations.map((org) => (
+                <OrganizationRow key={org.id} name={org.name} logo={org.logo} />
+              ))}
+            </div>
+          </div>
+          <div className="flex flex-col gap-[20px] px-[20px] pb-[10px]">
+            <span className="text-[#333] text-[16px]" style={{ ...fontSwitzer, fontWeight: 500 }}>Recent Activity</span>
+            <div className="flex flex-col gap-[20px]">
+              {activities.map((a) => (
+                <ActivityRow key={a.id} title={a.title} time={a.time} icon={a.icon} />
+              ))}
             </div>
           </div>
         </div>
 
-        {/* Scrollable content */}
-        <div
-          className="flex-1 overflow-y-auto"
-          style={{
-            paddingLeft: "16px",
-            paddingRight: "16px",
-            paddingTop: "16px",
-            paddingBottom: "80px",
-          }}
-        >
-          <div className="flex justify-between mb-[12px]">
-            <span
-              style={{
-                ...fontSwitzer,
-                fontSize: "16px",
-                fontWeight: 500,
-                color: "#222",
-                letterSpacing: "0.16px",
-              }}
-            >
-              Connected Organizations
-            </span>
-
-            <button type="button">
-              <span
-                style={{
-                  ...fontSwitzer,
-                  fontSize: "14px",
-                  color: "#025fc9",
-                  letterSpacing: "0.14px",
-                }}
-              >
-                See All
-              </span>
-            </button>
-          </div>
-
-          <div className="flex flex-col gap-[10px] mb-[20px]">
-            {organizations.map((org) => (
-              <OrganizationRow key={org.id} name={org.name} logo={org.logo} />
-            ))}
-          </div>
-
-          <div className="mb-[10px]">
-            <span
-              style={{
-                ...fontSwitzer,
-                fontSize: "16px",
-                fontWeight: 500,
-                color: "#222",
-                letterSpacing: "0.16px",
-              }}
-            >
-              Recent Activity
-            </span>
-          </div>
-
-          <div className="flex flex-col gap-[16px]">
-            {activities.map((activity) => (
-              <ActivityRow
-                key={activity.id}
-                title={activity.title}
-                time={activity.time}
-                icon={activity.icon}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* Sticky bottom nav */}
-        <div
-          className="sticky bottom-0 z-10 w-full flex items-center justify-between bg-white"
-          style={{
-            borderTop: "1px solid #d9d9d9",
-            paddingTop: "8px",
-            paddingBottom: "10px",
-            paddingLeft: "10px",
-            paddingRight: "10px",
-            boxShadow: "0 -2px 10px rgba(0,0,0,0.04)",
-          }}
-        >
-          <BottomNavItem
-            label="Home"
-            active
-            icon={<Home size={22} strokeWidth={2} />}
-            onClick={() => router.push("/profile")}
-          />
-          <BottomNavItem
-            label="SSO"
-            icon={<ShieldCheck size={22} strokeWidth={1.8} />}
-            onClick={() => router.push("/sso")}
-          />
-          <BottomNavItem
-            label="Card"
-            icon={<CreditCard size={22} strokeWidth={1.8} />}
-            onClick={() => router.push("/card")}
-          />
-          <BottomNavItem
-            label="Settings"
-            icon={<Settings size={22} strokeWidth={1.8} />}
-            onClick={() => router.push("/settings")}
-          />
+        {/* ── Sticky Bottom Nav ── */}
+        <div className="sticky bottom-0 z-10 w-full flex items-center justify-between bg-white px-[10px] pt-[8px] pb-[10px]" style={{ borderTop: "1px solid #d9d9d9", boxShadow: "0 -2px 10px rgba(0,0,0,0.04)" }}>
+          <BottomNavItem label="Home" active icon={<Home size={22} strokeWidth={2} />} onClick={() => router.push("/profile")} />
+          <BottomNavItem label="SSO" icon={<ShieldCheck size={22} strokeWidth={1.8} />} onClick={() => router.push("/sso")} />
+          <BottomNavItem label="Card" icon={<CreditCard size={22} strokeWidth={1.8} />} onClick={() => router.push("/card")} />
+          <BottomNavItem label="Settings" icon={<Settings size={22} strokeWidth={1.8} />} onClick={() => router.push("/settings")} />
         </div>
       </div>
     </div>
